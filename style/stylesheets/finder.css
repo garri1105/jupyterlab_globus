@@ -1,0 +1,7 @@
+.jp-Globus-tablogo {
+    background-size: 100%;
+    width: var(--jp-private-sidebar-tab-width);
+    height: var(--jp-private-sidebar-tab-width);
+    background-image: url(../assets/globus_dark.png);
+    background-repeat: no-repeat;
+}
