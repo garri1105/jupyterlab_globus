@@ -1,4 +1,4 @@
-# jupyterlab_globus-explorer
+# jupyterlab_globus
 
 Search and display globus EPs information
 
@@ -10,7 +10,7 @@ Search and display globus EPs information
 ## Installation
 
 ```bash
-jupyter labextension install jupyterlab_globus-explorer
+jupyter labextension install jupyterlab_globus
 ```
 
 ## Development
