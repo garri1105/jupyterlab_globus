@@ -57,6 +57,7 @@ class GlobusExplorerWidget extends Widget {
             for (let i = 0; i < data.DATA.length; i++) {
                 // Create endPoint tag
                 let endPoint: HTMLLIElement = document.createElement('li');
+                endPoint.addEventListener('click', () => this.showDirectories(event));
                 endPoint.textContent = `${data.DATA[i].display_name}\nOwner: ${data.DATA[i].owner_string}`;
 
                 // Hidden tag containing endPointId
@@ -69,7 +70,53 @@ class GlobusExplorerWidget extends Widget {
             }
         });
     }
+
+    private showDirectories(event: any) {
+        let endPointId: HTMLParagraphElement = event.target.lastChild.innerText;
+
+        fetch(`${GLOBUSTRANSFERAPIURL}/endpoint/${endPointId}/autoactivate`, {
+            method: 'POST',
+            headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
+            body: ''
+        }).then(() => {
+            fetch(`${GLOBUSTRANSFERAPIURL}/endpoint/${endPointId}/ls?path=/~/`, {
+                method: 'GET',
+                headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
+            }).then(response => {
+                return response.json();
+            }).then(data => {
+                let directoryList: HTMLUListElement;
+                if (event.target.childNodes.length > 2) {
+                    event.target.removeChild(event.target.childNodes[1]);
+                    return;
+                }
+                else {
+                    console.log('first time');
+                    directoryList = document.createElement('ul');
+                    event.target.insertBefore(directoryList, event.target.childNodes[1]);
+                    console.log(event.target);
+                }
+
+                console.log(data);
+                if (data.DATA) {
+                    for (let i = 0; i < data.DATA.length; i++) {
+                        // Create endPoint tag
+                        let directory: HTMLLIElement = document.createElement('li');
+                        directory.textContent = `${data.DATA[i].name}\nType: ${data.DATA[i].type}`;
+                        console.log(directoryList);
+                        directoryList.appendChild(directory);
+                    }
+                }
+                else {
+                    directoryList.innerText = "You don't have permission to see these"
+                }
+
+
+            });
+        });
+    }
 }
+
 
 function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
     console.log('JupyterLab extension jupyterlab_globus-explorer is activated!');
