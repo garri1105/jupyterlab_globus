@@ -3,12 +3,8 @@ import {
 } from '@jupyterlab/application';
 
 import {
-    ICommandPalette, InstanceTracker
+    ICommandPalette
 } from '@jupyterlab/apputils';
-
-import {
-    JSONExt
-} from '@phosphor/coreutils';
 
 import {
     Widget
@@ -27,7 +23,7 @@ class GlobusExplorerEndpointFinder extends Widget {
         super();
 
         this.id = 'globus-explorer-endpoint-finder';
-        this.title.label = 'Endpoint finder';
+        this.title.label = 'Endpoint Finder';
         this.title.closable = true;
 
         this.searchResults = document.createElement('ul');
@@ -123,63 +119,67 @@ class GlobusExplorerEndpointFinder extends Widget {
 }
 
 
+class GlobusExplorerFileBrowser extends Widget {
+    constructor() {
+        super();
+
+        this.id = 'globus-explorer-file-browser';
+        this.title.iconClass = 'jp-Globus-tablogo';
+        this.title.closable = true;
+    }
+}
+
 
 
 function activateEndpointFinder(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
-    console.log('JupyterLab extension jupyterlab_globus-explorer:endpointFinder is activated!');
+    console.log('JupyterLab extension jupyterlab_globus-explorer:endpoint-finder is activated!');
 
     // Declare a widget variable
     let widget: GlobusExplorerEndpointFinder;
 
     // Add an application command
-    const command: string = 'globus-explorer:open';
+    const command: string = 'endpoint-finder:open';
     app.commands.addCommand(command, {
-        label: 'Globus explorer',
+        label: 'Endpoint Finder',
         execute: () => {
             if (!widget) {
-                // Create a new widget if one does not exist
                 widget = new GlobusExplorerEndpointFinder();
                 widget.update();
             }
-            if (!tracker.has(widget)) {
-                // Track the state of the widget for later restoration
-                tracker.add(widget);
-            }
             if (!widget.isAttached) {
-                // Attach the widget to the main work area if it's not there
                 app.shell.addToMainArea(widget);
-            } else {
-                // Refresh the comic in the widget
-                widget.update();
             }
-            // Activate the widget
             app.shell.activateById(widget.id);
         }
     });
 
-    // Add the command to the palette.
-    palette.addItem({ command, category: 'Globus Explorer'});
-
-    // Track and restore the widget state
-    let tracker = new InstanceTracker<Widget>({ namespace: 'globus-explorer'});
-    restorer.restore(tracker, {
-        command,
-        args: () => JSONExt.emptyObject,
-        name: () => 'globus-explorer'
-    });
+    palette.addItem({command, category: "Globus Explorer"});
 }
 
+function activateFileBrowser(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
+    console.log('JupyterLab extension jupyterlab_globus-explorer:file-browser is activated!');
 
+    let browser: GlobusExplorerFileBrowser = new GlobusExplorerFileBrowser();
+
+    app.shell.addToLeftArea(browser, {rank: 101});
+}
+
+const fileBrowserPlugin: JupyterLabPlugin<void> = {
+    id: '@jupyterlab/globus-explorer:file-browser',
+    requires: [ICommandPalette, ILayoutRestorer],
+    activate: activateFileBrowser,
+    autoStart: true
+};
 
 const endpointFinderPlugin: JupyterLabPlugin<void> = {
-    id: '@jupyterlab/globus-explorer:endpointFinder',
+    id: '@jupyterlab/globus-explorer:endpoint-finder',
     requires: [ICommandPalette, ILayoutRestorer],
     activate: activateEndpointFinder,
     autoStart: true
 };
 
 const plugins: JupyterLabPlugin<any>[] = [
+    fileBrowserPlugin,
     endpointFinderPlugin
 ];
-
 export default plugins;
