@@ -1,19 +1,18 @@
 import {
     Widget
 } from '@phosphor/widgets';
+import {GLOBUS_TRANSFER_API_URL} from "../index";
 
 
-const GLOBUS_TRANSFER_API_URL: string = 'https://transfer.api.globusonline.org/v0.10';
-
-export class GlobusExplorerEndpointFinder extends Widget {
-    searchResults: HTMLUListElement;
-    searchInput: HTMLInputElement;
-    loader: HTMLDivElement;
+export class GlobusEndpointFinder extends Widget {
+    private searchResults: HTMLUListElement;
+    private searchInput: HTMLInputElement;
+    private loader: HTMLDivElement;
 
     constructor() {
         super();
 
-        this.id = 'globus-explorer-endpoint-finder';
+        this.id = 'globus-endpoint-finder';
         this.title.label = 'Endpoint Finder';
         this.title.closable = true;
 

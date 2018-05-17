@@ -4,7 +4,7 @@ import {
 import {GLOBUS_TRANSFER_API_URL} from "../index";
 
 
-export class GlobusExplorerFileBrowser extends Widget {
+export class GlobusFileBrowser extends Widget {
     private myEndPoint: HTMLElement;
     private loginScreen: GlobusLogin;
 
