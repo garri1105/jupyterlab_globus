@@ -57,23 +57,28 @@ class GlobusExplorerWidget extends Widget {
             for (let i = 0; i < data.DATA.length; i++) {
                 // Create endPoint tag
                 let endPoint: HTMLLIElement = document.createElement('li');
-                endPoint.addEventListener('click', () => this.showDirectories(event));
                 endPoint.textContent = `${data.DATA[i].display_name}\nOwner: ${data.DATA[i].owner_string}`;
 
-                // Hidden tag containing endPointId
-                let endPointId: HTMLParagraphElement = document.createElement('p');
-                endPointId.innerText = `${data.DATA[i].id}`;
-                endPointId.hidden = true;
-                endPoint.appendChild(endPointId);
+                this.fetchDirectories(endPoint, data.DATA[i].id);
+
+                endPoint.addEventListener("click", function() {
+                    /* Toggle between adding and removing the "active" class,
+                    to highlight the button that controls the panel */
+                    this.classList.toggle("active");
+
+                    /* Toggle between hiding and showing the active directories */
+                    let directories = this.lastChild;
+                    console.log(this);
+                    console.log(directories)
+                    // directories.hidden = !directories.hidden;
+                });
 
                 this.searchResults.appendChild(endPoint);
             }
         });
     }
 
-    private showDirectories(event: any) {
-        let endPointId: HTMLParagraphElement = event.target.lastChild.innerText;
-
+    private fetchDirectories(endPoint: HTMLElement, endPointId: string) {
         fetch(`${GLOBUSTRANSFERAPIURL}/endpoint/${endPointId}/autoactivate`, {
             method: 'POST',
             headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
@@ -85,19 +90,8 @@ class GlobusExplorerWidget extends Widget {
             }).then(response => {
                 return response.json();
             }).then(data => {
-                let directoryList: HTMLUListElement;
-                if (event.target.childNodes.length > 2) {
-                    event.target.removeChild(event.target.childNodes[1]);
-                    return;
-                }
-                else {
-                    console.log('first time');
-                    directoryList = document.createElement('ul');
-                    event.target.insertBefore(directoryList, event.target.childNodes[1]);
-                    console.log(event.target);
-                }
-
-                console.log(data);
+                let directoryList: HTMLUListElement = document.createElement('ul');
+                directoryList.hidden = true;
                 if (data.DATA) {
                     for (let i = 0; i < data.DATA.length; i++) {
                         // Create endPoint tag
@@ -111,7 +105,7 @@ class GlobusExplorerWidget extends Widget {
                     directoryList.innerText = "You don't have permission to see these"
                 }
 
-
+                endPoint.appendChild(directoryList);
             });
         });
     }

@@ -1,0 +1,8 @@
+body {
+    color: #777777;
+}
+
+ul {
+    white-space: pre-wrap;
+    overflow: auto;
+}
