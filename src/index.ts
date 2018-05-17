@@ -16,107 +16,120 @@ import {
 
 import '../style/index.css';
 
-const GLOBUSTRANSFERAPIURL: string = 'https://transfer.api.globusonline.org/v0.10';
+const GLOBUS_TRANSFER_API_URL: string = 'https://transfer.api.globusonline.org/v0.10';
 
-class GlobusExplorerWidget extends Widget {
+class GlobusExplorerEndpointFinder extends Widget {
     searchResults: HTMLUListElement;
     searchInput: HTMLInputElement;
-    searchButton: HTMLButtonElement;
+    loader: HTMLDivElement;
 
     constructor() {
         super();
 
-        this.id = 'globus-explorer_jupyterlab';
-        this.title.label = 'GlobusExplorer';
+        this.id = 'globus-explorer-endpoint-finder';
+        this.title.label = 'Endpoint finder';
         this.title.closable = true;
 
         this.searchResults = document.createElement('ul');
+        this.searchResults.className = 'result-list';
+
         this.searchInput = document.createElement('input');
         this.searchInput.placeholder = 'Search endpoints';
+        this.searchInput.className = 'search-input';
+        this.searchInput.addEventListener('keyup', () => this.searchEndPoints());
 
-        this.searchButton = document.createElement('button');
-        this.searchButton.textContent = 'Search';
-
-        this.searchButton.addEventListener('click', () => this.searchEndPoints());
+        this.loader = document.createElement('div');
+        this.loader.className = 'loader';
 
         this.node.appendChild(this.searchInput);
-        this.node.appendChild(this.searchButton);
         this.node.appendChild(this.searchResults);
     }
 
     private searchEndPoints() {
-        this.searchResults.innerHTML = "";
-
-        fetch(`${GLOBUSTRANSFERAPIURL}/endpoint_search?filter_fulltext=${this.searchInput.value}`, {
+        let that = this;
+        fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${this.searchInput.value}`, {
             method: 'GET',
             headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'}
         }).then(response => {
             return response.json();
         }).then(data => {
-            console.log(data.DATA);
+            this.searchResults.innerHTML = "";
             for (let i = 0; i < data.DATA.length; i++) {
                 // Create endPoint tag
                 let endPoint: HTMLLIElement = document.createElement('li');
+                endPoint.className = 'accordion';
                 endPoint.textContent = `${data.DATA[i].display_name}\nOwner: ${data.DATA[i].owner_string}`;
 
-                this.fetchDirectories(endPoint, data.DATA[i].id);
-
-                endPoint.addEventListener("click", function() {
-                    /* Toggle between adding and removing the "active" class,
-                    to highlight the button that controls the panel */
+                endPoint.addEventListener("click", async function() {
                     this.classList.toggle("active");
 
-                    /* Toggle between hiding and showing the active directories */
-                    let directories = this.lastChild;
-                    console.log(this);
-                    console.log(directories)
-                    // directories.hidden = !directories.hidden;
-                });
+                    if (!this.firstElementChild) {
+                        endPoint.appendChild(that.loader);
+                        await that.fetchDirectories(endPoint, data.DATA[i].id);
+                        endPoint.removeChild(that.loader);
+                    }
 
+                    let directories = this.firstElementChild;
+
+                    if (directories.hasAttribute('hidden')) {
+                        directories.removeAttribute('hidden');
+                    }
+                    else {
+                        directories.setAttribute('hidden', "");
+                    }
+                });
                 this.searchResults.appendChild(endPoint);
             }
         });
     }
 
-    private fetchDirectories(endPoint: HTMLElement, endPointId: string) {
-        fetch(`${GLOBUSTRANSFERAPIURL}/endpoint/${endPointId}/autoactivate`, {
+    private async fetchDirectories(endPoint: HTMLElement, endPointId: string) {
+        let promise: Promise<any> = new Promise<any>((resolve) => fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endPointId}/autoactivate`, {
             method: 'POST',
             headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
             body: ''
-        }).then(() => {
-            fetch(`${GLOBUSTRANSFERAPIURL}/endpoint/${endPointId}/ls?path=/~/`, {
+        }).then(async function () {
+            let promise: Promise<any> = new Promise<any>((resolve) => fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endPointId}/ls?path=/~/`, {
                 method: 'GET',
                 headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
             }).then(response => {
                 return response.json();
             }).then(data => {
-                let directoryList: HTMLUListElement = document.createElement('ul');
-                directoryList.hidden = true;
+                let directories: HTMLUListElement = document.createElement('ul');
+                directories.className = 'panel';
+                directories.hidden = true;
                 if (data.DATA) {
                     for (let i = 0; i < data.DATA.length; i++) {
-                        // Create endPoint tag
                         let directory: HTMLLIElement = document.createElement('li');
                         directory.textContent = `${data.DATA[i].name}\nType: ${data.DATA[i].type}`;
-                        console.log(directoryList);
-                        directoryList.appendChild(directory);
+                        directories.appendChild(directory);
                     }
                 }
                 else {
-                    directoryList.innerText = "You don't have permission to see these"
+                    directories.innerText = "You don't have permission to see these"
                 }
 
-                endPoint.appendChild(directoryList);
-            });
-        });
+                endPoint.appendChild(directories);
+
+                resolve();
+            }));
+
+            await promise;
+            resolve();
+        }));
+
+        await promise;
     }
 }
 
 
-function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
-    console.log('JupyterLab extension jupyterlab_globus-explorer is activated!');
+
+
+function activateEndpointFinder(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRestorer) {
+    console.log('JupyterLab extension jupyterlab_globus-explorer:endpointFinder is activated!');
 
     // Declare a widget variable
-    let widget: GlobusExplorerWidget;
+    let widget: GlobusExplorerEndpointFinder;
 
     // Add an application command
     const command: string = 'globus-explorer:open';
@@ -125,7 +138,7 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
         execute: () => {
             if (!widget) {
                 // Create a new widget if one does not exist
-                widget = new GlobusExplorerWidget();
+                widget = new GlobusExplorerEndpointFinder();
                 widget.update();
             }
             if (!tracker.has(widget)) {
@@ -145,10 +158,10 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
     });
 
     // Add the command to the palette.
-    palette.addItem({ command, category: 'My extension' });
+    palette.addItem({ command, category: 'Globus Explorer'});
 
     // Track and restore the widget state
-    let tracker = new InstanceTracker<Widget>({ namespace: 'globus-explorer' });
+    let tracker = new InstanceTracker<Widget>({ namespace: 'globus-explorer'});
     restorer.restore(tracker, {
         command,
         args: () => JSONExt.emptyObject,
@@ -156,11 +169,17 @@ function activate(app: JupyterLab, palette: ICommandPalette, restorer: ILayoutRe
     });
 }
 
-const extension: JupyterLabPlugin<void> = {
-    id: 'jupyterlab_globus-explorer',
-    autoStart: true,
+
+
+const endpointFinderPlugin: JupyterLabPlugin<void> = {
+    id: '@jupyterlab/globus-explorer:endpointFinder',
     requires: [ICommandPalette, ILayoutRestorer],
-    activate: activate
+    activate: activateEndpointFinder,
+    autoStart: true
 };
 
-export default extension;
+const plugins: JupyterLabPlugin<any>[] = [
+    endpointFinderPlugin
+];
+
+export default plugins;
