@@ -16,6 +16,8 @@ import {
 
 import '../style/index.css';
 
+const GLOBUSTRANSFERAPIURL: string = 'https://transfer.api.globusonline.org/v0.10';
+
 class GlobusExplorerWidget extends Widget {
     searchResults: HTMLUListElement;
     searchInput: HTMLInputElement;
@@ -35,9 +37,37 @@ class GlobusExplorerWidget extends Widget {
         this.searchButton = document.createElement('button');
         this.searchButton.textContent = 'Search';
 
+        this.searchButton.addEventListener('click', () => this.searchEndPoints());
+
         this.node.appendChild(this.searchInput);
         this.node.appendChild(this.searchButton);
         this.node.appendChild(this.searchResults);
+    }
+
+    private searchEndPoints() {
+        this.searchResults.innerHTML = "";
+
+        fetch(`${GLOBUSTRANSFERAPIURL}/endpoint_search?filter_fulltext=${this.searchInput.value}`, {
+            method: 'GET',
+            headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'}
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            console.log(data.DATA);
+            for (let i = 0; i < data.DATA.length; i++) {
+                // Create endPoint tag
+                let endPoint: HTMLLIElement = document.createElement('li');
+                endPoint.textContent = `${data.DATA[i].display_name}\nOwner: ${data.DATA[i].owner_string}`;
+
+                // Hidden tag containing endPointId
+                let endPointId: HTMLParagraphElement = document.createElement('p');
+                endPointId.innerText = `${data.DATA[i].id}`;
+                endPointId.hidden = true;
+                endPoint.appendChild(endPointId);
+
+                this.searchResults.appendChild(endPoint);
+            }
+        });
     }
 }
 
