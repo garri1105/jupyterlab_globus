@@ -1,15 +1,15 @@
 {
-  "name": "jupyterlab_globus-explorer",
+  "name": "jupyterlab_globus",
   "version": "0.1.0",
-  "description": "Search and display globus EPs information",
+  "description": "Incorporates Globus functionality",
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/Garri1105/jupyterlab_globus-explorer",
+  "homepage": "https://github.com/Garri1105/jupyterlab_globus",
   "bugs": {
-    "url": "https://github.com/Garri1105/jupyterlab_globus-explorer/issues"
+    "url": "https://github.com/Garri1105/jupyterlab_globus/issues"
   },
   "license": "BSD-3-Clause",
   "author": "Juan David Garrido",
@@ -21,7 +21,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Garri1105/jupyterlab_globus-explorer.git"
+    "url": "https://github.com/Garri1105/jupyterlab_globus.git"
   },
   "scripts": {
     "build": "tsc",
@@ -30,7 +30,9 @@
   },
   "dependencies": {
     "@jupyterlab/application": "^0.16.3",
-    "@jupyterlab/apputils": "^0.16.4"
+    "@jupyterlab/apputils": "^0.16.4",
+    "@types/crypto-js": "^3.1.39",
+    "crypto-js": "^3.1.9-1"
   },
   "devDependencies": {
     "rimraf": "^2.6.1",

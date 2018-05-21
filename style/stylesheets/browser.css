@@ -1,4 +1,4 @@
-.jp-GlobusFileBrowser {
+.jp-Globus-fileBrowser {
     background-color: var(--jp-layout-color1);
     height: 100%;
 }
@@ -19,7 +19,7 @@
     background-repeat: no-repeat;
 }
 
-.jp-GlobusLoginScreen {
+.jp-Globus-loginScreen {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -29,4 +29,15 @@
 
 .jp-Globus-signInButton {
     margin: 10px;
+}
+
+.jp-Globus-fileBrowser .jp-Globus-authCodeInput {
+    margin: 10px;
+    font-size: 0.8em;
+}
+
+.backButton::before {
+    content: '\21BB';
+    width: 10px;
+    color: #33619C;
 }

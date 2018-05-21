@@ -1,6 +1,6 @@
 import globus_sdk
 
-CLIENT_ID = '2c1d84f1-4c0a-41b7-9538-201cb70889e9'
+CLIENT_ID = 'a4b3ea61-d252-4fe2-9b49-9e7e69434367'
 
 client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
 client.oauth2_start_flow(refresh_tokens=True)

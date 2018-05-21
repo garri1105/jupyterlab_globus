@@ -1,6 +1,6 @@
 # jupyterlab_globus
 
-Search and display globus EPs information
+Incorporates Globus functionality
 
 
 ## Prerequisites
