@@ -1,4 +1,4 @@
-.jp-Globus-fileBrowser {
+.jp-Globus-home {
     background-color: var(--jp-layout-color1);
     height: 100%;
 }
@@ -7,7 +7,7 @@
     background-size: 100%;
     width: 150px;
     height: 150px;
-    background-image: url(../assets/globus.png);
+    background-image: var(--jp-Globus-image-logo);
     background-repeat: no-repeat;
 }
 
@@ -15,7 +15,7 @@
     background-size: 100%;
     width: var(--jp-private-sidebar-tab-width);
     height: var(--jp-private-sidebar-tab-width);
-    background-image: url(../assets/globus_dark.png);
+    background-image: var(--jp-Globus-image-logo-dark);
     background-repeat: no-repeat;
 }
 
@@ -31,13 +31,14 @@
     margin: 10px;
 }
 
-.jp-Globus-fileBrowser .jp-Globus-authCodeInput {
+.jp-Globus-home .jp-Globus-authCodeInput {
     margin: 10px;
     font-size: 0.8em;
 }
 
 .backButton::before {
     content: '\21BB';
+    margin: 10px;
     width: 10px;
     color: #33619C;
 }
