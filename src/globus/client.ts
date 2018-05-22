@@ -1,3 +1,7 @@
+import {
+    PromiseDelegate
+} from '@phosphor/coreutils';
+
 import {GLOBUS_AUTH_TOKEN, GLOBUS_AUTH_URL} from "../index";
 
 import CryptoJS = require('crypto-js');
@@ -6,12 +10,10 @@ const CLIENT_ID = 'a4b3ea61-d252-4fe2-9b49-9e7e69434367';
 const REDIRECT_URI = 'https://auth.globus.org/v2/web/auth-code';
 const SCOPES = 'openid email profile urn:globus:auth:scope:transfer.api.globus.org:all';
 
-let verifier = CryptoJS.lib.WordArray.random(32).toString();
-let challenge = CryptoJS.SHA256(verifier)
-    .toString(CryptoJS.enc.Base64)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+export let globusAuthorized = new PromiseDelegate<void>();
+
+// FIXME definitely not the best way to do this. verifier needs to be read in both oauthSignIn and exchangeOAuth
+let VERIFIER= '';
 
 interface UrlParams {
     [key: string]: string;
@@ -19,6 +21,14 @@ interface UrlParams {
 
 // TODO : Protect tokens, Cross-Site Request Forgery protection using "state" urlParam
 export function oauth2SignIn() {
+    let verifier = CryptoJS.lib.WordArray.random(32).toString();
+    VERIFIER = verifier;
+    let challenge = CryptoJS.SHA256(verifier)
+        .toString(CryptoJS.enc.Base64)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
     // Globus's OAuth 2.0 endpoint for requesting an access token
     let oauth2Endpoint = GLOBUS_AUTH_URL;
 
@@ -67,7 +77,7 @@ export async function exchangeOAuth2Token(token: string) {
         'redirect_uri': REDIRECT_URI,
         'grant_type': 'authorization_code',
         'code': token,
-        'code_verifier': verifier
+        'code_verifier': VERIFIER
     };
 
     let formData: string = '';
@@ -98,5 +108,15 @@ export async function exchangeOAuth2Token(token: string) {
     );
 
     return await fetchAccessToken;
+}
+
+/**
+ * Sign a user out of their Globus account.
+ *
+ * @returns a promise resolved when sign-out is complete.
+ */
+export async function signOut() {
+    // Invalidate the globusAuthorized promise and set up a new one.
+    return globusAuthorized = new PromiseDelegate<void>();
 }
 

@@ -2,22 +2,24 @@ import {
     Widget
 } from '@phosphor/widgets';
 
-import {GLOBUS_TRANSFER_API_URL, LOADING_ICON} from "../index";
-
+import {GLOBUS_TRANSFER_API_URL, LOADING_ICON} from "../../index";
+import {FILE_MANAGER} from "../widget_manager";
+import {globusAuthorized} from "../client";
 
 /**
- * Widget for hosting the Globus Endpoint Finder.
+ * Widget for hosting the Globus File Manager.
  */
-export class GlobusEndpointFinder extends Widget {
+export class GlobusFileManager extends Widget {
     private searchResults: HTMLUListElement;
     private searchInput: HTMLInputElement;
+    private accessToken: string;
 
     constructor() {
         super();
-        this.id = 'globus-endpoint-finder';
+        this.id = FILE_MANAGER;
 
         // Add Tab Title
-        this.title.label = 'Endpoint Finder';
+        this.title.label = 'File Manager';
         this.title.closable = true;
 
         this.searchResults = document.createElement('ul');
@@ -30,13 +32,18 @@ export class GlobusEndpointFinder extends Widget {
 
         this.node.appendChild(this.searchInput);
         this.node.appendChild(this.searchResults);
+
+        globusAuthorized.promise.then((data:any) => {
+            // FIXME not sure where the best place for this variable is. Could be here or inside of client.ts
+            this.accessToken = data.other_tokens[0].access_token;
+        })
     }
 
     private searchEndPoints() {
         let that = this;
         fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${this.searchInput.value}`, {
             method: 'GET',
-            headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'}
+            headers: {'Authorization': `Bearer ${this.accessToken}`}
         }).then(response => {
             return response.json();
         }).then(data => {
@@ -73,16 +80,17 @@ export class GlobusEndpointFinder extends Widget {
     }
 
     private async fetchDirectories(endPoint: HTMLElement, endPointId: string) {
+        let that = this;
         // Activate endpoint fetch -> "autoactivate"
         let fetchEP: Promise<any> = new Promise<any>((resolve) => fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endPointId}/autoactivate`, {
             method: 'POST',
-            headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
+            headers: {'Authorization': `Bearer ${this.accessToken}`},
             body: ''
         }).then(async function () {
             // Fetch endpoint directories
             let fetchEPDirectories: Promise<any> = new Promise<any>((resolve) => fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endPointId}/ls?path=/~/`, {
                 method: 'GET',
-                headers: {'Authorization': 'Bearer Ag34bvav1Xg2OYOqm1JmanKmQzx9z59nWM8gpejW9w9yPYyX0qsVCVDEnQW3VEb5PpBjVNBJvbQ8n9fXqyPPqSdl0P'},
+                headers: {'Authorization': `Bearer ${that.accessToken}`},
             }).then(response => {
                 return response.json();
             }).then(data => {
