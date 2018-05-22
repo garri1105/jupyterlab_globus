@@ -1,0 +1,10 @@
+:root {
+    --jp-Globus-blue: #2F4986;
+    --jp-Globus-lightblue: #5599EC;
+
+    --jp-Globus-image-logo: url(../assets/globus.png);
+    --jp-Globus-image-logo-dark: url(../assets/globus_dark.png);
+
+    --jp-Globus-icon-logout: url(../assets/logout.svg);
+    --jp-Globus-icon-folder: url(../assets/folder.svg);
+}

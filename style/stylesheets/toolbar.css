@@ -1,0 +1,18 @@
+.jp-Globus-toolbar {
+    border-bottom: none;
+    height: auto;
+    margin: 3px;
+}
+
+.jp-Toolbar-button.jp-Globus-toolbarBtn {
+    width: 48px;
+    height: 32px;
+}
+
+.jp-Globus-signOutBtn {
+    background: var(--jp-Globus-blue) var(--jp-Globus-icon-logout);
+}
+
+.jp-Globus-fileManagerBtn {
+    background: var(--jp-Globus-blue) var(--jp-Globus-icon-folder);
+}
