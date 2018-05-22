@@ -1,21 +1,13 @@
 import {
-    JupyterLab, JupyterLabPlugin, ILayoutRestorer
+    JupyterLab, JupyterLabPlugin
 } from '@jupyterlab/application';
 
-import {
-    ICommandPalette
-} from '@jupyterlab/apputils';
-
-import {
-    GlobusFileBrowser
-} from './file-browser/browser';
-
-import {
-    GlobusEndpointFinder
-} from "./endpoint-finder/finder";
-
 import '../style/index.css';
+import {GlobusHome} from "./globus/home";
 
+import {
+    IFileBrowserFactory
+} from '@jupyterlab/filebrowser';
 
 export const GLOBUS_TRANSFER_API_URL: string = 'https://transfer.api.globusonline.org/v0.10';
 export const GLOBUS_AUTH_URL: string = 'https://auth.globus.org/v2/oauth2/authorize';
@@ -31,65 +23,26 @@ export const CROSS_ICON = document.createElement('div');
 CROSS_ICON.className = 'cross';
 
 /**
- * Globus Endpoint Finder initialization
+ * Globus plugin
  */
-const endpointFinderPlugin: JupyterLabPlugin<void> = {
-    id: '@jupyterlab/globus:endpoint-finder',
-    requires: [ICommandPalette, ILayoutRestorer],
-    activate: activateEndpointFinder,
-    autoStart: true
-};
-
-function activateEndpointFinder(app: JupyterLab, palette: ICommandPalette) {
-    console.log('JupyterLab extension jupyterlab_globus:endpoint-finder is activated!');
-
-    let widget: GlobusEndpointFinder;
-
-    const command: string = 'endpoint-finder:open';
-    app.commands.addCommand(command, {
-        label: 'Endpoint Finder',
-        execute: () => {
-            // Create widget
-            if (!widget) {
-                widget = new GlobusEndpointFinder();
-                widget.update();
-            }
-            // Add it to screen
-            if (!widget.isAttached) {
-                app.shell.addToMainArea(widget);
-            }
-            app.shell.activateById(widget.id);
-        }
-    });
-
-    palette.addItem({command, category: "Globus"});
-}
-
-
-/**
- * Globus File Browser
- */
-const fileBrowserPlugin: JupyterLabPlugin<void> = {
+export const globus: JupyterLabPlugin<void> = {
     id: '@jupyterlab/globus:file-browser',
-    requires: [ICommandPalette, ILayoutRestorer],
-    activate: activateFileBrowser,
+    requires: [IFileBrowserFactory],
+    activate: activateGlobus,
     autoStart: true
 };
 
-function activateFileBrowser(app: JupyterLab) {
-    console.log('JupyterLab extension jupyterlab_globus:file-browser is activated!');
+function activateGlobus(app: JupyterLab) {
+    console.log('JupyterLab extension jupyterlab_globus is activated!');
 
-    let browser: GlobusFileBrowser = new GlobusFileBrowser();
+    let home: GlobusHome = new GlobusHome();
 
-    app.shell.addToLeftArea(browser, {rank: 101});
+    app.shell.addToLeftArea(home, {rank: 101});
 }
 
 
 /**
  * Export the plugins as default.
  */
-const plugins: JupyterLabPlugin<any>[] = [
-    fileBrowserPlugin,
-    endpointFinderPlugin
-];
-export default plugins;
+export default globus;
+
