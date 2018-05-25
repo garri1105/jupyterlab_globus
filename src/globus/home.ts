@@ -1,12 +1,8 @@
-import {
-    Widget, PanelLayout
-} from '@phosphor/widgets';
-import {exchangeOAuth2Token, globusAuthorized} from "./client";
-import {GlobusToolbar} from "./toolbar";
+import {Widget, PanelLayout} from '@phosphor/widgets';
+import {oauth2SignIn, exchangeOAuth2Token, globusAuthorized} from "../client";
+import {CHECKMARK_ICON, CROSS_ICON, LOADING_ICON} from "../utils";
+import {GlobusWidgetManager} from "./widget_manager";
 
-import {oauth2SignIn} from "./client";
-
-import {CHECKMARK_ICON, CROSS_ICON, LOADING_ICON} from "../index";
 
 /**
  * CSS classes
@@ -19,22 +15,16 @@ const GLOBUS_SIGNIN_BUTTON = 'jp-Globus-signInButton';
 const GLOBUS_AUTH_CODE_INPUT = 'jp-Globus-authCodeInput';
 
 /**
- * Globus plugin state namespace.
- */
-export
-const NAMESPACE = 'globus';
-
-
-/**
  * Widget for hosting the Globus Home.
  */
 export class GlobusHome extends Widget {
     private loginScreen: GlobusLogin;
-    private manager: GlobusToolbar;
+    private widgetManager: GlobusWidgetManager;
 
-
-    constructor() {
+    constructor(widgetManager: GlobusWidgetManager) {
         super();
+
+        this.widgetManager = widgetManager;
 
         this.id = 'globus-home';
         this.addClass(GLOBUS_HOME);
@@ -47,11 +37,9 @@ export class GlobusHome extends Widget {
         this.showLoginScreen();
     }
 
-    private createManager(): void {
-        this.manager = new GlobusToolbar();
-
+    private switchToWidgetManager(): void {
         this.loginScreen.parent = null;
-        (this.layout as PanelLayout).addWidget(this.manager);
+        (this.layout as PanelLayout).addWidget(this.widgetManager);
     }
 
     public showLoginScreen() {
@@ -62,7 +50,7 @@ export class GlobusHome extends Widget {
         // After authorization and we are ready to use the
         // globus, show the widget manager.
         globusAuthorized.promise.then(() => {
-            this.createManager();
+            this.switchToWidgetManager();
         });
     }
 }
