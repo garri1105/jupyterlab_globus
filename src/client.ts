@@ -162,14 +162,13 @@ export function endpointSearch(query: string) {
         }));
 }
 
-export async function transferFile(fileName: string, sourceId: string, sourcePath: string, destinationId: string, destinationPath: string = '/~') {
+export async function transferFile(fileName: string, sourceId: string, sourcePath: string, destinationId: string, destinationPath: string) {
     let submissionId = await getSubmissionId();
 
-    console.log(sourcePath);
     let transferItem: any = {
         'DATA_TYPE': 'transfer_item',
-        'source_path': `${sourcePath}/${fileName}`,
-        'destination_path': `${destinationPath}/${fileName}`,
+        'source_path': `${sourcePath}${fileName}`,
+        'destination_path': `${destinationPath}${fileName}`,
         'recursive': false
     };
 

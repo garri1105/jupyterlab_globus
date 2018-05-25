@@ -2,7 +2,6 @@ import {Widget, PanelLayout} from '@phosphor/widgets';
 import {Toolbar, ToolbarButton} from "@jupyterlab/apputils";
 import {signOut} from "../client";
 import {GlobusHome} from "./home";
-import {IDocumentManager} from '@jupyterlab/docmanager';
 import {FILE_MANAGER, GlobusFileManager} from "./widgets/file_manager";
 
 /**
@@ -35,7 +34,7 @@ export class GlobusWidgetManager extends Widget {
 
     private widgetMap: WidgetMap = {};
 
-    constructor(manager: IDocumentManager) {
+    constructor() {
         super();
         this.id = 'globus-manager';
         this.addClass(GLOBUS_MANAGER);
@@ -49,7 +48,7 @@ export class GlobusWidgetManager extends Widget {
         (this.layout as PanelLayout).addWidget(this.toolbar);
 
         // Initialize widgets
-        this.fileManagerWidget = new GlobusFileManager(manager);
+        this.fileManagerWidget = new GlobusFileManager();
         this.widgetMap[this.fileManagerWidget.id] = this.fileManagerWidget;
         /* Add additional widgets here:
         *

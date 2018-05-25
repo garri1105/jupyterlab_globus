@@ -11,7 +11,7 @@ const GLOBUS_HOME = 'jp-Globus-home';
 const GLOBUS_TAB_LOGO = 'jp-Globus-tablogo';
 const GLOBUS_LOGIN_SCREEN = 'jp-Globus-loginScreen';
 const GLOBUS_LOGO = 'jp-Globus-logo';
-const GLOBUS_SIGNIN_BUTTON = 'jp-Globus-signInButton';
+export const GLOBUS_BUTTON = 'jp-Globus-button';
 const GLOBUS_AUTH_CODE_INPUT = 'jp-Globus-authCodeInput';
 
 /**
@@ -77,7 +77,7 @@ export class GlobusLogin extends Widget {
         this.signInButton = document.createElement('button');
         this.signInButton.title = 'Log into your Globus account';
         this.signInButton.textContent = 'SIGN IN';
-        this.signInButton.className = `jp-mod-styled jp-mod-accept ${GLOBUS_SIGNIN_BUTTON}`;
+        this.signInButton.className = `jp-mod-styled jp-mod-accept ${GLOBUS_BUTTON}`;
         this.signInButton.addEventListener('click', () => this.signIn());
 
         this.authCodeInput = document.createElement('input');
