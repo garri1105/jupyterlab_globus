@@ -2,9 +2,13 @@
     --jp-Globus-blue: #2F4986;
     --jp-Globus-lightblue: #5599EC;
 
-    --jp-Globus-image-logo: url(../assets/globus.png);
-    --jp-Globus-image-logo-dark: url(../assets/globus_dark.png);
+    --jp-Globus-image-logo: url(../assets/images/globus.png);
+    --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.png);
 
-    --jp-Globus-icon-logout: url(../assets/logout.svg);
-    --jp-Globus-icon-folder: url(../assets/folder.svg);
+    --jp-Globus-icon-file: url(../assets/icons/file.svg);
+    --jp-Globus-icon-folder: url(../assets/icons/folder.svg);
+    --jp-Globus-icon-folder2: url(../assets/icons/folder2.svg);
+    --jp-Globus-icon-logout: url(../assets/icons/logout.svg);
+    --jp-Globus-icon-search: url(../assets/icons/search.svg);
+    --jp-Globus-icon-warning: url(../assets/icons/warning.svg);
 }

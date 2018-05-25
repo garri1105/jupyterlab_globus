@@ -16,3 +16,10 @@
 .jp-Globus-fileManagerBtn {
     background: var(--jp-Globus-blue) var(--jp-Globus-icon-folder);
 }
+
+.jp-Globus-widgetHeader {
+    background: var(--jp-Globus-lightblue);
+    color: white;
+    text-align: center;
+    padding: 5px;
+}
