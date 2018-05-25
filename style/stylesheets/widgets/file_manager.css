@@ -1,26 +1,26 @@
 .jp-Globus-file-manager {
     font-size: 0.8em;
+    overflow: auto;
+    max-height: 90vh;
 }
 
 .jp-Globus-inputGroup {
-    border: 1px solid var(--jp-Globus-lightblue);
-    border-radius: 3px;
     margin: 10px;
-    background: white;
 }
 
 .jp-Globus-input {
+    border: 1px solid var(--jp-Globus-lightblue);
+    border-radius: 3px;
+    background: white;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 0 8px 12px;
-    border: none;
 }
 
 .jp-Globus-list {
     padding: 0;
     border: 1px solid var(--jp-Globus-lightblue);
     border-radius: 3px;
-    margin: 10px;
     height: 100%;
     max-height: 90vh;
     background: white;
@@ -45,7 +45,7 @@
     background-color: #ddd;
 }
 
-.jp-Globus-listItem-title {
+.jp-Globus-listItemTitle {
     color: var(--jp-Globus-lightblue);
 }
 
@@ -61,4 +61,18 @@
     background-size: 30px 40px;
     line-height: 32px;
     vertical-align: middle;
+}
+
+.jp-Globus-header {
+    font-size: 1em;
+    background-color: var(--jp-Globus-blue);
+    background-image: var(--jp-Globus-icon-search) top right contain no-repeat;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    margin: 10px;
+}
+
+.jp-Globus-button.jp-Globus-startTransferBtn {
+    margin: 0 auto;
 }
