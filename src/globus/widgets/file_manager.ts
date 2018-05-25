@@ -236,6 +236,7 @@ export class GlobusFileManager extends Widget {
 
         /* -------------</DirPath search>------------- */
 
+
         // Add both groups to searchGroup
         this.searchGroup = document.createElement('div');
         this.searchGroup.appendChild(endpointGroup);
@@ -249,8 +250,6 @@ export class GlobusFileManager extends Widget {
         sourceHeader.className = GLOBUS_HEADER;
         this.sourceGroup = document.createElement('div');
         this.sourceGroup.appendChild(sourceHeader);
-        this.sourceGroup.addEventListener('keyup', this.onKeyUpEndpointInputHandler.bind(this));
-        this.sourceGroup.addEventListener('change', this.onChangeDirPathInputHandler.bind(this));
         this.sourceGroup.style.display = 'none';
 
         // Clone searchGroup into destinationHeader and add header
