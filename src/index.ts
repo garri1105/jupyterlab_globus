@@ -3,10 +3,6 @@ import '../style/index.css';
 import {GlobusHome} from "./globus/home";
 import {GlobusWidgetManager} from "./globus/widget_manager";
 
-export const GLOBUS_TRANSFER_API_URL: string = 'https://transfer.api.globusonline.org/v0.10';
-export const GLOBUS_AUTH_URL: string = 'https://auth.globus.org/v2/oauth2/authorize';
-export const GLOBUS_AUTH_TOKEN: string = 'https://auth.globus.org/v2/oauth2/token';
-
 /**
  * Globus plugin
  */
