@@ -20,3 +20,9 @@ export function removeChildren(node: HTMLElement) {
         node.removeChild(node.firstChild);
     }
 }
+
+export function queryParams(params: any) {
+    return Object.keys(params)
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+        .join('&');
+}
