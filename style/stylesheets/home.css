@@ -30,15 +30,3 @@
 .jp-Globus-button {
     margin: 10px;
 }
-
-.jp-Globus-home .jp-Globus-authCodeInput {
-    margin: 10px;
-    font-size: 0.8em;
-}
-
-.backButton::before {
-    content: '\21BB';
-    margin: 10px;
-    width: 10px;
-    color: #33619C;
-}

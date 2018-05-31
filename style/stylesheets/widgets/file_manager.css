@@ -4,14 +4,15 @@
     max-height: 90vh;
 }
 
-.jp-Globus-inputGroup {
+.jp-Globus-border {
+    border: 1px solid transparent;
+    border-radius: 3px;
     margin: 10px;
 }
 
 .jp-Globus-input {
-    border: 1px solid var(--jp-Globus-lightblue);
-    border-radius: 3px;
-    background: white;
+    margin: 0;
+    border-color: black;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 0 8px 12px;
@@ -19,10 +20,10 @@
 
 .jp-Globus-list {
     padding: 0;
-    border: 1px solid var(--jp-Globus-lightblue);
-    border-radius: 3px;
+    margin: 0;
+    border-color: #ccc;
     height: 100%;
-    max-height: 90vh;
+    max-height: 40vh;
     background: white;
     overflow-x: hidden;
     overflow-y: auto;
@@ -41,7 +42,7 @@
     white-space: pre-wrap;
 }
 
-.jp-Globus-listItem:hover {
+.jp-Globus-listItem:not(.jp-Globus-selected):hover {
     background-color: #ddd;
 }
 
@@ -73,6 +74,88 @@
     margin: 10px;
 }
 
+.jp-Globus-header::after {
+    content: '     ';
+    margin-left: 10%;
+    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat right;
+    background-size: contain;
+    white-space: pre-wrap;
+}
+
+.jp-Globus-header.active::after {
+    background-image: var(--jp-Globus-icon-angle-arrow-up);
+}
+
 .jp-Globus-button.jp-Globus-startTransferBtn {
-    margin: 0 auto;
+    position: relative;
+    margin: 10px auto;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.jp-Globus-listItem.jp-Globus-selected, .jp-Globus-selected .jp-Globus-listItemTitle {
+    background-color: var(--jp-Globus-lightblue);
+    color: white;
+}
+
+.jp-Globus-dirMenu {
+    height: 30px;
+    border-color: #ccc;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: #eee;
+    margin: 10px 0 0;
+}
+
+.jp-Globus-menuBtn {
+    cursor: pointer;
+    display: inline;
+    background: transparent;
+    box-sizing: border-box;
+    text-align: center;
+    color: var(--jp-Globus-lightblue);
+    margin: 9px;
+    line-height: 30px;
+    font-size: 0.9em;
+}
+
+.jp-Globus-menuSelect:hover, .jp-Globus-menuTransfer:hover{
+    text-decoration: underline;
+}
+
+.jp-Globus-searchInfo {
+    border-color: #ddd;
+    background-color: white;
+    padding: 5px 5px 5px 10px;
+    color: #999;
+    font-style: italic;
+    white-space: pre-wrap;
+    margin-top: 0;
+}
+
+.jp-Globus-menuUpFolder::before {
+    content: '     ';
+    background: var(--jp-Globus-icon-up-arrow) no-repeat;
+    background-size: contain;
+    white-space: pre-wrap;
+}
+
+.jp-Globus-menuRefresh::before {
+    content: '     ';
+    background: var(--jp-Globus-icon-refresh) no-repeat;
+    background-size: contain;
+    white-space: pre-wrap;
+}
+
+.jp-Globus-endpointList {
+    margin-top: 10px;
+}
+
+.jp-Globus-dirList {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.jp-Globus-transferResult {
+    padding: 5px 5px 5px 10px;
 }

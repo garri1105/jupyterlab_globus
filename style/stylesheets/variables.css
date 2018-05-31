@@ -11,4 +11,8 @@
     --jp-Globus-icon-logout: url(../assets/icons/logout.svg);
     --jp-Globus-icon-search: url(../assets/icons/search.svg);
     --jp-Globus-icon-warning: url(../assets/icons/warning.svg);
+    --jp-Globus-icon-angle-arrow-up: url(../assets/icons/angle-arrow-up.svg);
+    --jp-Globus-icon-angle-arrow-down: url(../assets/icons/angle-arrow-down.svg);
+    --jp-Globus-icon-up-arrow: url(../assets/icons/up-arrow.svg);
+    --jp-Globus-icon-refresh: url(../assets/icons/round-arrow.svg);
 }

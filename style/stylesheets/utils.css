@@ -15,6 +15,7 @@
 
 .jp-Globus-loaderLabel {
     margin: 10px;
+    padding-bottom: 10px;
 }
 
 .jp-Globus-checkmark::after {
