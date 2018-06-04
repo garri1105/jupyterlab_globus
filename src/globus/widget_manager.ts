@@ -104,5 +104,8 @@ export class GlobusWidgetManager extends Widget {
             (this.layout as PanelLayout).addWidget(this.widgetMap[id]);
             this.header.textContent = this.widgetMap[id].title.label;
         }
+        else {
+            this.widgetMap[this.currentWidgetId].update();
+        }
     }
 }
