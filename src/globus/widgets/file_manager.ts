@@ -468,7 +468,13 @@ export class GlobusFileManager extends Widget {
             let sourceEndpoint: HTMLLIElement = (this.sourceGroup.getElementsByClassName(GLOBUS_OPEN)[0] as HTMLLIElement);
             let destinationPathInput: HTMLInputElement = (this.destinationGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
             let destinationEndpoint: HTMLLIElement = (this.destinationGroup.getElementsByClassName(GLOBUS_OPEN)[0] as HTMLLIElement);
+
             let transferResult: HTMLDivElement = (this.destinationGroup.getElementsByClassName(GLOBUS_TRANSFER_RESULT)[0] as HTMLDivElement);
+            transferResult.textContent = '';
+            transferResult.style.background = 'transparent';
+            transferResult.style.display = 'block';
+            LOADING_ICON.style.margin = '0 auto';
+            transferResult.appendChild(LOADING_ICON);
 
             let selectedElements = this.sourceGroup.getElementsByClassName(GLOBUS_SELECTED);
 
@@ -488,18 +494,23 @@ export class GlobusFileManager extends Widget {
 
             transferFile(items, sourceEndpoint.id, destinationEndpoint.id)
                 .then(data => {
+                    transferResult.removeChild(LOADING_ICON);
                     transferResult.textContent = data.message;
                     transferResult.style.background = '#a6e9a6';
                     transferResult.style.color = '#0d340d';
-                    transferResult.style.display = 'block';
                 })
                 .catch(error => {
+                    transferResult.removeChild(LOADING_ICON);
                     transferResult.textContent = error.message;
                     transferResult.style.background = '#e18787';
                     transferResult.style.color = '#340d0d';
-                    transferResult.style.display = 'block';
                 });
             console.log('transferring');
         }
+    }
+
+    onUpdateRequest() {
+        removeChildren(this.node);
+        this.createHTMLElements();
     }
 }
