@@ -1,7 +1,7 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
-import {oauth2SignIn, globusAuthorized} from "../client";
+import {oauth2SignIn, globusAuthorized, Private} from "../client";
 import {GlobusWidgetManager} from "./widget_manager";
-
+import tokens = Private.tokens;
 
 /**
  * CSS classes
@@ -12,43 +12,40 @@ const GLOBUS_LOGIN_SCREEN = 'jp-Globus-loginScreen';
 const GLOBUS_LOGO = 'jp-Globus-logo';
 export const GLOBUS_BUTTON = 'jp-Globus-button';
 
+
 /**
  * Widget for hosting the Globus Home.
  */
 export class GlobusHome extends Widget {
-    private loginScreen: GlobusLogin;
-    private widgetManager: GlobusWidgetManager;
+    private globusLogin: GlobusLogin;
 
-    constructor(widgetManager: GlobusWidgetManager) {
+    constructor() {
         super();
-
-        this.widgetManager = widgetManager;
 
         this.id = 'globus-home';
         this.addClass(GLOBUS_HOME);
         this.layout = new PanelLayout();
+        this.globusLogin = new GlobusLogin();
 
         // Add Tab logo
         this.title.iconClass = GLOBUS_TAB_LOGO;
         this.title.closable = true;
 
         this.showLoginScreen();
-    }
-
-    private switchToWidgetManager(): void {
-        this.loginScreen.parent = null;
-        (this.layout as PanelLayout).addWidget(this.widgetManager);
+        this.globusLogin.attemptSignIn();
     }
 
     public showLoginScreen() {
         // Initialize Login screen.
-        this.loginScreen = new GlobusLogin();
-        (this.layout as PanelLayout).addWidget(this.loginScreen);
+        (this.layout as PanelLayout).addWidget(this.globusLogin);
 
         // After authorization and we are ready to use the
         // globus, show the widget manager.
-        globusAuthorized.promise.then(() => {
-            this.switchToWidgetManager();
+        globusAuthorized.promise.then((data: any) => {
+            sessionStorage.setItem('data', JSON.stringify(data));
+            tokens.data = data;
+            this.globusLogin.parent = null;
+            (this.layout as PanelLayout).addWidget(new GlobusWidgetManager());
         });
     }
 }
@@ -81,5 +78,12 @@ export class GlobusLogin extends Widget {
 
     private signIn(): void {
         oauth2SignIn();
+    }
+
+    attemptSignIn() {
+        let data = sessionStorage.getItem('data');
+        if (data) {
+            globusAuthorized.resolve(JSON.parse(data));
+        }
     }
 }

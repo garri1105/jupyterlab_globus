@@ -21,24 +21,15 @@ export const ERROR_CODES: any = {
     'ExternalError.DirListingFailed.PermissionDenied': 'Permission Denied'
 };
 
-export let TRANSFER_ACCESS_TOKEN = '';
 export let globusAuthorized = new PromiseDelegate<void>();
-globusAuthorized.promise.then((data:any) => {
-    // FIXME not sure where the best place for this variable is. Could be here or inside of client.ts
-    TRANSFER_ACCESS_TOKEN = data.other_tokens[0].access_token;
-});
-
-// FIXME definitely not the best way to do this. verifier needs to be read in both oauthSignIn and exchangeOAuth
-let VERIFIER = '';
-let CHALLENGE = '';
 
 // TODO : Protect tokens, Cross-Site Request Forgery protection using "state" urlParam
 /**
  * 0Auth2SignIn protocol. Retrieves a 0Auth2Token shown to the user in the popup window
  */
 export function oauth2SignIn() {
-    generateVerifier();
-    generateCodeChallenge();
+    let verifier = generateVerifier();
+    let challenge = generateCodeChallenge(verifier);
 
     // Globus's OAuth 2.0 endpoint for requesting an access token
     let oauth2Endpoint = GLOBUS_AUTH_URL;
@@ -49,13 +40,12 @@ export function oauth2SignIn() {
     form.action = oauth2Endpoint;
     form.target = 'popUp';
 
-    // TODO get the auth token from globus auth API. Contact with Globus staff needed
     let popup = window.open('', 'popUp', 'height=500,width=500,resizable,scrollbars');
     let timer = setInterval(async () => {
        try {
            let url = new URL(popup.location.href);
            popup.close();
-           await exchangeOAuth2Token(url.searchParams.get('code'))
+           await exchangeOAuth2Token(url.searchParams.get('code'), verifier)
                .then(data => {
                    clearInterval(timer);
                    globusAuthorized.resolve(data);
@@ -72,7 +62,7 @@ export function oauth2SignIn() {
         'scope': SCOPES,
         'state': '_default',
         'response_type': 'code',
-        'code_challenge': CHALLENGE,
+        'code_challenge': challenge,
         'code_challenge_method': 'S256',
         'access_type': 'offline'
     };
@@ -93,10 +83,8 @@ export function oauth2SignIn() {
 
 /**
  * Exchanges a 0Auth2Token for Globus access tokens
- * @param {string} token
- * @returns a promise containing a json object with the access tokens
  */
-export async function exchangeOAuth2Token(token: string) {
+export async function exchangeOAuth2Token(token: string, verifier: string) {
     // Globus's OAuth 2.0 endpoint for requesting an access token
     let oauth2Endpoint = GLOBUS_AUTH_TOKEN;
 
@@ -106,7 +94,7 @@ export async function exchangeOAuth2Token(token: string) {
         'redirect_uri': REDIRECT_URI,
         'grant_type': 'authorization_code',
         'code': token,
-        'code_verifier': VERIFIER
+        'code_verifier': verifier
     };
 
     let formData = queryParams(params);
@@ -136,20 +124,21 @@ export async function exchangeOAuth2Token(token: string) {
  *
  * @returns a promise resolved when sign-out is complete.
  */
-export async function signOut() {
+export function signOut() {
     // Invalidate the globusAuthorized promise and set up a new one.
-    return globusAuthorized = new PromiseDelegate<void>();
+    sessionStorage.removeItem('data');
+    globusAuthorized = new PromiseDelegate<void>();
 }
 
 export function activateEndpoint(endpointId: string): Promise<void> {
     return new Promise<void>((resolve) =>
         fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endpointId}/autoactivate`, {
             method: 'POST',
-            headers: {'Authorization': `Bearer ${TRANSFER_ACCESS_TOKEN}`},
+            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`},
             body: ''
         }).then(response => {
             return response.json();
-        }).then(data => {
+        }).then(() => {
             // TODO Deal with failed activations
             resolve();
         }));
@@ -159,7 +148,7 @@ export function listDirectoryContents(endpointId: string, dirPath: string) {
     return new Promise<any>((resolve) =>
         fetch(`${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/ls?path=${dirPath}`, {
             method: 'GET',
-            headers: {'Authorization': `Bearer ${TRANSFER_ACCESS_TOKEN}`},
+            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`},
         }).then(response => {
             resolve(response.json());
         })
@@ -170,7 +159,7 @@ export function endpointSearch(query: string) {
     return new Promise<any>((resolve) =>
         fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${query}`, {
             method: 'GET',
-            headers: {'Authorization': `Bearer ${TRANSFER_ACCESS_TOKEN}`}
+            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
         }).then(response => {
             resolve(response.json());
         }));
@@ -192,7 +181,7 @@ export async function transferFile(items: any, sourceId: string, destinationId: 
         fetch(`${GLOBUS_TRANSFER_API_URL}/transfer`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${TRANSFER_ACCESS_TOKEN}`,
+                'Authorization': `Bearer ${Private.tokens.transferToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(transfer)
@@ -211,7 +200,7 @@ function getSubmissionId() {
     return new Promise<any>((resolve) =>
         fetch(`${GLOBUS_TRANSFER_API_URL}/submission_id`, {
             method: 'GET',
-            headers: {'Authorization': `Bearer ${TRANSFER_ACCESS_TOKEN}`}
+            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
         }).then(response => {
             return response.json();
         }).then(data => {
@@ -220,13 +209,25 @@ function getSubmissionId() {
 }
 
 function generateVerifier() {
-    VERIFIER = CryptoJS.lib.WordArray.random(32).toString();
+    return CryptoJS.lib.WordArray.random(32).toString();
 }
 
-function generateCodeChallenge() {
-    CHALLENGE = CryptoJS.SHA256(VERIFIER)
+function generateCodeChallenge(verifier: string) {
+    return CryptoJS.SHA256(verifier)
         .toString(CryptoJS.enc.Base64)
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
+}
+
+export namespace Private {
+    export let tokens = new class {
+        _data: any;
+        transferToken: string;
+
+        set data(data: any) {
+            this._data = data;
+            this.transferToken = data.other_tokens[0].access_token;
+        }
+    };
 }
