@@ -1,7 +1,9 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
-import {oauth2SignIn, globusAuthorized, Private} from "../client";
+import {oauth2SignIn, globusAuthorized, Private} from "./client";
 import {GlobusWidgetManager} from "./widget_manager";
 import tokens = Private.tokens;
+import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
+import {IDocumentManager} from '@jupyterlab/docmanager';
 
 /**
  * CSS classes
@@ -18,14 +20,19 @@ export const GLOBUS_BUTTON = 'jp-Globus-button';
  */
 export class GlobusHome extends Widget {
     private globusLogin: GlobusLogin;
+    private factory: IFileBrowserFactory;
+    private manager: IDocumentManager;
 
-    constructor() {
+    constructor(manager: IDocumentManager, factory: IFileBrowserFactory) {
         super();
 
         this.id = 'globus-home';
         this.addClass(GLOBUS_HOME);
+
         this.layout = new PanelLayout();
         this.globusLogin = new GlobusLogin();
+        this.factory = factory;
+        this.manager = manager;
 
         // Add Tab logo
         this.title.iconClass = GLOBUS_TAB_LOGO;
@@ -45,7 +52,7 @@ export class GlobusHome extends Widget {
             sessionStorage.setItem('data', JSON.stringify(data));
             tokens.data = data;
             this.globusLogin.parent = null;
-            (this.layout as PanelLayout).addWidget(new GlobusWidgetManager());
+            (this.layout as PanelLayout).addWidget(new GlobusWidgetManager(this.manager, this.factory));
         });
     }
 }
