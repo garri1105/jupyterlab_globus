@@ -126,7 +126,7 @@
 .jp-Globus-searchInfo {
     border-color: #ddd;
     background-color: white;
-    padding: 5px 5px 5px 10px;
+    padding: 5px 10px;
     color: #999;
     font-style: italic;
     white-space: pre-wrap;
@@ -157,5 +157,5 @@
 }
 
 .jp-Globus-transferResult {
-    padding: 5px 5px 5px 10px;
+    padding: 5px 10px;
 }

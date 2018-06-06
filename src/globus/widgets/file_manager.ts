@@ -1,7 +1,8 @@
 import {Widget} from '@phosphor/widgets';
-import {activateEndpoint, endpointSearch, ERROR_CODES, listDirectoryContents, transferFile} from "../../client";
+import {activateEndpoint, endpointSearch, ERROR_CODES, listDirectoryContents, transferFile} from "../client";
 import {LOADING_LABEL, LOADING_ICON, removeChildren, BG_IMAGES} from "../../utils";
 import {GLOBUS_BUTTON} from "../home";
+import Timer = NodeJS.Timer;
 
 export const FILE_MANAGER = 'globus-file-manager';
 
@@ -49,7 +50,7 @@ export class GlobusFileManager extends Widget {
     private searchGroup: HTMLDivElement;
     private sourceGroup: HTMLDivElement;
     private destinationGroup: HTMLDivElement;
-    private timeout: number;
+    private timeout: Timer;
 
     constructor() {
         super();
@@ -57,7 +58,6 @@ export class GlobusFileManager extends Widget {
         this.addClass(GLOBUS_FILE_MANAGER);
 
         this.title.label = 'File Manager';
-        this.title.closable = true;
 
         this.createHTMLElements();
     }

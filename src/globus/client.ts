@@ -1,6 +1,6 @@
 import {PromiseDelegate} from '@phosphor/coreutils';
 import CryptoJS = require('crypto-js');
-import {queryParams} from "./utils";
+import {queryParams} from "../utils";
 
 const CLIENT_ID = 'a4b3ea61-d252-4fe2-9b49-9e7e69434367';
 const REDIRECT_URI = 'http://localhost:8888/lab';
@@ -144,7 +144,7 @@ export function activateEndpoint(endpointId: string): Promise<void> {
         }));
 }
 
-export function listDirectoryContents(endpointId: string, dirPath: string) {
+export function listDirectoryContents(endpointId: string, dirPath: string = '/~/') {
     return new Promise<any>((resolve) =>
         fetch(`${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/ls?path=${dirPath}`, {
             method: 'GET',

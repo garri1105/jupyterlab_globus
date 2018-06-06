@@ -17,6 +17,10 @@
     background: var(--jp-Globus-blue) var(--jp-Globus-icon-folder);
 }
 
+.jp-Globus-connectPersonalBtn {
+    background: var(--jp-Globus-blue) var(--jp-Globus-icon-connect-personal);
+}
+
 .jp-Globus-widgetHeader {
     background: var(--jp-Globus-lightblue);
     color: white;
