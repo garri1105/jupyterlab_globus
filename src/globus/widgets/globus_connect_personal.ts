@@ -5,17 +5,18 @@ import {} from 'node';
 import {IDocumentManager} from '@jupyterlab/docmanager';
 import {URLExt} from '@jupyterlab/coreutils';
 
-const LOCALAPPDATA = 'AppData/Local/';
-const GCPCLIENTID = 'Globus Connect/log/globus_connect_personal.log';
-
 const GLOBUS_CONNECT_PERSONAL = 'jp-Globus-connect-personal';
 
-export const CONNECT_PERSONAL = 'globus-connectPersonal';
 
+const LOCALAPPDATA = 'AppData/Local/';
+const GCPCLIENTLOG = 'Globus Connect/log/globus_connect_personal.log';
 const SERVICE_DRIVE_URL = 'api/contents/';
 const GCP_DRIVE_NAME = 'GCPDrive';
 
+export const CONNECT_PERSONAL = 'globus-connectPersonal';
 
+// TODO Lots of error handling: GCP not connected. GCP not found, etc.
+// TODO iOS behaves differently. ProcessEnv, import node
 export class GlobusConnectPersonal extends Widget {
     private factory: IFileBrowserFactory;
     private browser: FileBrowser;
@@ -32,29 +33,25 @@ export class GlobusConnectPersonal extends Widget {
 
         this.title.label = 'Globus Connect Personal';
 
+        const drive = new Drive({name: GCP_DRIVE_NAME});
+        manager.services.contents.addDrive(drive);
+
+        this.browser = this.factory.createFileBrowser('globus-connect-personal', {
+            driveName: GCP_DRIVE_NAME
+        });
+
+        this.navigateToGCPHomeDir();
+    }
+
+    private navigateToGCPHomeDir() {
         ServerConnection.makeRequest(
-            `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCALAPPDATA}${GCPCLIENTID}`,
+            `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCALAPPDATA}${GCPCLIENTLOG}`,
             {},
             this.serverSettings)
             .then(response => {return response.json()})
             .then(data => {
-                let path = '';
-                for (let line of data.content.split('\n')) {
-                    if (line.indexOf('homedir') > -1) {
-                        path = line.slice(line.indexOf('homedir') + 9, -2);
-                        break;
-                    }
-                }
-                const drive = new Drive({name: GCP_DRIVE_NAME});
-
-                manager.services.contents.addDrive(drive);
-                console.log(drive);
-
-                this.browser = this.factory.createFileBrowser('globus-connect-personal', {
-                    driveName: GCP_DRIVE_NAME
-                });
-
                 console.log('FINDING ENDPOINT...');
+                let path = this.findGCPHomeDirPath(data.content);
                 this.findGCPEndpoint(path)
                     .then(path => {
                         this.browser.model.cd(`/${path}`);
@@ -62,6 +59,14 @@ export class GlobusConnectPersonal extends Widget {
 
                 (this.layout as PanelLayout).addWidget(this.browser);
             });
+    }
+
+    private findGCPHomeDirPath(content: string) {
+        for (let line of content.split('\n')) {
+            if (line.indexOf('homedir') > -1) {
+                return line.slice(line.indexOf('homedir') + 9, -2);
+            }
+        }
     }
 
     private async findGCPEndpoint(localPath: string | undefined) {
