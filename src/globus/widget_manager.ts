@@ -6,16 +6,20 @@ import {FILE_MANAGER, GlobusFileManager} from "./widgets/file_manager";
 import {CONNECT_PERSONAL, GlobusConnectPersonal} from "./widgets/globus_connect_personal";
 import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
 import {IDocumentManager} from '@jupyterlab/docmanager';
+import {ACTIVITY, GlobusActivity} from "./widgets/activity";
 
+
+// TODO active toolbar button css
 /**
  * CSS classes
  */
 const GLOBUS_MANAGER = 'jp-Globus-manager';
 const GLOBUS_TOOLBAR = 'jp-Globus-toolbar';
 const GLOBUS_TOOLBAR_BTN = 'jp-Globus-toolbarBtn';
-const GLOBUS_SIGNOUT_BTN = 'jp-Globus-signOutBtn';
-const GLOBUS_FILEMANAGER_BTN = 'jp-Globus-fileManagerBtn';
 const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-Globus-connectPersonalBtn';
+const GLOBUS_FILEMANAGER_BTN = 'jp-Globus-fileManagerBtn';
+const GLOBUS_ACTIVITY_BTN = 'jp-Globus-activityBtn';
+const GLOBUS_SIGNOUT_BTN = 'jp-Globus-signOutBtn';
 const GLOBUS_WIDGET_HEADER = 'jp-Globus-widgetHeader';
 
 
@@ -47,12 +51,14 @@ export class GlobusWidgetManager extends Widget {
         (this.layout as PanelLayout).addWidget(this.toolbar);
 
         // Initialize widgets
+        let connectPersonalWidget = new GlobusConnectPersonal(manager, factory);
+        this.widgetMap[connectPersonalWidget.id] = connectPersonalWidget;
+
         let fileManagerWidget = new GlobusFileManager();
         this.widgetMap[fileManagerWidget.id] = fileManagerWidget;
 
-        let connectPersonalWidget = new GlobusConnectPersonal(manager, factory);
-
-        this.widgetMap[connectPersonalWidget.id] = connectPersonalWidget;
+        let activityWidget = new GlobusActivity();
+        this.widgetMap[activityWidget .id] = activityWidget;
         /* Add additional widgets here:
         *
         *
@@ -60,11 +66,11 @@ export class GlobusWidgetManager extends Widget {
 
 
         // Show file manager widget as default
-        this.currentWidgetId = fileManagerWidget.id;
-        (this.layout as PanelLayout).addWidget(fileManagerWidget);
+        this.currentWidgetId = connectPersonalWidget.id;
+        (this.layout as PanelLayout).addWidget(connectPersonalWidget);
 
         this.header = document.createElement('header');
-        this.header.textContent = fileManagerWidget.title.label;
+        this.header.textContent = connectPersonalWidget.title.label;
         this.header.className = GLOBUS_WIDGET_HEADER;
         this.node.insertBefore(this.header, this.node.childNodes[1]);
     }
@@ -91,6 +97,17 @@ export class GlobusWidgetManager extends Widget {
         fileManagerButton.addClass(GLOBUS_FILEMANAGER_BTN);
         fileManagerButton.addClass(GLOBUS_TOOLBAR_BTN);
         this.toolbar.addItem('filemanager', fileManagerButton);
+
+        // File Manager button
+        let activityButton = new ToolbarButton({
+            onClick: () => {
+                this.switchToWidget(ACTIVITY);
+            },
+            tooltip: `File Manager`
+        });
+        fileManagerButton.addClass(GLOBUS_ACTIVITY_BTN);
+        fileManagerButton.addClass(GLOBUS_TOOLBAR_BTN);
+        this.toolbar.addItem('filemanager', activityButton);
 
         // Logout button
         let logoutButton = new ToolbarButton({

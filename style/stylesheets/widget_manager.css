@@ -9,16 +9,20 @@
     height: 32px;
 }
 
-.jp-Globus-signOutBtn {
-    background: var(--jp-Globus-blue) var(--jp-Globus-icon-logout);
+.jp-Globus-connectPersonalBtn {
+    background: var(--jp-Globus-icon-connect-personal);
 }
 
 .jp-Globus-fileManagerBtn {
-    background: var(--jp-Globus-blue) var(--jp-Globus-icon-folder);
+    background: var(--jp-Globus-icon-folder);
 }
 
-.jp-Globus-connectPersonalBtn {
-    background: var(--jp-Globus-blue) var(--jp-Globus-icon-connect-personal);
+.jp-Globus-activityBtn {
+    background: var(--jp-Globus-icon-activity);
+}
+
+.jp-Globus-signOutBtn {
+    background: var(--jp-Globus-icon-logout);
 }
 
 .jp-Globus-widgetHeader {
