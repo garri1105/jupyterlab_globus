@@ -7,13 +7,14 @@ import {URLExt} from '@jupyterlab/coreutils';
 
 const GLOBUS_CONNECT_PERSONAL = 'jp-Globus-connect-personal';
 
-
-const LOCALAPPDATA = 'AppData/Local/';
-const GCPCLIENTLOG = 'Globus Connect/log/globus_connect_personal.log';
+const LOCAL_APPDATA = 'AppData/Local/';
+const GCP_CLIENT_ID = 'Globus Connect/client-id.txt';
+const GCP_CLIENT_LOG = 'Globus Connect/log/globus_connect_personal.log';
 const SERVICE_DRIVE_URL = 'api/contents/';
 const GCP_DRIVE_NAME = 'GCPDrive';
 
 export const CONNECT_PERSONAL = 'globus-connectPersonal';
+export let GCP_ENDPOINT_ID = '';
 
 // TODO Lots of error handling: GCP not connected. GCP not found, etc.
 // TODO iOS behaves differently. ProcessEnv, import node
@@ -33,6 +34,8 @@ export class GlobusConnectPersonal extends Widget {
 
         this.title.label = 'Globus Connect Personal';
 
+        this.setGCPEndpointId();
+
         const drive = new Drive({name: GCP_DRIVE_NAME});
         manager.services.contents.addDrive(drive);
 
@@ -45,7 +48,7 @@ export class GlobusConnectPersonal extends Widget {
 
     private navigateToGCPHomeDir() {
         ServerConnection.makeRequest(
-            `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCALAPPDATA}${GCPCLIENTLOG}`,
+            `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCAL_APPDATA}${GCP_CLIENT_LOG}`,
             {},
             this.serverSettings)
             .then(response => {return response.json()})
@@ -88,5 +91,16 @@ export class GlobusConnectPersonal extends Widget {
         });
 
         return await promise;
+    }
+
+    private setGCPEndpointId() {
+        ServerConnection.makeRequest(
+            `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCAL_APPDATA}${GCP_CLIENT_ID}`,
+            {},
+            this.serverSettings)
+            .then(response => {return response.json()})
+            .then(data => {
+                GCP_ENDPOINT_ID = data.content;
+            });
     }
 }

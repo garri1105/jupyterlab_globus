@@ -1,7 +1,7 @@
 export const LOADING_ICON = document.createElement('div');
 LOADING_ICON.className = 'jp-Globus-loader';
 
-export const LOADING_LABEL = document.createElement('span');
+export const LOADING_LABEL = document.createElement('div');
 LOADING_LABEL.className = 'jp-Globus-loaderLabel';
 
 export const CHECKMARK_ICON = document.createElement('div');
