@@ -76,7 +76,7 @@ export class GlobusWidgetManager extends Widget {
     }
 
     private createToolbarButtons() {
-        // File Manager button
+        // GCP button
         let connectPersonalButton = new ToolbarButton({
             onClick: () => {
                 this.switchToWidget(CONNECT_PERSONAL);
@@ -98,16 +98,16 @@ export class GlobusWidgetManager extends Widget {
         fileManagerButton.addClass(GLOBUS_TOOLBAR_BTN);
         this.toolbar.addItem('filemanager', fileManagerButton);
 
-        // File Manager button
+        // Activity button
         let activityButton = new ToolbarButton({
             onClick: () => {
                 this.switchToWidget(ACTIVITY);
             },
-            tooltip: `File Manager`
+            tooltip: `Activity`
         });
-        fileManagerButton.addClass(GLOBUS_ACTIVITY_BTN);
-        fileManagerButton.addClass(GLOBUS_TOOLBAR_BTN);
-        this.toolbar.addItem('filemanager', activityButton);
+        activityButton.addClass(GLOBUS_ACTIVITY_BTN);
+        activityButton.addClass(GLOBUS_TOOLBAR_BTN);
+        this.toolbar.addItem('activity', activityButton);
 
         // Logout button
         let logoutButton = new ToolbarButton({
