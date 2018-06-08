@@ -4,101 +4,7 @@
     max-height: 90vh;
 }
 
-.jp-Globus-border {
-    border: 1px solid transparent;
-    border-radius: 3px;
-    margin: 10px;
-}
-
-.jp-Globus-input {
-    margin: 0;
-    border-color: black;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 0 8px 12px;
-}
-
-.jp-Globus-list {
-    padding: 0;
-    margin: 0;
-    border-color: #ccc;
-    height: 100%;
-    max-height: 40vh;
-    background: white;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.jp-Globus-listItem {
-    border: solid #ddd;
-    border-width: 0 1px 2px 1px;
-    margin-top: -1px;
-    background-color: white;
-    padding: 6px 0 7px 12px;
-    text-decoration: none;
-    cursor: pointer;
-    color: black;
-    display: block;
-    white-space: pre-wrap;
-}
-
-.jp-Globus-listItem:not(.jp-Globus-selected):hover {
-    background-color: #ddd;
-}
-
-.jp-Globus-listItemTitle {
-    color: var(--jp-Globus-lightblue);
-}
-
-.jp-Globus-directoryItem {
-    padding-left: 45px;
-    background: var(--jp-Globus-icon-file) no-repeat 5px 3px;
-    background-size: 30px 40px;
-}
-
-.jp-Globus-permissionDenied {
-    padding-left: 45px;
-    background: var(--jp-Globus-icon-warning) no-repeat 5px 3px;
-    background-size: 30px 40px;
-    line-height: 32px;
-    vertical-align: middle;
-}
-
-.jp-Globus-header {
-    font-size: 1em;
-    background-color: var(--jp-Globus-blue);
-    background-image: var(--jp-Globus-icon-search) top right contain no-repeat;
-    color: white;
-    text-align: center;
-    padding: 5px;
-    margin: 10px;
-}
-
-.jp-Globus-header::after {
-    content: '     ';
-    margin-left: 10%;
-    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat right;
-    background-size: contain;
-    white-space: pre-wrap;
-}
-
-.jp-Globus-header.active::after {
-    background-image: var(--jp-Globus-icon-angle-arrow-up);
-}
-
-.jp-Globus-button.jp-Globus-startTransferBtn {
-    position: relative;
-    margin: 10px auto;
-    left: 50%;
-    transform: translate(-50%, 0);
-}
-
-.jp-Globus-listItem.jp-Globus-selected, .jp-Globus-selected .jp-Globus-listItemTitle {
-    background-color: var(--jp-Globus-lightblue);
-    color: white;
-}
-
-.jp-Globus-dirMenu {
+.jp-Globus-file-manager .jp-FileManager-dirMenu {
     height: 30px;
     border-color: #ccc;
     border-bottom-left-radius: 0;
@@ -107,7 +13,7 @@
     margin: 10px 0 0;
 }
 
-.jp-Globus-menuBtn {
+.jp-Globus-file-manager .jp-FileManager-menuBtn {
     cursor: pointer;
     display: inline;
     background: transparent;
@@ -119,11 +25,11 @@
     font-size: 0.9em;
 }
 
-.jp-Globus-menuSelect:hover, .jp-Globus-menuTransfer:hover{
+.jp-Globus-file-manager .jp-FileManager-menuSelect:hover, .jp-Globus-menuTransfer:hover{
     text-decoration: underline;
 }
 
-.jp-Globus-searchInfo {
+.jp-Globus-file-manager .jp-FileManager-searchInfo {
     border-color: #ddd;
     background-color: white;
     padding: 5px 10px;
@@ -133,29 +39,34 @@
     margin-top: 0;
 }
 
-.jp-Globus-menuUpFolder::before {
+.jp-Globus-file-manager .jp-FileManager-menuUpFolder::before {
     content: '     ';
     background: var(--jp-Globus-icon-up-arrow) no-repeat;
     background-size: contain;
     white-space: pre-wrap;
 }
 
-.jp-Globus-menuRefresh::before {
+.jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
     content: '     ';
     background: var(--jp-Globus-icon-refresh) no-repeat;
     background-size: contain;
     white-space: pre-wrap;
 }
 
-.jp-Globus-endpointList {
+.jp-Globus-file-manager .jp-FileManager-endpointList {
     margin-top: 10px;
 }
 
-.jp-Globus-dirList {
+.jp-Globus-file-manager .jp-FileManager-dirList {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
-.jp-Globus-transferResult {
+.jp-Globus-file-manager .jp-FileManager-transferResult {
     padding: 5px 10px;
+    background: transparent;
+}
+
+.jp-Globus-file-manager .jp-FileManager-startTransferBtn {
+    margin: 10px 32%;
 }

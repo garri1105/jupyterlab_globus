@@ -1,9 +1,9 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
-import {oauth2SignIn, globusAuthorized, Private} from "./client";
+import {oauth2SignIn, globusAuthorized, initializeGlobusClient} from "./client";
 import {GlobusWidgetManager} from "./widget_manager";
-import tokens = Private.tokens;
 import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
 import {IDocumentManager} from '@jupyterlab/docmanager';
+import {GLOBUS_BUTTON} from "../utils";
 
 /**
  * CSS classes
@@ -12,8 +12,8 @@ const GLOBUS_HOME = 'jp-Globus-home';
 const GLOBUS_TAB_LOGO = 'jp-Globus-tablogo';
 const GLOBUS_LOGIN_SCREEN = 'jp-Globus-loginScreen';
 const GLOBUS_LOGO = 'jp-Globus-logo';
-export const GLOBUS_BUTTON = 'jp-Globus-button';
 
+export const SIGN_OUT = 'globus-signOut';
 
 /**
  * Widget for hosting the Globus Home.
@@ -50,7 +50,7 @@ export class GlobusHome extends Widget {
         // globus, show the widget manager.
         globusAuthorized.promise.then((data: any) => {
             sessionStorage.setItem('data', JSON.stringify(data));
-            tokens.data = data;
+            initializeGlobusClient(data);
             this.globusLogin.parent = null;
             (this.layout as PanelLayout).addWidget(new GlobusWidgetManager(this.manager, this.factory));
         });

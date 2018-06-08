@@ -4,8 +4,6 @@ const GLOBUS_ACTIVITY = 'jp-Globus-activity';
 
 export const ACTIVITY = 'globus-activity';
 
-// TODO Lots of error handling: GCP not connected. GCP not found, etc.
-// TODO iOS behaves differently. ProcessEnv, import node
 export class GlobusActivity extends Widget {
 
     constructor() {

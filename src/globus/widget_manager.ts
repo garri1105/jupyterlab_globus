@@ -1,7 +1,7 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
 import {Toolbar, ToolbarButton} from "@jupyterlab/apputils";
 import {signOut} from "./client";
-import {GlobusHome} from "./home";
+import {GlobusHome, SIGN_OUT} from "./home";
 import {FILE_MANAGER, GlobusFileManager} from "./widgets/file_manager";
 import {CONNECT_PERSONAL, GlobusConnectPersonal} from "./widgets/globus_connect_personal";
 import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
@@ -9,7 +9,6 @@ import {IDocumentManager} from '@jupyterlab/docmanager';
 import {ACTIVITY, GlobusActivity} from "./widgets/activity";
 
 
-// TODO active toolbar button css
 /**
  * CSS classes
  */
@@ -85,7 +84,7 @@ export class GlobusWidgetManager extends Widget {
         });
         connectPersonalButton.addClass(GLOBUS_CONNECT_PERSONAL_BTN);
         connectPersonalButton.addClass(GLOBUS_TOOLBAR_BTN);
-        this.toolbar.addItem('connectpersonal', connectPersonalButton);
+        this.toolbar.addItem(CONNECT_PERSONAL, connectPersonalButton);
 
         // File Manager button
         let fileManagerButton = new ToolbarButton({
@@ -96,7 +95,7 @@ export class GlobusWidgetManager extends Widget {
         });
         fileManagerButton.addClass(GLOBUS_FILEMANAGER_BTN);
         fileManagerButton.addClass(GLOBUS_TOOLBAR_BTN);
-        this.toolbar.addItem('filemanager', fileManagerButton);
+        this.toolbar.addItem(FILE_MANAGER, fileManagerButton);
 
         // Activity button
         let activityButton = new ToolbarButton({
@@ -107,22 +106,21 @@ export class GlobusWidgetManager extends Widget {
         });
         activityButton.addClass(GLOBUS_ACTIVITY_BTN);
         activityButton.addClass(GLOBUS_TOOLBAR_BTN);
-        this.toolbar.addItem('activity', activityButton);
+        this.toolbar.addItem(ACTIVITY, activityButton);
 
         // Logout button
-        let logoutButton = new ToolbarButton({
+        let signOutButton = new ToolbarButton({
             onClick: () => {
                 this.signOut();
             },
             tooltip: `Sign Out`
         });
-        logoutButton.addClass(GLOBUS_SIGNOUT_BTN);
-        logoutButton.addClass(GLOBUS_TOOLBAR_BTN);
-        this.toolbar.addItem('logout', logoutButton);
+        signOutButton.addClass(GLOBUS_SIGNOUT_BTN);
+        signOutButton.addClass(GLOBUS_TOOLBAR_BTN);
+        this.toolbar.addItem(SIGN_OUT, signOutButton);
     }
 
     private signOut(): void {
-        // Do the actual sign-out.
         signOut();
         (this.parent as GlobusHome).showLoginScreen();
         this.parent = null;
@@ -130,14 +128,12 @@ export class GlobusWidgetManager extends Widget {
     }
 
     switchToWidget(id: string) {
-        console.log(id);
         if (id !== this.currentWidgetId) {
-            console.log('switching widget');
             this.widgetMap[this.currentWidgetId].parent = null;
+            this.currentWidgetId = id;
             (this.layout as PanelLayout).addWidget(this.widgetMap[id]);
             this.header.textContent = this.widgetMap[id].title.label;
             this.node.insertBefore(this.header, this.node.childNodes[1]);
-            this.currentWidgetId = id;
         }
         else {
             this.widgetMap[this.currentWidgetId].update();

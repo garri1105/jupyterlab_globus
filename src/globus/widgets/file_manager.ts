@@ -1,53 +1,44 @@
 import {Widget} from '@phosphor/widgets';
 import {activateEndpoint, endpointSearch, ERROR_CODES, listDirectoryContents, transferFile} from "../client";
-import {LOADING_LABEL, LOADING_ICON, removeChildren, BG_IMAGES} from "../../utils";
-import {GLOBUS_BUTTON} from "../home";
 import Timer = NodeJS.Timer;
 import {GCP_ENDPOINT_ID} from "./globus_connect_personal";
+import {
+    LOADING_LABEL, LOADING_ICON, removeChildren, BG_IMAGES, GLOBUS_LIST_ITEM,
+    GLOBUS_LIST_ITEM_TITLE, GLOBUS_OPEN, GLOBUS_DIRECTORY_ITEM, GLOBUS_SELECTED, GLOBUS_BORDER, GLOBUS_INPUT_GROUP,
+    GLOBUS_LIST, GLOBUS_INPUT, GLOBUS_GROUP, GLOBUS_HEADER, GLOBUS_FAIL, GLOBUS_SUCCESS, GLOBUS_FETCH_ERROR,
+    getGlobusParentGroup, getGlobusElement, GLOBUS_BUTTON
+} from "../../utils";
 
-export const FILE_MANAGER = 'globus-file-manager';
 
 /**
  * CSS classes
  */
-// TODO move these to more global files
-// TODO create GLOBUS_GROUP if necessary
 const GLOBUS_FILE_MANAGER = 'jp-Globus-file-manager';
-const GLOBUS_INPUT_GROUP = 'jp-Globus-inputGroup';
-const GLOBUS_INPUT = 'jp-Globus-input';
-const GLOBUS_LIST = 'jp-Globus-list';
-const GLOBUS_LIST_ITEM = 'jp-Globus-listItem';
-const GLOBUS_LIST_ITEM_TITLE = 'jp-Globus-listItemTitle';
-const GLOBUS_DIRECTORY_ITEM = 'jp-Globus-directoryItem';
-const GLOBUS_PERMISSION_DENIED = 'jp-Globus-permissionDenied';
-const GLOBUS_HEADER = 'jp-Globus-header';
-const GLOBUS_OPEN = 'jp-Globus-open';
-const GLOBUS_SELECTED = 'jp-Globus-selected';
-const GLOBUS_BORDER = 'jp-Globus-border';
+const GLOBUS_ENDPOINT_GROUP = 'jp-FileManager-endpointGroup';
+const GLOBUS_ENDPOINT_INPUT = 'jp-FileManager-endpointInput';
+const GLOBUS_ENDPOINT_LIST = 'jp-FileManager-endpointList';
+const GLOBUS_DIR_GROUP = 'jp-FileManager-dirPathGroup';
+const GLOBUS_DIR_PATH_INPUT = 'jp-FileManager-dirPathInput';
+const GLOBUS_DIR_LIST = 'jp-FileManager-dirList';
+const GLOBUS_DIR_MENU = 'jp-FileManager-dirMenu';
+const GLOBUS_MENU_BTN = 'jp-FileManager-menuBtn';
+const GLOBUS_MENU_SELECT = 'jp-FileManager-menuSelect';
+const GLOBUS_MENU_UP_FOLDER = 'jp-FileManager-menuUpFolder';
+const GLOBUS_MENU_REFRESH = 'jp-FileManager-menuRefresh';
+const GLOBUS_MENU_TRANSFER = 'jp-FileManager-menuTransfer';
+const GLOBUS_SEARCH_INFO = 'jp-FileManager-searchInfo';
+const GLOBUS_SEARCH_GROUP = 'jp-FileManager-searchGroup';
+const GLOBUS_TRANSFER_RESULT = 'jp-FileManager-transferResult';
+const GLOBUS_START_TRANSFER_BUTTON = 'jp-FileManager-startTransferBtn';
 
-const GLOBUS_ENDPOINT_GROUP = 'jp-Globus-endpointGroup';
-const GLOBUS_ENDPOINT_INPUT = 'jp-Globus-endpointInput';
-const GLOBUS_ENDPOINT_LIST = 'jp-Globus-endpointList';
-const GLOBUS_DIR_GROUP = 'jp-Globus-dirPathGroup';
-const GLOBUS_DIR_PATH_INPUT = 'jp-Globus-dirPathInput';
-const GLOBUS_DIR_LIST = 'jp-Globus-dirList';
-const GLOBUS_DIR_MENU = 'jp-Globus-dirMenu';
-const GLOBUS_MENU_BTN = 'jp-Globus-menuBtn';
-const GLOBUS_START_TRANSFER_BUTTON = 'jp-Globus-startTransferBtn';
-const GLOBUS_MENU_SELECT = 'jp-Globus-menuSelect';
-const GLOBUS_MENU_UP_FOLDER = 'jp-Globus-menuUpFolder';
-const GLOBUS_MENU_REFRESH = 'jp-Globus-menuRefresh';
-const GLOBUS_MENU_TRANSFER = 'jp-Globus-menuTransfer';
-const GLOBUS_SEARCH_INFO = 'jp-Globus-searchInfo';
-const GLOBUS_SEARCH_GROUP = 'jp-Globus-searchGroup';
-const GLOBUS_TRANSFER_RESULT = 'jp-Globus-transferResult';
-
+export const FILE_MANAGER = 'globus-file-manager';
 
 /**
  * Widget for hosting the Globus File Manager.
  */
 export class GlobusFileManager extends Widget {
     private searchGroup: HTMLDivElement;
+    private originalGroup: HTMLDivElement;
     private sourceGroup: HTMLDivElement;
     private destinationGroup: HTMLDivElement;
     private timeout: Timer;
@@ -66,7 +57,12 @@ export class GlobusFileManager extends Widget {
         return new Promise<void>((resolve) => {
             endpointSearch(query).then(data => {
                 removeChildren(endpointList);
-                this.displayEndpoints(data, endpointList);
+                if (data.DATA.length > 0) {
+                    this.displayEndpoints(data, endpointList);
+                }
+                else {
+                    this.displayError({customMessage: 'No endpoints found'}, endpointList);
+                }
                 resolve();
             });
         });
@@ -111,79 +107,65 @@ export class GlobusFileManager extends Widget {
     }
 
     private endpointClicked(e: any) {
-        let endpoint: HTMLLIElement = (e.currentTarget as HTMLLIElement);
-        let endpointList: HTMLUListElement = (endpoint.parentElement as HTMLUListElement);
+        let endpoint: HTMLElement = e.currentTarget;
+        let endpointList: HTMLElement = endpoint.parentElement;
 
-        //TODO make a utililty function for these
-        let globusGroup = endpoint.parentElement.parentElement.parentElement;
-        let endpointInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_ENDPOINT_INPUT)[0] as HTMLInputElement);
-        let directoryGroup: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_GROUP)[0] as HTMLDivElement);
-        let dirList: HTMLUListElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_LIST)[0] as HTMLUListElement);
-        let dirPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
+        let globusParentGroup: HTMLElement = getGlobusParentGroup(endpoint);
+        let endpointInput: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_ENDPOINT_INPUT);
+        let directoryGroup: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_GROUP);
+        let dirList: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_LIST);
+        let dirPathInput: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT);
 
         endpoint.classList.toggle(GLOBUS_OPEN);
-        endpointInput.value = endpoint.title;
+        (endpointInput as HTMLInputElement).value = endpoint.title;
         endpointList.style.display = 'none';
         directoryGroup.style.display = 'block';
 
-        this.retrieveDirectories(dirPathInput, dirList);
+        this.retrieveDirectories(dirPathInput as HTMLInputElement, dirList as HTMLUListElement);
     }
 
     private fetchDirectories(dirPath: string, dirList: HTMLUListElement) {
-        let globusGroup = dirList.parentElement.parentElement.parentElement;
-        let endpoint: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_OPEN)[0] as HTMLDivElement);
+        let globusParentGroup: HTMLElement = getGlobusParentGroup(dirList);
+        let endpoint: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_OPEN);
+
         // Activate endpoint fetch -> "autoactivate"
         return new Promise<void>((resolve) => {
             activateEndpoint(endpoint.id).then(() => {
-                listDirectoryContents(endpoint.id, dirPath).then(data => {
-                    this.displayDirectories(data, dirList);
-                    resolve();
-                });
+                listDirectoryContents(endpoint.id, dirPath)
+                    .then(data => {
+                        this.displayDirectories(data, dirList);
+                    }).catch(e => {
+                        this.displayError(e, dirList);
+                    }).then(() => resolve());
             });
         });
     }
 
     private displayDirectories(data: any, dirList: HTMLUListElement) {
-        // Add directories if they were retrieved (user has permission)
-        if (data.DATA) {
-            for (let i = 0; i < data.DATA.length; i++) {
-                let directoryData = data.DATA[i];
+        for (let i = 0; i < data.DATA.length; i++) {
+            let directoryData = data.DATA[i];
 
-                let directory: HTMLLIElement = document.createElement('li');
-                directory.className = `${GLOBUS_LIST_ITEM} ${GLOBUS_DIRECTORY_ITEM}`;
-                directory.style.backgroundImage = BG_IMAGES[directoryData.type];
-                directory.title = directoryData.name;
-                directory.type = directoryData.type;
+            let directory: HTMLLIElement = document.createElement('li');
+            directory.className = `${GLOBUS_LIST_ITEM} ${GLOBUS_DIRECTORY_ITEM}`;
+            directory.style.backgroundImage = BG_IMAGES[directoryData.type];
+            directory.title = directoryData.name;
+            directory.type = directoryData.type;
 
-                // TODO Add last date modified with moment.js
-                let name: HTMLDivElement = document.createElement('div');
-                let size: HTMLDivElement = document.createElement('div');
+            // TODO Add last date modified with moment.js
+            let name: HTMLDivElement = document.createElement('div');
+            let size: HTMLDivElement = document.createElement('div');
 
-                name.textContent = directoryData.name;
-                name.className = GLOBUS_LIST_ITEM_TITLE;
+            name.textContent = directoryData.name;
+            name.className = GLOBUS_LIST_ITEM_TITLE;
 
-                size.textContent = `${directoryData.size} B`;
+            size.textContent = `${directoryData.size} B`;
 
-                directory.appendChild(name);
-                directory.appendChild(size);
+            directory.appendChild(name);
+            directory.appendChild(size);
 
-                directory.addEventListener("click", this.directoryClicked.bind(this));
-                directory.addEventListener("dblclick", this.directoryDblClicked.bind(this));
-                dirList.appendChild(directory);
-            }
-        }
-        else {
-            let errorCode: HTMLLIElement = document.createElement('li');
-            errorCode.className = `${GLOBUS_LIST_ITEM} ${GLOBUS_PERMISSION_DENIED}`;
-            console.log(data.code);
-            let code = ERROR_CODES[data.code];
-            if (code) {
-                errorCode.textContent = code;
-            }
-            else {
-                errorCode.textContent = 'Unknown Error';
-            }
-            dirList.appendChild(errorCode);
+            directory.addEventListener("click", this.directoryClicked.bind(this));
+            directory.addEventListener("dblclick", this.directoryDblClicked.bind(this));
+            dirList.appendChild(directory);
         }
     }
 
@@ -202,8 +184,9 @@ export class GlobusFileManager extends Widget {
     }
 
     private directoryClicked(e: any) {
-        let globusGroup = e.currentTarget.parentElement.parentElement.parentElement.parentElement;
-        let directory = (e.currentTarget as HTMLLIElement);
+        let directory: HTMLLIElement = e.currentTarget;
+        let globusParentGroup: HTMLElement = getGlobusParentGroup(directory);
+
         let itemList =  directory.parentElement.children;
         if (!e.ctrlKey) {
             for (let i = 0; i < itemList.length; i++) {
@@ -217,23 +200,23 @@ export class GlobusFileManager extends Widget {
         directory.classList.toggle(GLOBUS_SELECTED);
 
         // TODO Use Observable instead
-        let menuSelect: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_MENU_SELECT)[0] as HTMLDivElement);
-        globusGroup.getElementsByClassName(GLOBUS_SELECTED).length === 0 ?
+        let menuSelect: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_MENU_SELECT);
+        globusParentGroup.getElementsByClassName(GLOBUS_SELECTED).length === 0 ?
             menuSelect.textContent = 'select all' :
             menuSelect.textContent = 'select none';
     }
 
     private directoryDblClicked(e: any) {
-        let directory: HTMLLIElement = (e.currentTarget as HTMLLIElement);
-        let dirList: HTMLUListElement = (directory.parentElement as HTMLUListElement);
+        let directory: HTMLLIElement = e.currentTarget;
+        let dirList: HTMLElement = directory.parentElement;
 
-        let globusGroup = directory.parentElement.parentElement.parentElement;
-        let dirPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
+        let globusParentGroup: HTMLElement = getGlobusParentGroup(directory);
+        let dirPathInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT) as HTMLInputElement;
 
         switch (directory.type) {
             case 'dir': {
                 dirPathInput.value += `${directory.title}/`;
-                this.retrieveDirectories(dirPathInput, dirList);
+                this.retrieveDirectories(dirPathInput, dirList as HTMLUListElement);
                 break;
             }
             case 'file': {
@@ -244,7 +227,7 @@ export class GlobusFileManager extends Widget {
     }
 
     private createHTMLElements() {
-        /* -------------<Endpoint search>------------- */
+        /* ------------- <Endpoint search> ------------- */
 
         // Search Input. Shown
         let endpointInput: HTMLInputElement = document.createElement('input');
@@ -262,11 +245,11 @@ export class GlobusFileManager extends Widget {
         endpointGroup.appendChild(endpointInput);
         endpointGroup.appendChild(endpointList);
 
-        /* -------------</Endpoint search>------------- */
+        /* ------------- </Endpoint search> ------------- */
 
 
 
-        /* -------------<DirPath search>------------- */
+        /* ------------- <DirPath search> ------------- */
 
         // DirPath Input. Hidden
         let dirPathInput: HTMLInputElement = document.createElement('input');
@@ -287,7 +270,7 @@ export class GlobusFileManager extends Widget {
         menuTransfer.textContent = 'transfer';
 
         let dirMenu = document.createElement('div');
-        dirMenu.className = `${GLOBUS_DIR_MENU} ${GLOBUS_BORDER}`;
+        dirMenu.className = `${GLOBUS_BORDER} ${GLOBUS_DIR_MENU}`;
         dirMenu.appendChild(menuSelect);
         dirMenu.appendChild(menuUpFolder);
         dirMenu.appendChild(menuRefresh);
@@ -304,10 +287,11 @@ export class GlobusFileManager extends Widget {
         directoryGroup.appendChild(dirList);
         directoryGroup.style.display = 'none';
 
-        /* -------------</DirPath search>------------- */
+        /* ------------- </DirPath search> ------------- */
 
 
-        // Add both groups to searchGroup
+        /* ------------- <searchGroup> ------------- */
+
         this.searchGroup = document.createElement('div');
         this.searchGroup.className = GLOBUS_SEARCH_GROUP;
         this.searchGroup.appendChild(endpointGroup);
@@ -317,6 +301,20 @@ export class GlobusFileManager extends Widget {
         this.searchGroup.addEventListener('click', this.onClickDirMenuButtonHandler.bind(this));
         this.searchGroup.style.display = 'block';
 
+        /* -------------</searchGroup>------------- */
+
+
+        /* ------------- <originalGroup> ------------- */
+        /* First search screen */
+        this.originalGroup = document.createElement('div');
+        this.originalGroup.className = GLOBUS_GROUP;
+        this.originalGroup.appendChild(this.searchGroup);
+
+        /* ------------- </originalGroup> ------------- */
+
+
+        /* ------------- <sourceGroup> ------------- */
+        /* Source screen. Hidden */
         let sourceHeader = document.createElement('div');
         sourceHeader.textContent = 'Source';
         sourceHeader.className = `${GLOBUS_HEADER} ${GLOBUS_BORDER}`;
@@ -325,10 +323,16 @@ export class GlobusFileManager extends Widget {
         sourceInfo.className = `${GLOBUS_SEARCH_INFO} ${GLOBUS_BORDER}`;
         sourceInfo.style.display = 'none';
         this.sourceGroup = document.createElement('div');
+        this.sourceGroup.className = GLOBUS_GROUP;
         this.sourceGroup.appendChild(sourceHeader);
         this.sourceGroup.appendChild(sourceInfo);
         this.sourceGroup.style.display = 'none';
 
+        /* ------------- <sourceGroup> ------------- */
+
+
+        /* ------------- <destinationGroup> ------------- */
+        /* Destination screen. Hidden */
         let destinationHeader = document.createElement('div');
         destinationHeader.textContent = 'Destination';
         destinationHeader.className = `${GLOBUS_HEADER} ${GLOBUS_BORDER}`;
@@ -341,10 +345,11 @@ export class GlobusFileManager extends Widget {
         transferResult.style.display = 'none';
         transferResult.onclick = () => transferResult.style.display = 'none';
         let startTransfer = document.createElement('button');
-        startTransfer.textContent = 'Start Transfer';
+        startTransfer.textContent = 'Transfer';
         startTransfer.className = `jp-mod-styled jp-mod-accept ${GLOBUS_BUTTON} ${GLOBUS_START_TRANSFER_BUTTON}`;
         let searchGroupClone = this.searchGroup.cloneNode(true);
         this.destinationGroup = document.createElement('div');
+        this.destinationGroup.className = GLOBUS_GROUP;
         this.destinationGroup.appendChild(destinationHeader);
         this.destinationGroup.appendChild(destinationInfo);
         this.destinationGroup.appendChild(searchGroupClone);
@@ -356,7 +361,9 @@ export class GlobusFileManager extends Widget {
         this.destinationGroup.addEventListener('click', this.onClickDirMenuButtonHandler.bind(this));
         this.destinationGroup.style.display = 'none';
 
-        this.node.appendChild(this.searchGroup);
+        /* ------------- </destinationGroup> ------------- */
+
+        this.node.appendChild(this.originalGroup);
         this.node.appendChild(this.sourceGroup);
         this.node.appendChild(this.destinationGroup);
     }
@@ -364,33 +371,32 @@ export class GlobusFileManager extends Widget {
     // TODO handle quick successive calls as only one call. Timeout kinda solves it but it still feels buggy sometimes
     private onKeyUpEndpointInputHandler(e: any) {
         if (e.target.matches(`.${GLOBUS_ENDPOINT_INPUT}`)) {
-            let globusGroup = e.target.parentElement.parentElement;
-            let dirPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
-            let directoryGroup: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_GROUP)[0] as HTMLDivElement);
-            let endpointList: HTMLUListElement = (globusGroup.getElementsByClassName(GLOBUS_ENDPOINT_LIST)[0] as HTMLUListElement);
+            let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
+            let dirPathInput: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT);
+            let directoryGroup: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_GROUP);
+            let endpointList: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_ENDPOINT_LIST);
 
-            dirPathInput.value = '/~/';
+            (dirPathInput as HTMLInputElement).value = '/~/';
             directoryGroup.style.display = 'none';
 
             clearTimeout(this.timeout);
-            this.timeout = setTimeout(() => this.retrieveEndpoints(e.target, endpointList), 300);
+            this.timeout = setTimeout(() => this.retrieveEndpoints(e.target, endpointList as HTMLUListElement), 300);
         }
     }
 
     private onChangeDirPathInputHandler(e: any) {
         if (e.target.matches(`.${GLOBUS_DIR_PATH_INPUT}`)) {
-            let globusGroup = e.target.parentElement.parentElement.parentElement;
-            let dirList: HTMLUListElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_LIST)[0] as HTMLUListElement);
-            this.retrieveDirectories(e.target, dirList);
+            let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
+            let dirList: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_LIST);
+            this.retrieveDirectories(e.target, dirList as HTMLUListElement);
         }
     }
 
     private onClickDirMenuButtonHandler(e: any) {
         if (e.target.matches(`.${GLOBUS_MENU_BTN}`)) {
-            let globusGroup = e.target.parentElement.parentElement.parentElement.parentElement;
-            let dirPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
-            let dirList: HTMLUListElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_LIST)[0] as HTMLUListElement);
-            let header: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_HEADER)[0] as HTMLDivElement);
+            let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
+            let dirList: HTMLUListElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_LIST) as HTMLUListElement;
+            let dirPathInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT) as HTMLInputElement;
 
             if (e.target.matches(`.${GLOBUS_MENU_SELECT}`)) {
                 let itemList =  dirList.children;
@@ -425,25 +431,25 @@ export class GlobusFileManager extends Widget {
                 this.sourceGroup.style.display = 'block';
                 this.destinationGroup.style.display = 'block';
                 this.setGCPDestination();
-                this.onClickHeaderHandler({target: header});
+                this.onClickHeaderHandler({target: getGlobusElement(this.searchGroup.parentElement, GLOBUS_HEADER)});
             }
         }
     }
 
     private onClickHeaderHandler(e: any) {
-        let globusGroup = e.target.parentElement;
-        let infoDiv: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_SEARCH_INFO)[0] as HTMLDivElement);
-        let searchGroup: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_SEARCH_GROUP)[0] as HTMLDivElement);
+        let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
+        let infoDiv: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_SEARCH_INFO);
+        let searchGroup: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_SEARCH_GROUP);
 
         if (searchGroup.style.display === 'block') {
-            let endpointInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_ENDPOINT_INPUT)[0] as HTMLInputElement);
-            let dirPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
+            let endpointInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_ENDPOINT_INPUT) as HTMLInputElement;
+            let dirPathInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT) as HTMLInputElement;
 
             // TODO Use Observable instead
             if (endpointInput.value.length !== 0) {
                 infoDiv.textContent = `${endpointInput.value}: ${dirPathInput.value}`;
                 if (e.target.textContent === 'Source') {
-                    infoDiv.textContent += `\n${globusGroup.getElementsByClassName(GLOBUS_SELECTED).length} file(s) selected`;
+                    infoDiv.textContent += `\n${globusParentGroup.getElementsByClassName(GLOBUS_SELECTED).length} file(s) selected`;
                 }
             }
             else {
@@ -463,19 +469,14 @@ export class GlobusFileManager extends Widget {
 
     private onClickStartTransferHandler(e: any) {
         if (e.target.matches(`.${GLOBUS_START_TRANSFER_BUTTON}`)) {
-            let globusGroup = this.sourceGroup;
-            let sourcePathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
-            let sourceEndpoint: HTMLLIElement = (globusGroup.getElementsByClassName(GLOBUS_OPEN)[0] as HTMLLIElement);
+            let globusParentGroup = this.sourceGroup;
+            let sourcePathInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT) as HTMLInputElement;
+            let sourceEndpoint: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_OPEN);
 
-            globusGroup = this.destinationGroup;
-            let destinationPathInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_DIR_PATH_INPUT)[0] as HTMLInputElement);
-            let destinationEndpoint: HTMLLIElement = (globusGroup.getElementsByClassName(GLOBUS_OPEN)[0] as HTMLLIElement);
-            let transferResult: HTMLDivElement = (globusGroup.getElementsByClassName(GLOBUS_TRANSFER_RESULT)[0] as HTMLDivElement);
-
-            transferResult.textContent = '';
-            transferResult.style.background = 'transparent';
-            transferResult.style.display = 'block';
-            transferResult.appendChild(LOADING_ICON);
+            globusParentGroup = this.destinationGroup;
+            let destinationPathInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_DIR_PATH_INPUT) as HTMLInputElement;
+            let destinationEndpoint: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_OPEN);
+            let transferResult: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_TRANSFER_RESULT);
 
             let selectedElements = this.sourceGroup.getElementsByClassName(GLOBUS_SELECTED);
 
@@ -494,27 +495,24 @@ export class GlobusFileManager extends Widget {
             }
 
             // TODO better error handling
-            if (!sourceEndpoint || !destinationEndpoint) {
-                transferResult.removeChild(LOADING_ICON);
-                transferResult.textContent = 'Both endpoints must be selected to start transfer';
-                transferResult.style.background = '#e18787';
-                transferResult.style.color = '#340d0d';
-                return;
+            transferResult.style.display = 'block';
+            if (sourceEndpoint && destinationEndpoint) {
+                transferResult.textContent = '';
+                transferResult.className = `${GLOBUS_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
+                transferResult.appendChild(LOADING_ICON);
+                transferFile(items, sourceEndpoint.id, destinationEndpoint.id)
+                    .then(data => {
+                        transferResult.textContent = data.message;
+                        transferResult.classList.add(GLOBUS_SUCCESS)
+                    }).catch(e => {
+                        transferResult.textContent = e.message;
+                        transferResult.classList.add(GLOBUS_FAIL);
+                    });
             }
-
-            transferFile(items, sourceEndpoint.id, destinationEndpoint.id)
-                .then(data => {
-                    transferResult.removeChild(LOADING_ICON);
-                    transferResult.textContent = data.message;
-                    transferResult.style.background = '#a6e9a6';
-                    transferResult.style.color = '#0d340d';
-                })
-                .catch(error => {
-                    transferResult.removeChild(LOADING_ICON);
-                    transferResult.textContent = error.message;
-                    transferResult.style.background = '#e18787';
-                    transferResult.style.color = '#340d0d';
-                });
+            else {
+                transferResult.textContent = 'Both endpoints must be selected to start transfer';
+                transferResult.classList.add(GLOBUS_FAIL);
+            }
         }
     }
 
@@ -524,15 +522,32 @@ export class GlobusFileManager extends Widget {
     }
 
     private setGCPDestination() {
-        let globusGroup = this.destinationGroup;
-        let endpointInput: HTMLInputElement = (globusGroup.getElementsByClassName(GLOBUS_ENDPOINT_INPUT)[0] as HTMLInputElement);
-        let endpointList: HTMLUListElement = (globusGroup.getElementsByClassName(GLOBUS_ENDPOINT_LIST)[0] as HTMLUListElement);
+        let globusParentGroup = this.destinationGroup;
+        let endpointInput: HTMLInputElement = getGlobusElement(globusParentGroup, GLOBUS_ENDPOINT_INPUT) as HTMLInputElement;
+        let endpointList: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_ENDPOINT_LIST);
 
         endpointInput.value = 'Your GCP Endpoint';
         endpointList.style.display = 'block';
 
         endpointList.appendChild(LOADING_ICON);
         endpointList.appendChild(LOADING_LABEL);
-        this.fetchEndpoints(GCP_ENDPOINT_ID, endpointList);
+        this.fetchEndpoints(GCP_ENDPOINT_ID, endpointList as HTMLUListElement);
+    }
+
+    private displayError(e: any, node: HTMLElement) {
+        let errorCode = document.createElement('div');
+        errorCode.className = GLOBUS_FETCH_ERROR;
+        console.log(e.code);
+        let code = ERROR_CODES[e.code];
+        if (code) {
+            errorCode.textContent = code;
+        }
+        else if (e.customMessage){
+            errorCode.textContent = e.customMessage;
+        }
+        else {
+            errorCode.textContent = 'Unknown Error';
+        }
+        node.appendChild(errorCode);
     }
 }

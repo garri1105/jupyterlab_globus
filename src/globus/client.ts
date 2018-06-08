@@ -23,6 +23,16 @@ export const ERROR_CODES: any = {
 
 export let globusAuthorized = new PromiseDelegate<void>();
 
+let defaultOptions: any;
+
+export function initializeGlobusClient(data: any) {
+    Private.tokens.data = data;
+    defaultOptions = {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
+    };
+}
+
 // TODO : Protect tokens, Cross-Site Request Forgery protection using "state" urlParam
 /**
  * 0Auth2SignIn protocol. Retrieves a 0Auth2Token shown to the user in the popup window
@@ -42,17 +52,17 @@ export function oauth2SignIn() {
 
     let popup = window.open('', 'popUp', 'height=500,width=500,resizable,scrollbars');
     let timer = setInterval(async () => {
-       try {
-           let url = new URL(popup.location.href);
-           popup.close();
-           await exchangeOAuth2Token(url.searchParams.get('code'), verifier)
-               .then(data => {
-                   clearInterval(timer);
-                   globusAuthorized.resolve(data);
-               })
-               .catch(e => console.log(e));
-       }
-       catch (e) {}
+        try {
+            let url = new URL(popup.location.href);
+            popup.close();
+            await exchangeOAuth2Token(url.searchParams.get('code'), verifier)
+                .then(data => {
+                    clearInterval(timer);
+                    globusAuthorized.resolve(data);
+                })
+                .catch(e => console.log(e));
+        }
+        catch (e) {}
     }, 1000);
 
     // Parameters to pass to OAuth 2.0 endpoint.
@@ -119,11 +129,6 @@ export async function exchangeOAuth2Token(token: string, verifier: string) {
     return await fetchAccessToken;
 }
 
-/**
- * Sign a user out of their Globus account.
- *
- * @returns a promise resolved when sign-out is complete.
- */
 export function signOut() {
     // Invalidate the globusAuthorized promise and set up a new one.
     sessionStorage.removeItem('data');
@@ -131,38 +136,20 @@ export function signOut() {
 }
 
 export function activateEndpoint(endpointId: string): Promise<void> {
-    return new Promise<void>((resolve) =>
-        fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endpointId}/autoactivate`, {
+    // TODO Deal with failed activations
+    return makeGlobusRequest(
+        `${GLOBUS_TRANSFER_API_URL}/endpoint/${endpointId}/autoactivate`,{
             method: 'POST',
-            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`},
             body: ''
-        }).then(response => {
-            return response.json();
-        }).then(() => {
-            // TODO Deal with failed activations
-            resolve();
-        }));
+        });
 }
 
 export function listDirectoryContents(endpointId: string, dirPath: string = '/~/') {
-    return new Promise<any>((resolve) =>
-        fetch(`${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/ls?path=${dirPath}`, {
-            method: 'GET',
-            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`},
-        }).then(response => {
-            resolve(response.json());
-        })
-    );
+    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/ls?path=${dirPath}`);
 }
 
 export function endpointSearch(query: string) {
-    return new Promise<any>((resolve) =>
-        fetch(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${query}`, {
-            method: 'GET',
-            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
-        }).then(response => {
-            resolve(response.json());
-        }));
+    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${query}`);
 }
 
 export async function transferFile(items: any, sourceId: string, destinationId: string) {
@@ -170,42 +157,25 @@ export async function transferFile(items: any, sourceId: string, destinationId: 
 
     let transfer: any = {
         'DATA_TYPE': 'transfer',
-        'submission_id': submissionId,
+        'submission_id': submissionId.value,
         'source_endpoint': sourceId,
         'destination_endpoint': destinationId,
         'DATA': items,
         'notify_on_succeeded': false
     };
 
-    return new Promise<any>((resolve, reject) => {
-        fetch(`${GLOBUS_TRANSFER_API_URL}/transfer`, {
+    return makeGlobusRequest(
+        `${GLOBUS_TRANSFER_API_URL}/transfer`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${Private.tokens.transferToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(transfer)
-        }).then(async response => {
-            if (response.status >= 400) {
-                reject(await response.json())
-            }
-            else {
-                resolve(await response.json());
-            }
         });
-    });
 }
 
 function getSubmissionId() {
-    return new Promise<any>((resolve) =>
-        fetch(`${GLOBUS_TRANSFER_API_URL}/submission_id`, {
-            method: 'GET',
-            headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
-        }).then(response => {
-            return response.json();
-        }).then(data => {
-            resolve(data.value);
-        }));
+    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/submission_id`);
 }
 
 function generateVerifier() {
@@ -218,6 +188,23 @@ function generateCodeChallenge(verifier: string) {
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
+}
+
+function makeGlobusRequest(url: string, options: any = defaultOptions) {
+    // TODO Build an options constructor
+    options = {...defaultOptions, ...options};
+    options.headers = {...defaultOptions.headers, ...options.headers};
+
+    return new Promise<any>((resolve, reject) => {
+        fetch(url, options).then(async response => {
+            if (response.status >= 400) {
+                reject(await response.json());
+            }
+            else {
+                resolve(await response.json());
+            }
+        });
+    })
 }
 
 export namespace Private {
