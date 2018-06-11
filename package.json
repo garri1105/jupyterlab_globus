@@ -33,6 +33,7 @@
     "@jupyterlab/apputils": "^0.16.4",
     "@jupyterlab/filebrowser": "^0.16.3",
     "@jupyterlab/services": "^2.0.3",
+    "@jupyterlab/terminal": "^0.16.3",
     "@types/crypto-js": "^3.1.39",
     "crypto-js": "^3.1.9-1",
     "npm": "^6.0.1"

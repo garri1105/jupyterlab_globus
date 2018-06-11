@@ -1,8 +1,6 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
 import {oauth2SignIn, globusAuthorized, initializeGlobusClient} from "./client";
 import {GlobusWidgetManager} from "./widget_manager";
-import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
-import {IDocumentManager} from '@jupyterlab/docmanager';
 import {GLOBUS_BUTTON} from "../utils";
 
 /**
@@ -20,10 +18,9 @@ export const SIGN_OUT = 'globus-signOut';
  */
 export class GlobusHome extends Widget {
     private globusLogin: GlobusLogin;
-    private factory: IFileBrowserFactory;
-    private manager: IDocumentManager;
+    private widgetManager: GlobusWidgetManager;
 
-    constructor(manager: IDocumentManager, factory: IFileBrowserFactory) {
+    constructor(widgetManager: GlobusWidgetManager) {
         super();
 
         this.id = 'globus-home';
@@ -31,10 +28,8 @@ export class GlobusHome extends Widget {
 
         this.layout = new PanelLayout();
         this.globusLogin = new GlobusLogin();
-        this.factory = factory;
-        this.manager = manager;
+        this.widgetManager = widgetManager;
 
-        // Add Tab logo
         this.title.iconClass = GLOBUS_TAB_LOGO;
         this.title.closable = true;
 
@@ -46,17 +41,16 @@ export class GlobusHome extends Widget {
         // Initialize Login screen.
         (this.layout as PanelLayout).addWidget(this.globusLogin);
 
-        // After authorization and we are ready to use the
-        // globus, show the widget manager.
+        // After globus authorization, show the widget manager.
         globusAuthorized.promise.then((data: any) => {
             sessionStorage.setItem('data', JSON.stringify(data));
             initializeGlobusClient(data);
             this.globusLogin.parent = null;
-            (this.layout as PanelLayout).addWidget(new GlobusWidgetManager(this.manager, this.factory));
+            this.widgetManager.update();
+            (this.layout as PanelLayout).addWidget(this.widgetManager);
         });
     }
 }
-
 
 /**
  * Widget for hosting the Globus Login.
