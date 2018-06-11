@@ -3,7 +3,7 @@ import {Widget, PanelLayout} from '@phosphor/widgets';
 import {Drive, ServerConnection} from '@jupyterlab/services';
 import {} from 'node';
 import {IDocumentManager} from '@jupyterlab/docmanager';
-import {URLExt} from '@jupyterlab/coreutils';
+import {JupyterLab} from "@jupyterlab/application";
 
 const GLOBUS_CONNECT_PERSONAL = 'jp-Globus-connect-personal';
 
@@ -22,14 +22,15 @@ export class GlobusConnectPersonal extends Widget {
     private factory: IFileBrowserFactory;
     private browser: FileBrowser;
     private serverSettings: ServerConnection.ISettings;
+    private app: JupyterLab;
 
-
-    constructor(manager: IDocumentManager, factory: IFileBrowserFactory) {
+    constructor(app: JupyterLab, manager: IDocumentManager, factory: IFileBrowserFactory) {
         super();
         this.id = CONNECT_PERSONAL;
         this.layout = new PanelLayout();
         this.factory = factory;
         this.serverSettings = ServerConnection.makeSettings();
+        this.app = app;
         this.addClass(GLOBUS_CONNECT_PERSONAL);
 
         this.title.label = 'Globus Connect Personal';
@@ -43,6 +44,7 @@ export class GlobusConnectPersonal extends Widget {
             driveName: GCP_DRIVE_NAME
         });
 
+        console.log('Calling navigatetoGCP');
         this.navigateToGCPHomeDir();
     }
 
@@ -55,12 +57,14 @@ export class GlobusConnectPersonal extends Widget {
             .then(data => {
                 console.log('FINDING ENDPOINT...');
                 let path = this.findGCPHomeDirPath(data.content);
-                this.findGCPEndpoint(path)
-                    .then(path => {
-                        this.browser.model.cd(`/${path}`);
-                    });
-
-                (this.layout as PanelLayout).addWidget(this.browser);
+                let gcpEndpoint = this.findGCPEndpoint(path);
+                if (gcpEndpoint) {
+                    this.browser.model.cd(`/${gcpEndpoint}`);
+                    (this.layout as PanelLayout).addWidget(this.browser);
+                }
+                else {
+                    console.log('Reset JL');
+                }
             });
     }
 
@@ -72,25 +76,18 @@ export class GlobusConnectPersonal extends Widget {
         }
     }
 
-    private async findGCPEndpoint(localPath: string | undefined) {
-        let baseUrl = this.serverSettings.baseUrl;
-        let url = URLExt.join(baseUrl, SERVICE_DRIVE_URL, localPath);
-
-        let promise = new Promise<string>((resolve) => {
-            ServerConnection.makeRequest(url, {}, this.serverSettings).then(response => {
-                if (response.status !== 200) {
-                    let parts = localPath.split('/');
-                    parts.shift();
-                    resolve(this.findGCPEndpoint(parts.join('/')));
-                }
-                else {
-                    console.log('GOT ENDPOINT: ' + localPath);
-                    resolve(localPath);
-                }
-            });
-        });
-
-        return await promise;
+    private findGCPEndpoint(localPath: string | undefined) {
+        localPath = 'C:/Users/Juan David Grrido/Documents/Programming/Anaconda';
+        console.log(localPath);
+        console.log(this.app.info.directories.serverRoot);
+        if (localPath.indexOf(this.app.info.directories.serverRoot) === 0) {
+            localPath = localPath.slice(this.app.info.directories.serverRoot.length,);
+            console.log(localPath);
+            return localPath;
+        }
+        else {
+            return null;
+        }
     }
 
     private setGCPEndpointId() {
