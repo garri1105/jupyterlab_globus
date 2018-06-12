@@ -13,12 +13,16 @@ export const GLOBUS_BORDER = 'jp-Globus-border';
 export const GLOBUS_SUCCESS = 'jp-Globus-success';
 export const GLOBUS_FAIL = 'jp-Globus-fail';
 export const GLOBUS_BUTTON = 'jp-Globus-button';
+export const GLOBUS_FLEX_CENTER_SCREEN = 'jp-Globus-flexCenterScreen';
 
 export const LOADING_ICON = document.createElement('div');
 LOADING_ICON.className = 'jp-Globus-loader';
 
 export const LOADING_LABEL = document.createElement('div');
 LOADING_LABEL.className = 'jp-Globus-loaderLabel';
+
+export const ERROR_IMAGE = document.createElement('div');
+ERROR_IMAGE.className = 'jp-Globus-errorImage';
 
 export const BG_IMAGES: any = {
     'dir': 'var(--jp-Globus-icon-folder2)',

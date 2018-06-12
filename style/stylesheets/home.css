@@ -18,11 +18,3 @@
     background-image: var(--jp-Globus-image-logo-dark);
     background-repeat: no-repeat;
 }
-
-.jp-Globus-loginScreen {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}

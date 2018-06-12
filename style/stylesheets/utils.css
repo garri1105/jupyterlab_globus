@@ -115,14 +115,33 @@
 .jp-Globus-success {
     background: #a6e9a6 !important;;
     color: #0d340d !important;;
+    padding: 5px 10px;
 }
 
 .jp-Globus-fail {
     background: #e18787 !important;
-    color: #340d0d !important;;
+    color: #340d0d !important;
+    padding: 5px 10px;
 }
 
 .jp-Globus-button {
     margin: 10px;
 }
+
+.jp-Globus-flexCenterScreen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.jp-Globus-errorImage {
+    background-size: 100%;
+    width: 150px;
+    height: 150px;
+    background-image: var(--jp-Globus-icon-warning);
+    background-repeat: no-repeat;
+}
+
 
