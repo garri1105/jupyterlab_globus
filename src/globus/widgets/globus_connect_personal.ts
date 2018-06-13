@@ -21,7 +21,7 @@ const GCP_DRIVE_NAME = 'GCPDrive';
 export const CONNECT_PERSONAL = 'globus-connectPersonal';
 export let GCP_ENDPOINT_ID = '';
 
-// TODO Lots of error handling: GCP not connected. GCP not found, etc.
+// TODO Lots of error handling: GCP not found, etc.
 // TODO iOS behaves differently. ProcessEnv, import node
 export class GlobusConnectPersonal extends Widget {
     private factory: IFileBrowserFactory;
@@ -58,25 +58,38 @@ export class GlobusConnectPersonal extends Widget {
             `${this.serverSettings.baseUrl}${SERVICE_DRIVE_URL}${LOCAL_APPDATA}${GCP_CLIENT_LOG}`,
             {},
             this.serverSettings)
-            .then(response => {return response.json()})
-            .then(data => {
+            .then(response => {
+                if (response.status >= 400) {
+                    throw response.json();
+                }
+                else {
+                    return response.json();
+                }
+            }).then(async data => {
                 let path = this.findGCPHomeDirPath(data.content);
                 let gcpEndpoint = this.findGCPEndpoint(path);
                 if (gcpEndpoint) {
-                    this.browser.model.cd(`/${gcpEndpoint}`);
+                    await this.browser.model.cd();
+                    await this.browser.model.cd(`/${gcpEndpoint}`);
                     (this.layout as PanelLayout).addWidget(this.browser);
                 }
                 else {
                     let newPath = this.findAlternatePath(path);
                     this.createErrorScreen(newPath);
                 }
-            });
+            }).catch(e => {
+                console.log(e)
+        });
     }
 
     private findGCPHomeDirPath(content: string) {
-        for (let line of content.split('\n')) {
-            if (line.indexOf('homedir') > -1) {
-                return line.slice(line.indexOf('homedir') + 9, -2);
+        let lines = content.split('\n');
+        for (let i = lines.length - 1; i >= 0; i--) {
+            if (lines[i].indexOf('homedir') > -1) {
+                return lines[i].slice(lines[i].indexOf('homedir') + 9, -2);
+            }
+            else if (lines[i].indexOf('home_dir') > -1) {
+                return lines[i].slice(lines[i].indexOf('home_dir') + 11, -2);
             }
         }
     }
