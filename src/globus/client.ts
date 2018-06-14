@@ -3,7 +3,7 @@ import CryptoJS = require('crypto-js');
 import {queryParams} from "../utils";
 
 const CLIENT_ID = 'a4b3ea61-d252-4fe2-9b49-9e7e69434367';
-const REDIRECT_URI = 'http://localhost:8888/lab';
+const REDIRECT_URI = window.location.href;
 const SCOPES = 'openid email profile urn:globus:auth:scope:transfer.api.globus.org:all';
 
 const GLOBUS_TRANSFER_API_URL = 'https://transfer.api.globusonline.org/v0.10';
@@ -142,6 +142,10 @@ export function activateEndpoint(endpointId: string): Promise<void> {
             method: 'POST',
             body: ''
         });
+}
+
+export function taskSearch() {
+    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/task_list?filter=type:TRANSFER,DELETE`);
 }
 
 export function listDirectoryContents(endpointId: string, dirPath: string = '/~/') {
