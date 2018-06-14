@@ -8,19 +8,20 @@ import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
 import {IDocumentManager} from '@jupyterlab/docmanager';
 import {GlobusActivity} from "./widgets/activity";
 import {JupyterLab} from "@jupyterlab/application";
+import {GLOBUS_HEADER} from "../utils";
 
 
 /**
  * CSS classes
  */
-const GLOBUS_MANAGER = 'jp-Globus-manager';
-const GLOBUS_TOOLBAR = 'jp-Globus-toolbar';
-const GLOBUS_TOOLBAR_BTN = 'jp-Globus-toolbarBtn';
-const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-Globus-connectPersonalBtn';
-const GLOBUS_FILEMANAGER_BTN = 'jp-Globus-fileManagerBtn';
-const GLOBUS_ACTIVITY_BTN = 'jp-Globus-activityBtn';
-const GLOBUS_SIGNOUT_BTN = 'jp-Globus-signOutBtn';
-const GLOBUS_WIDGET_HEADER = 'jp-Globus-widgetHeader';
+const GLOBUS_WIDGET_MANAGER = 'jp-Globus-widgetManager';
+const GLOBUS_TOOLBAR = 'jp-WidgetManager-toolbar';
+const GLOBUS_TOOLBAR_BTN = 'jp-WidgetManager-toolbarBtn';
+const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-WidgetManager-connectPersonalBtn';
+const GLOBUS_FILEMANAGER_BTN = 'jp-WidgetManager-fileManagerBtn';
+const GLOBUS_ACTIVITY_BTN = 'jp-WidgetManager-activityBtn';
+const GLOBUS_SIGNOUT_BTN = 'jp-WidgetManager-signOutBtn';
+const GLOBUS_WIDGET_HEADER = 'jp-WidgetManager-header';
 
 
 interface WidgetMap {
@@ -43,7 +44,7 @@ export class GlobusWidgetManager extends Widget {
     constructor(app: JupyterLab, manager: IDocumentManager, factory: IFileBrowserFactory) {
         super();
         this.id = 'globus-manager';
-        this.addClass(GLOBUS_MANAGER);
+        this.addClass(GLOBUS_WIDGET_MANAGER);
         this.factory = factory;
         this.manager = manager;
         this.app = app;
@@ -68,13 +69,20 @@ export class GlobusWidgetManager extends Widget {
         this.toolbar.addItem(SIGN_OUT, signOutButton);
 
         this.header = document.createElement('header');
-        this.header.className = GLOBUS_WIDGET_HEADER;
+        this.header.className = `${GLOBUS_WIDGET_HEADER} ${GLOBUS_HEADER}`;
     }
 
     private createToolbarButton(widget: Widget, cssClass: string = '') {
+        let that = this;
         let toolbarButton = new ToolbarButton({
             onClick: () => {
-                this.switchToWidget(widget.id);
+                // let buttons = this.parentElement.children;
+                // for (let i = 0; i < buttons.length; i++) {
+                //     if (buttons[i].classList.contains(GLOBUS_SELECTED)) {
+                //         buttons[i].classList.remove(GLOBUS_SELECTED);
+                //     }
+                // }
+                that.switchToWidget(widget.id);
             },
             tooltip: widget.title.label
         });
@@ -103,9 +111,8 @@ export class GlobusWidgetManager extends Widget {
             this.header.textContent = this.widgetMap[id].title.label;
             this.node.insertBefore(this.header, this.node.childNodes[1]);
         }
-        else {
-            this.widgetMap[this.currentWidgetId].update();
-        }
+
+        this.widgetMap[this.currentWidgetId].update();
     }
 
     private createWidgets() {

@@ -1,7 +1,7 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
 import {oauth2SignIn, globusAuthorized, initializeGlobusClient} from "./client";
 import {GlobusWidgetManager} from "./widget_manager";
-import {GLOBUS_BUTTON, GLOBUS_FLEX_CENTER_SCREEN} from "../utils";
+import {GLOBUS_BUTTON} from "../utils";
 
 /**
  * CSS classes
@@ -38,7 +38,6 @@ export class GlobusHome extends Widget {
     }
 
     public showLoginScreen() {
-        // Initialize Login screen.
         (this.layout as PanelLayout).addWidget(this.globusLogin);
 
         // After globus authorization, show the widget manager.
@@ -59,7 +58,6 @@ export class GlobusLogin extends Widget {
     constructor() {
         super();
         this.addClass(GLOBUS_LOGIN_SCREEN);
-        this.addClass(GLOBUS_FLEX_CENTER_SCREEN);
 
         // Add the logo
         const logo = document.createElement('div');
@@ -70,7 +68,7 @@ export class GlobusLogin extends Widget {
         let signInButton = document.createElement('button');
         signInButton.title = 'Log into your Globus account';
         signInButton.textContent = 'SIGN IN';
-        signInButton.className = `jp-mod-styled jp-mod-accept ${GLOBUS_BUTTON}`;
+        signInButton.className = `${GLOBUS_BUTTON}`;
         signInButton.addEventListener('click', () => this.signIn());
 
         this.node.appendChild(signInButton);

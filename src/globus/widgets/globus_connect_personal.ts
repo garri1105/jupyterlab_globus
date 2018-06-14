@@ -5,7 +5,7 @@ import {} from 'node';
 import {IDocumentManager} from '@jupyterlab/docmanager';
 import {JupyterLab} from "@jupyterlab/application";
 import {
-    ERROR_IMAGE, GLOBUS_BUTTON, GLOBUS_FLEX_CENTER_SCREEN, GLOBUS_BORDER, LOADING_ICON,
+    ERROR_IMAGE, GLOBUS_BUTTON, GLOBUS_DISPLAY_FLEX, GLOBUS_BORDER, LOADING_ICON,
     LOADING_LABEL
 } from "../../utils";
 
@@ -138,7 +138,7 @@ export class GlobusConnectPersonal extends Widget {
         restartJLButton.addEventListener('click', () => this.restartJL(newPath));
 
         this.errorScreen = document.createElement('div');
-        this.errorScreen.className = `${GLOBUS_FLEX_CENTER_SCREEN} ${GLOBUS_ERROR_SCREEN}`;
+        this.errorScreen.className = `${GLOBUS_DISPLAY_FLEX} ${GLOBUS_ERROR_SCREEN}`;
         this.errorScreen.appendChild(ERROR_IMAGE);
         this.errorScreen.appendChild(errorText);
         this.errorScreen.appendChild(restartJLButton);

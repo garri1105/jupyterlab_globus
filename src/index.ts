@@ -16,7 +16,13 @@ export const globus: JupyterLabPlugin<void> = {
 };
 
 function activateGlobus(app: JupyterLab, manager: IDocumentManager, restorer: ILayoutRestorer, factory: IFileBrowserFactory) {
-    console.log('JupyterLab extension jupyterlab_globus is activated!');
+    // console.log(app.info);
+    // app.serviceManager.terminals.startNew().then(session => {
+    //     let request = `http POST ${window.location.href}/static body="$(printenv)" 'Authorization:token ${ServerConnection.defaultSettings.token}'\r`;
+    //     console.log(request);
+    //     session.send({ type: 'stdin', content: [request]});
+    // });
+
     let widgetManager: GlobusWidgetManager = new GlobusWidgetManager(app, manager, factory);
     let home: GlobusHome = new GlobusHome(widgetManager);
     restorer.add(home, 'globus-home');
