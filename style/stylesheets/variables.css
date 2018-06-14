@@ -1,6 +1,6 @@
 :root {
     --jp-Globus-blue: #2F4986;
-    --jp-Globus-lightblue: #5599EC;
+    --jp-Globus-lightblue: #3498db;
 
     --jp-Globus-image-logo: url(../assets/images/globus.png);
     --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.png);
@@ -17,4 +17,6 @@
     --jp-Globus-icon-refresh: url(../assets/icons/round-arrow.svg);
     --jp-Globus-icon-connect-personal: url(../assets/icons/GCP.svg);
     --jp-Globus-icon-activity: url(../assets/icons/pulse.svg);
+    --jp-Globus-icon-clock: url(../assets/icons/clock.svg);
+    --jp-Globus-icon-history: url(../assets/icons/history.svg);
 }

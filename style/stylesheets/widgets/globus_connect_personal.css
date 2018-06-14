@@ -1,4 +1,9 @@
+.jp-Globus-connect-personal {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .jp-Globus-connect-personal .jp-GlobusConnectPersonal-errorScreen {
-    height: 100vh;
     background: white;
 }

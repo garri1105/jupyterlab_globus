@@ -21,11 +21,20 @@
 .jp-Globus-border {
     border: 1px solid transparent;
     border-radius: 3px;
+}
+
+.jp-Globus-group {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     margin: 10px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .jp-Globus-input {
-    margin: 0;
+    margin: 0 0 10px;
     border-color: black;
     width: 100%;
     box-sizing: border-box;
@@ -33,27 +42,21 @@
 }
 
 .jp-Globus-list {
+    flex: 1 1 auto;
     padding: 0;
     margin: 0;
     border-color: #ccc;
-    height: 100%;
-    max-height: 40vh;
     background: white;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
 .jp-Globus-listItem {
+    list-style-type: none;
     border: solid #ddd;
-    border-width: 0 1px 2px 1px;
-    margin-top: -1px;
-    background-color: white;
-    padding: 6px 0 7px 12px;
-    text-decoration: none;
+    border-width: 0 1px 1px 1px;
+    padding: 5px 5px 5px 10px;
     cursor: pointer;
-    color: black;
-    display: block;
-    white-space: pre-wrap;
 }
 
 .jp-Globus-listItem:not(.jp-Globus-selected):hover {
@@ -64,47 +67,28 @@
     color: var(--jp-Globus-lightblue);
 }
 
-.jp-Globus-directoryItem {
-    padding-left: 45px;
-    background: var(--jp-Globus-icon-file) no-repeat 5px 3px;
-    background-size: 30px 40px;
-}
-
 .jp-Globus-fetchError {
-    padding-left: 50px;
-    background: var(--jp-Globus-icon-warning) no-repeat 10px -4px;
-    background-size: 30px 40px;
-    line-height: 32px;
-    vertical-align: middle;
-    margin: 10px auto;
-}
-
-.jp-Globus-header {
-    font-size: 1em;
-    background: var(--jp-Globus-blue);
-    color: white;
-    text-align: center;
-    padding: 5px;
+    line-height: 40px;
     margin: 10px;
 }
 
-.jp-Globus-header::after {
-    content: '     ';
-    margin-left: 10%;
-    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat right;
+.jp-Globus-fetchError::before {
+    content: '';
+    display: inline-block;
+    float: left;
+    height: 40px;
+    width: 40px;
+    margin-right: 10px;
+    background: var(--jp-Globus-icon-warning) no-repeat;
     background-size: contain;
-    white-space: pre-wrap;
 }
 
-.jp-Globus-header.active::after {
-    background-image: var(--jp-Globus-icon-angle-arrow-up);
-}
-
-.jp-Globus-button.jp-Globus-startTransferBtn {
-    position: relative;
-    margin: 10px auto;
-    left: 50%;
-    transform: translate(-50%, 0);
+.jp-Globus-header {
+    text-align: center;
+    font-size: 1em;
+    background: var(--jp-Globus-blue);
+    color: white;
+    padding: 5px;
 }
 
 .jp-Globus-listItem.jp-Globus-selected, .jp-Globus-selected .jp-Globus-listItemTitle {
@@ -113,8 +97,8 @@
 }
 
 .jp-Globus-success {
-    background: #a6e9a6 !important;;
-    color: #0d340d !important;;
+    background: #a6e9a6 !important;
+    color: #0d340d !important;
     padding: 5px 10px;
 }
 
@@ -125,15 +109,28 @@
 }
 
 .jp-Globus-button {
+    background: #3498db linear-gradient(to bottom, #3498db, #2980b9);
+    border: transparent;
+    border-radius: 28px;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
     margin: 10px;
+    width: auto;
+    color: white;
+    text-transform: capitalize;
 }
 
-.jp-Globus-flexCenterScreen {
-    height: 100%;
-    display: flex;
+.jp-Globus-button:hover {
+    background: #3cb0fd linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+}
+
+.jp-Globus-displayFlex {
+    flex: 1 1 auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 .jp-Globus-errorImage {
@@ -142,6 +139,32 @@
     height: 150px;
     background-image: var(--jp-Globus-icon-warning);
     background-repeat: no-repeat;
+}
+
+
+.jp-Globus-menuBtn {
+    cursor: pointer;
+    display: inline;
+    flex: 1 1 auto;
+    text-align: center;
+    color: var(--jp-Globus-lightblue);
+    line-height: 30px;
+    font-size: 0.9em;
+}
+
+.jp-Globus-menuBtn:hover {
+    background: #fff;
+}
+
+.jp-Globus-menuBtn.jp-Globus-selected {
+    background: white;
+}
+
+.jp-Globus-menu {
+    display: flex;
+    height: 30px;
+    border-color: #ccc;
+    background: #eee;
 }
 
 

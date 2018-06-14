@@ -1,6 +1,15 @@
 .jp-Globus-home {
     background-color: var(--jp-layout-color1);
-    height: 100%;
+    font-size: 0.8em;
+    display: flex;
+}
+
+.jp-Globus-loginScreen {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .jp-Globus-logo {

@@ -1,33 +1,47 @@
-.jp-Globus-toolbar {
+.jp-Globus-widgetManager {
+    height: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.jp-Globus-widgetManager .jp-WidgetManager-toolbar {
     border-bottom: none;
+    padding: 6px;
     height: auto;
-    margin: 3px;
 }
 
-.jp-Toolbar-button.jp-Globus-toolbarBtn {
-    width: 48px;
-    height: 32px;
+.jp-Globus-widgetManager .jp-WidgetManager-connectPersonalBtn {
+    background: var(--jp-Globus-icon-connect-personal) no-repeat center;
 }
 
-.jp-Globus-connectPersonalBtn {
-    background: var(--jp-Globus-icon-connect-personal);
+.jp-Globus-widgetManager .jp-WidgetManager-fileManagerBtn {
+    background: var(--jp-Globus-icon-folder) no-repeat center;
 }
 
-.jp-Globus-fileManagerBtn {
-    background: var(--jp-Globus-icon-folder);
+.jp-Globus-widgetManager .jp-WidgetManager-activityBtn {
+    background: var(--jp-Globus-icon-activity) no-repeat center;
 }
 
-.jp-Globus-activityBtn {
-    background: var(--jp-Globus-icon-activity);
+.jp-Globus-widgetManager .jp-WidgetManager-signOutBtn {
+    background: var(--jp-Globus-icon-logout) no-repeat center;
 }
 
-.jp-Globus-signOutBtn {
-    background: var(--jp-Globus-icon-logout);
+.jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn {
+    flex: 1 1 auto;
+    background-size: 20px;
 }
 
-.jp-Globus-widgetHeader {
-    background: var(--jp-Globus-lightblue);
-    color: white;
-    text-align: center;
-    padding: 5px;
+.jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn.jp-Globus-selected {
+    background: #222;
+}
+
+.jp-Globus-widgetManager .jp-WidgetManager-header {
+    font-size: 1.2em;
+    min-height: 30px;
+    line-height: 30px;
+    box-shadow: 0 2px 10px black;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    margin-bottom: 7px;
 }

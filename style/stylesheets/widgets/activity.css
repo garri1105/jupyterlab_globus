@@ -1,0 +1,25 @@
+.jp-Globus-activity .jp-Activity-menuRecent::before {
+    background: var(--jp-Globus-icon-clock) no-repeat;
+}
+
+.jp-Globus-activity .jp-Activity-menuHistory::before {
+    background: var(--jp-Globus-icon-history) no-repeat;
+}
+
+.jp-Globus-activity .jp-Activity-menuRecent::before, .jp-Globus-activity .jp-Activity-menuHistory::before {
+    content: '     ';
+    background-size: contain;
+    white-space: pre-wrap;
+    margin-right: 5px;
+}
+
+.jp-Globus-activity .jp-Activity-taskMenu {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.jp-Globus-activity .jp-Activity-taskList {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
