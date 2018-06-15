@@ -2,8 +2,8 @@
     --jp-Globus-blue: #2F4986;
     --jp-Globus-lightblue: #3498db;
 
-    --jp-Globus-image-logo: url(../assets/images/globus.png);
-    --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.png);
+    --jp-Globus-image-logo: url(../assets/images/globus.svg);
+    --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.svg);
 
     --jp-Globus-icon-file: url(../assets/icons/file.svg);
     --jp-Globus-icon-folder: url(../assets/icons/folder.svg);

@@ -12,6 +12,7 @@ import {
 
 
 // TODO Add extra options. Advanced filtering, Search my endpoints, etc.
+// TODO onUpdate resets the widget. I don't like that. Find a way to go back to the endpoint lookup
 /**
  * CSS classes
  */

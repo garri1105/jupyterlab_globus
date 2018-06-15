@@ -16,9 +16,10 @@ export const ERROR_CODES: any = {
     'ClientError.ActivationRequired': 'Endpoint Activation Required',
     'ExternalError.DirListingFailed.NotDirectory': 'Not a Directory',
     'ServiceUnavailable': 'Server Under Maintenance',
-    'ExternalError.DirListingFailed.GCDisconnected': 'Globus Connect Personal Not Running',
+    'ExternalError.DirListingFailed.GCDisconnected': 'Globus Connect Not Running',
     'ExternalError.DirListingFailed': 'Directory Listing Failed',
-    'ExternalError.DirListingFailed.PermissionDenied': 'Permission Denied'
+    'ExternalError.DirListingFailed.PermissionDenied': 'Permission Denied',
+    'ExternalError.DirListingFailed.ConnectFailed': 'Connection Failed'
 };
 
 export let globusAuthorized = new PromiseDelegate<void>();

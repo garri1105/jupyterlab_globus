@@ -23,6 +23,7 @@ export let GCP_ENDPOINT_ID = '';
 
 // TODO Lots of error handling: GCP not found, etc.
 // TODO iOS behaves differently. ProcessEnv, import node
+// TODO Transfer with right click
 export class GlobusConnectPersonal extends Widget {
     private factory: IFileBrowserFactory;
     private browser: FileBrowser;

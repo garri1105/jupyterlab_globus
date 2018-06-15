@@ -76,6 +76,7 @@ export class GlobusWidgetManager extends Widget {
         let that = this;
         let toolbarButton = new ToolbarButton({
             onClick: () => {
+                // TODO active button background
                 // let buttons = this.parentElement.children;
                 // for (let i = 0; i < buttons.length; i++) {
                 //     if (buttons[i].classList.contains(GLOBUS_SELECTED)) {

@@ -63,7 +63,7 @@ export function displayError(e: any, node: HTMLElement) {
         errorCode.textContent = e.customMessage;
     }
     else {
-        errorCode.textContent = 'Unknown Error';
+        errorCode.textContent = e.code;
     }
     node.appendChild(errorCode);
 }
