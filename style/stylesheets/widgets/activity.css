@@ -7,9 +7,13 @@
 }
 
 .jp-Globus-activity .jp-Activity-menuRecent::before, .jp-Globus-activity .jp-Activity-menuHistory::before {
-    content: '     ';
+    content: '';
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    width: 16px;
+    height: 16px;
     background-size: contain;
-    white-space: pre-wrap;
     margin-right: 5px;
 }
 

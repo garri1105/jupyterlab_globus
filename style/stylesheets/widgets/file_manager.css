@@ -24,9 +24,13 @@
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuUpFolder::before, .jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
-    content: '     ';
+    content: '';
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    height: 16px;
+    width: 16px;
     background-size: contain;
-    white-space: pre-wrap;
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirMenu {
