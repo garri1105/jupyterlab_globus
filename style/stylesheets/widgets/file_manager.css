@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    overflow-y: auto;
 }
 
 .jp-Globus-file-manager .jp-FileManager-searchInfo {
@@ -26,8 +27,7 @@
 .jp-Globus-file-manager .jp-FileManager-menuUpFolder::before, .jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
     content: '';
     display: inline-block;
-    position: relative;
-    top: 4px;
+    margin-top: 8px;
     height: 16px;
     width: 16px;
     background-size: contain;
@@ -84,17 +84,17 @@
     align-self: center;
 }
 
-.jp-Globus-file-manager .jp-FileManager-directoryItem.jp-FileManager-fileType::before {
-    background: var(--jp-Globus-icon-file) no-repeat center;
+.jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-fileType::before {
+    background: var(--jp-Globus-icon-file) no-repeat;
     background-size: contain;
 }
 
-.jp-Globus-file-manager .jp-FileManager-directoryItem.jp-FileManager-dirType::before {
-    background: var(--jp-Globus-icon-folder2) no-repeat center;
+.jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-dirType::before {
+    background: var(--jp-Globus-icon-folder2) no-repeat;
     background-size: contain;
 }
 
-.jp-Globus-file-manager .jp-FileManager-directoryItem::before {
+.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem::before {
     content: '';
     display: inline-block;
     float: left;

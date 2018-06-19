@@ -146,7 +146,7 @@ export function activateEndpoint(endpointId: string): Promise<void> {
 }
 
 export function taskSearch() {
-    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/task_list?filter=type:TRANSFER,DELETE`);
+    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/task_list?limit=1000&filter=type:TRANSFER,DELETE`);
 }
 
 export function listDirectoryContents(endpointId: string, dirPath: string = '/~/') {

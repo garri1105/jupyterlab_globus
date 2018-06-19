@@ -2,9 +2,12 @@ import {ERROR_CODES} from "./globus/client";
 
 export const GLOBUS_GROUP = 'jp-Globus-group';
 export const GLOBUS_INPUT = 'jp-Globus-input';
+export const GLOBUS_DESCRIPTION_TERM = 'jp-Globus-descriptionTerm';
+export const GLOBUS_DESCRIPTION_DETAILS = 'jp-Globus-descriptionDetails';
 export const GLOBUS_LIST = 'jp-Globus-list';
 export const GLOBUS_LIST_ITEM = 'jp-Globus-listItem';
 export const GLOBUS_LIST_ITEM_TITLE = 'jp-Globus-listItemTitle';
+export const GLOBUS_LIST_ITEM_SUBTITLE = 'jp-Globus-listItemSubtitle';
 export const GLOBUS_FETCH_ERROR = 'jp-Globus-fetchError';
 export const GLOBUS_HEADER = 'jp-Globus-header';
 export const GLOBUS_OPEN = 'jp-Globus-open';
@@ -66,4 +69,17 @@ export function displayError(e: any, node: HTMLElement) {
         errorCode.textContent = e.code;
     }
     node.appendChild(errorCode);
+}
+
+export function createDescriptionElement(dList: HTMLDListElement, term: string, details: string) {
+    let dt: HTMLElement = document.createElement('dt');
+    dt.className = `${GLOBUS_DESCRIPTION_TERM}`;
+    dt.textContent = term;
+
+    let dd: HTMLElement = document.createElement('dd');
+    dd.className = `${GLOBUS_DESCRIPTION_DETAILS}`;
+    dd.textContent = details;
+
+    dList.appendChild(dt);
+    dList.appendChild(dd);
 }

@@ -1,6 +1,6 @@
 :root {
-    --jp-Globus-blue: #2F4986;
-    --jp-Globus-lightblue: #3498db;
+    --jp-Globus-blue: #263965;
+    --jp-Globus-lightblue: #468cc8;
 
     --jp-Globus-image-logo: url(../assets/images/globus.svg);
     --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.svg);
@@ -13,10 +13,15 @@
     --jp-Globus-icon-warning: url(../assets/icons/warning.svg);
     --jp-Globus-icon-angle-arrow-up: url(../assets/icons/angle-arrow-up.svg);
     --jp-Globus-icon-angle-arrow-down: url(../assets/icons/angle-arrow-down.svg);
+    --jp-Globus-icon-angle-arrow-right: url(../assets/icons/angle-arrow-right.svg);
     --jp-Globus-icon-up-arrow: url(../assets/icons/up-arrow.svg);
     --jp-Globus-icon-refresh: url(../assets/icons/round-arrow.svg);
     --jp-Globus-icon-connect-personal: url(../assets/icons/GCP.svg);
     --jp-Globus-icon-activity: url(../assets/icons/pulse.svg);
     --jp-Globus-icon-clock: url(../assets/icons/clock.svg);
     --jp-Globus-icon-history: url(../assets/icons/history.svg);
+    --jp-Globus-icon-success: url(../assets/icons/check-symbol.svg);
+    --jp-Globus-icon-fail: url(../assets/icons/fail-symbol.svg);
+    --jp-Globus-icon-back: url(../assets/icons/back-arrow.svg);
+    --jp-Globus-icon-info: url(../assets/icons/info.svg);
 }

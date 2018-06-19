@@ -55,7 +55,7 @@
     list-style-type: none;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
-    padding: 5px 5px 5px 10px;
+    padding: 5px;
     cursor: pointer;
 }
 
@@ -65,6 +65,13 @@
 
 .jp-Globus-listItemTitle {
     color: var(--jp-Globus-lightblue);
+    white-space: pre-wrap;
+}
+
+.jp-Globus-listItemSubtitle {
+    font-size: 0.9em;
+    color: #777;
+    font-style: italic;
 }
 
 .jp-Globus-fetchError {
@@ -162,9 +169,18 @@
 
 .jp-Globus-menu {
     display: flex;
-    height: 30px;
+    min-height: 30px;
     border-color: #ccc;
     background: #eee;
 }
 
+.jp-Globus-descriptionTerm {
+    margin-top: 7px;
+    margin-left: 10px;
+    color: #777;
+}
 
+.jp-Globus-descriptionDetails {
+    margin-left: 20px;
+    margin-bottom: 3px;
+}

@@ -29,7 +29,7 @@
 
 .jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn {
     flex: 1 1 auto;
-    background-size: 20px;
+    background-size: 25px;
 }
 
 .jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn.jp-Globus-selected {

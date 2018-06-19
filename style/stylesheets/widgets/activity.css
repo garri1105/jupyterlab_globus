@@ -1,3 +1,13 @@
+.jp-Globus-activity {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.jp-Globus-activity .jp-Activity-menuOverview::before {
+    background: var(--jp-Globus-icon-info) no-repeat;
+}
+
 .jp-Globus-activity .jp-Activity-menuRecent::before {
     background: var(--jp-Globus-icon-clock) no-repeat;
 }
@@ -6,7 +16,7 @@
     background: var(--jp-Globus-icon-history) no-repeat;
 }
 
-.jp-Globus-activity .jp-Activity-menuRecent::before, .jp-Globus-activity .jp-Activity-menuHistory::before {
+.jp-Globus-activity .jp-Globus-menuBtn::before {
     content: '';
     display: inline-block;
     position: relative;
@@ -17,13 +27,55 @@
     margin-right: 5px;
 }
 
-.jp-Globus-activity .jp-Activity-taskMenu {
+.jp-Globus-activity .jp-Globus-menu {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.jp-Globus-activity .jp-Activity-taskList {
+.jp-Globus-activity .jp-Globus-list {
     border-top: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+
+.jp-Globus-activity .jp-Globus-listItem.jp-Activity-taskSuccess::before {
+    background: var(--jp-Globus-icon-success) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-activity .jp-Globus-listItem.jp-Activity-taskFail::before {
+    background: var(--jp-Globus-icon-fail) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-activity .jp-Globus-listItem::before {
+    content: '';
+    display: inline-block;
+    float: left;
+    margin: 10px 5px 10px 0;
+    height: 30px;
+    width: 30px;
+}
+
+.jp-Globus-activity .jp-Globus-listItemTitle:not(.active)::after {
+    content: '';
+    display: inline-block;
+    float: right;
+    margin-right: 10px;
+    height: 18px;
+    width: 18px;
+    background: var(--jp-Globus-icon-angle-arrow-right) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-activity .jp-Activity-menuBack {
+    max-height: 30px;
+    max-width: 30px;
+    background: white var(--jp-Globus-icon-back) no-repeat center;
+    background-size: contain;
+}
+
+.jp-Globus-activity .jp-Activity-menuOverview {
+    background: white;
+    cursor: auto;
 }
