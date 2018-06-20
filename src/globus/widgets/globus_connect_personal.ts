@@ -10,7 +10,7 @@ import {
 } from "../../utils";
 
 const GLOBUS_CONNECT_PERSONAL = 'jp-Globus-connect-personal';
-const GLOBUS_ERROR_SCREEN = 'jp-GlobusConnectPersonal-errorScreen';
+const GCP_ERROR_SCREEN = 'jp-GlobusConnectPersonal-errorScreen';
 
 const LOCAL_APPDATA = 'AppData/Local/';
 const GCP_CLIENT_ID = 'Globus Connect/client-id.txt';
@@ -51,6 +51,10 @@ export class GlobusConnectPersonal extends Widget {
             driveName: GCP_DRIVE_NAME
         });
 
+        this.update();
+    }
+
+    onUpdateRequest() {
         this.navigateToGCPHomeDir();
     }
 
@@ -70,7 +74,9 @@ export class GlobusConnectPersonal extends Widget {
                 let path = this.findGCPHomeDirPath(data.content);
                 let gcpEndpoint = this.findGCPEndpoint(path);
                 if (gcpEndpoint) {
+                    console.log(this.browser.model.path);
                     await this.browser.model.cd();
+                    console.log(this.browser.model.path);
                     await this.browser.model.cd(`/${gcpEndpoint}`);
                     (this.layout as PanelLayout).addWidget(this.browser);
                 }
@@ -139,7 +145,7 @@ export class GlobusConnectPersonal extends Widget {
         restartJLButton.addEventListener('click', () => this.restartJL(newPath));
 
         this.errorScreen = document.createElement('div');
-        this.errorScreen.className = `${GLOBUS_DISPLAY_FLEX} ${GLOBUS_ERROR_SCREEN}`;
+        this.errorScreen.className = `${GLOBUS_DISPLAY_FLEX} ${GCP_ERROR_SCREEN}`;
         this.errorScreen.appendChild(ERROR_IMAGE);
         this.errorScreen.appendChild(errorText);
         this.errorScreen.appendChild(restartJLButton);

@@ -12,7 +12,6 @@ import {
 
 
 // TODO Add extra options. Advanced filtering, Search my endpoints, etc.
-// TODO onUpdate resets the widget. I don't like that. Find a way to go back to the endpoint lookup
 // TODO when filemanager overflows, layout getst screwed up
 /**
  * CSS classes
@@ -61,7 +60,7 @@ export class GlobusFileManager extends Widget {
 
         this.title.label = 'File Manager';
 
-        this.createHTMLElements();
+        this.update();
     }
 
     onUpdateRequest() {

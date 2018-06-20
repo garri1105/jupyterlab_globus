@@ -48,6 +48,8 @@ export class GlobusActivity extends Widget {
         this.title.label = 'Activity';
 
         this.createHTMLElements();
+
+        this.update();
     }
 
     onUpdateRequest() {

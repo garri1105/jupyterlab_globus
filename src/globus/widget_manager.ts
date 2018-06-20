@@ -50,7 +50,9 @@ export class GlobusWidgetManager extends Widget {
         this.app = app;
 
         this.layout = new PanelLayout();
+    }
 
+    onUpdateRequest() {
         this.toolbar = new Toolbar<Widget>();
         this.toolbar.addClass(GLOBUS_TOOLBAR);
         (this.layout as PanelLayout).addWidget(this.toolbar);
@@ -68,21 +70,18 @@ export class GlobusWidgetManager extends Widget {
         signOutButton.addClass(GLOBUS_TOOLBAR_BTN);
         this.toolbar.addItem(SIGN_OUT, signOutButton);
 
+
         this.header = document.createElement('header');
         this.header.className = `${GLOBUS_WIDGET_HEADER} ${GLOBUS_HEADER}`;
+        this.node.insertBefore(this.header, this.node.childNodes[1]);
+
+        this.switchToWidget(CONNECT_PERSONAL);
     }
 
     private createToolbarButton(widget: Widget, cssClass: string = '') {
         let that = this;
         let toolbarButton = new ToolbarButton({
             onClick: () => {
-                // TODO active button background
-                // let buttons = this.parentElement.children;
-                // for (let i = 0; i < buttons.length; i++) {
-                //     if (buttons[i].classList.contains(GLOBUS_SELECTED)) {
-                //         buttons[i].classList.remove(GLOBUS_SELECTED);
-                //     }
-                // }
                 that.switchToWidget(widget.id);
             },
             tooltip: widget.title.label
@@ -92,46 +91,54 @@ export class GlobusWidgetManager extends Widget {
         this.toolbar.addItem(widget.id, toolbarButton);
     }
 
-    onUpdateRequest() {
-        this.switchToWidget(CONNECT_PERSONAL);
-    }
-
     private signOut(): void {
         signOut();
         (this.parent as GlobusHome).showLoginScreen();
         this.parent = null;
+
+        this.node.removeChild(this.header);
+        while ((this.layout as PanelLayout).widgets.length > 0) {
+            this.layout.removeWidget((this.layout as PanelLayout).widgets[0]);
+        }
+        this.currentWidgetId = null;
     }
 
     private switchToWidget(id: string) {
-        if (id !== this.currentWidgetId) {
-            if (this.widgetMap[this.currentWidgetId]) {
-                this.widgetMap[this.currentWidgetId].parent = null;
-            }
-            this.currentWidgetId = id;
-            (this.layout as PanelLayout).addWidget(this.widgetMap[id]);
+        if (id != this.currentWidgetId || !this.currentWidgetId) {
+            if (!this.currentWidgetId) {this.currentWidgetId = id}
+            this.widgetMap[this.currentWidgetId].hide();
+            this.widgetMap[id].show();
             this.header.textContent = this.widgetMap[id].title.label;
-            this.node.insertBefore(this.header, this.node.childNodes[1]);
+            this.currentWidgetId = id;
         }
-
-        this.widgetMap[this.currentWidgetId].update();
+        else {
+            this.widgetMap[this.currentWidgetId].update();
+        }
     }
 
     private createWidgets() {
         // Initialize widgets
         let connectPersonalWidget = new GlobusConnectPersonal(this.app, this.manager, this.factory);
-        this.widgetMap[connectPersonalWidget.id] = connectPersonalWidget;
+        this.initWidget(connectPersonalWidget);
         this.createToolbarButton(connectPersonalWidget, GLOBUS_CONNECT_PERSONAL_BTN);
 
         let fileManagerWidget = new GlobusFileManager();
-        this.widgetMap[fileManagerWidget.id] = fileManagerWidget;
+        this.initWidget(fileManagerWidget);
         this.createToolbarButton(fileManagerWidget, GLOBUS_FILEMANAGER_BTN);
 
         let activityWidget = new GlobusActivity();
-        this.widgetMap[activityWidget .id] = activityWidget;
+        this.initWidget(activityWidget);
         this.createToolbarButton(activityWidget, GLOBUS_ACTIVITY_BTN);
+
         /* Add additional widgets here:
         *
         *
         * */
+    }
+
+    private initWidget(widget: Widget) {
+        this.widgetMap[widget.id] = widget;
+        (this.layout as PanelLayout).addWidget(widget);
+        widget.hide();
     }
 }
