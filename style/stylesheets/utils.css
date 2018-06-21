@@ -55,7 +55,7 @@
     list-style-type: none;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
-    padding: 5px;
+    padding: 5px 5px 5px 8px;
     cursor: pointer;
 }
 
@@ -155,12 +155,12 @@
     flex: 1 1 auto;
     text-align: center;
     color: var(--jp-Globus-lightblue);
-    line-height: 30px;
+    line-height: 35px;
     font-size: 0.9em;
 }
 
 .jp-Globus-menuBtn:hover {
-    background: #fff;
+    background-color: #fff;
 }
 
 .jp-Globus-menuBtn.jp-Globus-selected {

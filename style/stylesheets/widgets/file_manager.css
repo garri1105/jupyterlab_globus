@@ -16,6 +16,10 @@
     border-top-right-radius: 0;
 }
 
+.jp-Globus-file-manager .jp-FileManager-menuSelect {
+    max-width: 100px;
+}
+
 .jp-Globus-file-manager .jp-FileManager-menuUpFolder::before {
     background: var(--jp-Globus-icon-up-arrow) no-repeat;
 }
@@ -24,13 +28,26 @@
     background: var(--jp-Globus-icon-refresh) no-repeat;
 }
 
-.jp-Globus-file-manager .jp-FileManager-menuUpFolder::before, .jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
+.jp-Globus-file-manager .jp-FileManager-menuUpFolder::before,
+.jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
     content: '';
     display: inline-block;
-    margin-top: 8px;
+    margin-top: 10px;
     height: 16px;
     width: 16px;
     background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-menuOptions {
+    border-left: 1px solid #ccc;
+    max-height: inherit;
+    max-width: 30px;
+    background: var(--jp-Globus-icon-hamburger) no-repeat center;
+    background-size: 16px 16px;
+}
+
+.jp-Globus-file-manager .jp-FileManager-menuOptions:hover {
+    background-color: white;
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirMenu {
@@ -44,6 +61,13 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     max-height: 40vh;
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirOptions {
+    overflow: auto;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .jp-Globus-file-manager .jp-FileManager-transferResult {

@@ -23,11 +23,14 @@ const FILEMANAGER_ENDPOINT_LIST = 'jp-FileManager-endpointList';
 const FILEMANAGER_DIR_GROUP = 'jp-FileManager-dirGroup';
 const FILEMANAGER_DIR_PATH_INPUT = 'jp-FileManager-dirPathInput';
 const FILEMANAGER_DIR_LIST = 'jp-FileManager-dirList';
+const FILEMANAGER_DIR_OPTIONS = 'jp-FileManager-dirOptions';
 const FILEMANAGER_DIR_MENU = 'jp-FileManager-dirMenu';
 const FILEMANAGER_MENU_SELECT = 'jp-FileManager-menuSelect';
 const FILEMANAGER_MENU_UP_FOLDER = 'jp-FileManager-menuUpFolder';
 const FILEMANAGER_MENU_REFRESH = 'jp-FileManager-menuRefresh';
-const FILEMANAGER_MENU_TRANSFER = 'jp-FileManager-menuTransfer';
+const FILEMANAGER_MENU_OPTION = 'jp-FileManager-menuOption';
+const FILEMANAGER_MENU_OPTIONS = 'jp-FileManager-menuOptions';
+const FILEMANAGER_OPTION_TRANSFER = 'jp-FileManager-optionTransfer';
 const FILEMANAGER_SEARCH_INFO = 'jp-FileManager-searchInfo';
 const FILEMANAGER_SEARCH_GROUP = 'jp-FileManager-searchGroup';
 const FILEMANAGER_TRANSFER_RESULT = 'jp-FileManager-transferResult';
@@ -281,23 +284,30 @@ export class GlobusFileManager extends Widget {
         menuSelect.textContent = 'select all';
         let menuUpFolder: HTMLDivElement = document.createElement('div');
         menuUpFolder.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_UP_FOLDER}`;
-        menuUpFolder.textContent = '';
+
         let menuRefresh: HTMLDivElement = document.createElement('div');
         menuRefresh.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_REFRESH}`;
-        menuRefresh.textContent = '';
-        let menuTransfer: HTMLDivElement = document.createElement('div');
-        menuTransfer.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_TRANSFER}`;
-        menuTransfer.textContent = 'transfer';
+
+        let menuOptions: HTMLDivElement = document.createElement('div');
+        menuOptions.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_OPTIONS}`;
 
         let dirMenu = document.createElement('div');
         dirMenu.className = `${GLOBUS_BORDER} ${GLOBUS_MENU} ${FILEMANAGER_DIR_MENU}`;
         dirMenu.appendChild(menuSelect);
         dirMenu.appendChild(menuUpFolder);
         dirMenu.appendChild(menuRefresh);
-        dirMenu.appendChild(menuTransfer);
+        dirMenu.appendChild(menuOptions);
 
         let dirList: HTMLUListElement = document.createElement('ul');
         dirList.className = `${GLOBUS_LIST} ${FILEMANAGER_DIR_LIST} ${GLOBUS_BORDER}`;
+
+        let transferOption = document.createElement('li');
+        transferOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_TRANSFER}`;
+        transferOption.textContent = 'Transfer';
+        let dirOptions: HTMLUListElement = document.createElement('ul');
+        dirOptions.className = `${GLOBUS_LIST} ${FILEMANAGER_DIR_OPTIONS} ${GLOBUS_BORDER}`;
+        dirOptions.appendChild(transferOption);
+        dirOptions.style.display = 'none';
 
         // Path Input container for adding extra elements
         let directoryGroup = document.createElement('div');
@@ -305,6 +315,7 @@ export class GlobusFileManager extends Widget {
         directoryGroup.appendChild(dirPathInput);
         directoryGroup.appendChild(dirMenu);
         directoryGroup.appendChild(dirList);
+        directoryGroup.appendChild(dirOptions);
         directoryGroup.style.display = 'none';
 
         /* ------------- </DirPath search> ------------- */
@@ -319,6 +330,7 @@ export class GlobusFileManager extends Widget {
         this.searchGroup.addEventListener('keyup', this.onKeyUpEndpointInputHandler.bind(this));
         this.searchGroup.addEventListener('change', this.onChangeDirPathInputHandler.bind(this));
         this.searchGroup.addEventListener('click', this.onClickDirMenuButtonHandler.bind(this));
+        this.searchGroup.addEventListener('click', this.onClickMenuOptionHandler.bind(this));
         this.searchGroup.style.display = 'flex';
 
         /* -------------</searchGroup>------------- */
@@ -374,6 +386,7 @@ export class GlobusFileManager extends Widget {
         this.destinationGroup.addEventListener('keyup', this.onKeyUpEndpointInputHandler.bind(this));
         this.destinationGroup.addEventListener('change', this.onChangeDirPathInputHandler.bind(this));
         this.destinationGroup.addEventListener('click', this.onClickDirMenuButtonHandler.bind(this));
+        this.destinationGroup.addEventListener('click', this.onClickMenuOptionHandler.bind(this));
         this.destinationGroup.style.display = 'none';
 
         /* ------------- </destinationGroup> ------------- */
@@ -418,6 +431,7 @@ export class GlobusFileManager extends Widget {
         if (e.target.matches(`.${GLOBUS_MENU_BTN}`)) {
             let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
             let dirList: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_LIST) as HTMLUListElement;
+            let dirOptions: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_OPTIONS) as HTMLUListElement;
             let dirPathInput: HTMLInputElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_PATH_INPUT) as HTMLInputElement;
 
             if (e.target.matches(`.${FILEMANAGER_MENU_SELECT}`)) {
@@ -448,7 +462,23 @@ export class GlobusFileManager extends Widget {
             else if (e.target.matches(`.${FILEMANAGER_MENU_REFRESH}`)) {
                 this.retrieveDirectories(dirPathInput, dirList);
             }
-            else if (e.target.matches(`.${FILEMANAGER_MENU_TRANSFER}`)) {
+            else if (e.target.matches(`.${FILEMANAGER_MENU_OPTIONS}`)) {
+                dirList.style.display = 'none';
+                dirOptions.style.display = 'block';
+            }
+        }
+    }
+
+    private onClickMenuOptionHandler(e: any) {
+        if (e.target.matches(`.${FILEMANAGER_MENU_OPTION}`)) {
+            let globusParentGroup = getGlobusParentGroup(e.target);
+            let dirList: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_LIST) as HTMLUListElement;
+            let dirOptions: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_OPTIONS) as HTMLUListElement;
+
+            dirList.style.display = 'block';
+            dirOptions.style.display = 'none';
+
+            if (e.target.matches(`.${FILEMANAGER_OPTION_TRANSFER}`)) {
                 this.sourceGroup.appendChild(this.searchGroup);
                 this.sourceGroup.style.display = 'flex';
                 this.destinationGroup.style.display = 'flex';
