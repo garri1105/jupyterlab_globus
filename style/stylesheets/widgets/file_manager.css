@@ -90,11 +90,11 @@
     background-size: contain;
 }
 
-.jp-Globus-file-manager .jp-Globus-header.active::after {
+.jp-Globus-file-manager .jp-Globus-header.jp-Globus-active::after {
     background-image: var(--jp-Globus-icon-angle-arrow-up);
 }
 
-.jp-Globus-file-manager .jp-Globus-header.active {
+.jp-Globus-file-manager .jp-Globus-header.jp-Globus-active {
     margin-bottom: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -110,12 +110,10 @@
 
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-fileType::before {
     background: var(--jp-Globus-icon-file) no-repeat;
-    background-size: contain;
 }
 
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-dirType::before {
-    background: var(--jp-Globus-icon-folder2) no-repeat;
-    background-size: contain;
+    background: var(--jp-Globus-icon-dirFolder) no-repeat;
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem::before {
@@ -125,4 +123,65 @@
     margin-right: 10px;
     height: 32px;
     width: 32px;
+    background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected {
+    background-color: var(--jp-Globus-lightblue);
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected:before {
+    filter: brightness(0) invert(1);
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected * {
+    color: white;
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirOptions .jp-Globus-listItem::before {
+    content: '';
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+    height: 32px;
+    width: 32px;
+    background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-menuOption {
+    line-height: 32px;
+    color: #777;
+}
+
+.jp-Globus-file-manager .jp-FileManager-menuOption:hover {
+    text-decoration: underline;
+    color: var(--jp-Globus-lightblue)
+}
+
+.jp-Globus-file-manager .jp-FileManager-optionShare::before {
+    background: var(--jp-Globus-icon-shareFolder) no-repeat;
+}
+
+.jp-Globus-file-manager .jp-FileManager-optionTransfer::before {
+    background: var(--jp-Globus-icon-transfer) no-repeat;
+}
+
+.jp-Globus-file-manager .jp-FileManager-optionNewFolder::before {
+    background: var(--jp-Globus-icon-newFolder) no-repeat;
+}
+
+.jp-Globus-file-manager .jp-FileManager-optionRename::before {
+    background: var(--jp-Globus-icon-renameFolder) no-repeat;
+}
+
+.jp-Globus-file-manager .jp-FileManager-optionDelete::before {
+    background: var(--jp-Globus-icon-deleteFolder) no-repeat;
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirOptions .jp-Globus-listItem.jp-Globus-disabled {
+    filter: brightness(200%);
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirOptions .jp-Globus-listItem.jp-Globus-disabled:before {
+    filter: brightness(200%);
 }

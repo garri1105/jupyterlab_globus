@@ -160,13 +160,14 @@ export function endpointSearch(query: string) {
 export async function transferFile(items: any, sourceId: string, destinationId: string) {
     let submissionId = await getSubmissionId();
 
-    let transfer: any = {
+    let transferJSON: any = {
         'DATA_TYPE': 'transfer',
         'submission_id': submissionId.value,
         'source_endpoint': sourceId,
         'destination_endpoint': destinationId,
         'DATA': items,
-        'notify_on_succeeded': false
+        'notify_on_succeeded': false,
+        'notify_on_failed': false
     };
 
     return makeGlobusRequest(
@@ -175,9 +176,34 @@ export async function transferFile(items: any, sourceId: string, destinationId: 
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(transfer)
+            body: JSON.stringify(transferJSON)
         });
 }
+
+export async function deleteFile(items: any, sourceId: string, recursive: boolean) {
+    console.log(items);
+    let submissionId = await getSubmissionId();
+
+    let deleteJSON: any = {
+        'DATA_TYPE': 'delete',
+        'submission_id': submissionId.value,
+        'endpoint': sourceId,
+        'recursive': recursive,
+        'DATA': items,
+        'notify_on_succeeded': false,
+        'notify_on_failed': false
+    };
+
+    return makeGlobusRequest(
+        `${GLOBUS_TRANSFER_API_URL}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(deleteJSON)
+        });
+}
+
 
 function getSubmissionId() {
     return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/submission_id`);
