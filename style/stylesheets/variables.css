@@ -6,8 +6,12 @@
     --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.svg);
 
     --jp-Globus-icon-file: url(../assets/icons/file.svg);
-    --jp-Globus-icon-folder: url(../assets/icons/folder.svg);
-    --jp-Globus-icon-folder2: url(../assets/icons/folder2.svg);
+    --jp-Globus-icon-toolbarFolder: url(../assets/icons/folder.svg);
+    --jp-Globus-icon-dirFolder: url(../assets/icons/folder2.svg);
+    --jp-Globus-icon-newFolder: url(../assets/icons/folder3.svg);
+    --jp-Globus-icon-shareFolder: url(../assets/icons/folder4.svg);
+    --jp-Globus-icon-renameFolder: url(../assets/icons/folder5.svg);
+    --jp-Globus-icon-deleteFolder: url(../assets/icons/folder6.svg);
     --jp-Globus-icon-logout: url(../assets/icons/logout.svg);
     --jp-Globus-icon-search: url(../assets/icons/search.svg);
     --jp-Globus-icon-warning: url(../assets/icons/warning.svg);
@@ -25,4 +29,5 @@
     --jp-Globus-icon-back: url(../assets/icons/back-arrow.svg);
     --jp-Globus-icon-info: url(../assets/icons/info.svg);
     --jp-Globus-icon-hamburger: url(../assets/icons/hamburger.svg);
+    --jp-Globus-icon-transfer: url(../assets/icons/transfer-arrows.svg);
 }

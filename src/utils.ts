@@ -11,7 +11,6 @@ export const GLOBUS_LIST_ITEM_SUBTITLE = 'jp-Globus-listItemSubtitle';
 export const GLOBUS_FETCH_ERROR = 'jp-Globus-fetchError';
 export const GLOBUS_HEADER = 'jp-Globus-header';
 export const GLOBUS_OPEN = 'jp-Globus-open';
-export const GLOBUS_SELECTED = 'jp-Globus-selected';
 export const GLOBUS_BORDER = 'jp-Globus-border';
 export const GLOBUS_SUCCESS = 'jp-Globus-success';
 export const GLOBUS_FAIL = 'jp-Globus-fail';
@@ -19,6 +18,9 @@ export const GLOBUS_BUTTON = 'jp-Globus-button';
 export const GLOBUS_DISPLAY_FLEX = 'jp-Globus-displayFlex';
 export const GLOBUS_MENU_BTN = 'jp-Globus-menuBtn';
 export const GLOBUS_MENU = 'jp-Globus-menu';
+export const GLOBUS_SELECTED = 'jp-Globus-selected';
+export const GLOBUS_DISABLED = 'jp-Globus-disabled';
+export const GLOBUS_ACTIVE = 'jp-Globus-active';
 
 export const LOADING_ICON = document.createElement('div');
 LOADING_ICON.className = 'jp-Globus-loader';

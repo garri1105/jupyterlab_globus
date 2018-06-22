@@ -98,11 +98,6 @@
     padding: 5px;
 }
 
-.jp-Globus-listItem.jp-Globus-selected, .jp-Globus-selected .jp-Globus-listItemTitle {
-    background-color: var(--jp-Globus-lightblue);
-    color: white;
-}
-
 .jp-Globus-success {
     background: #a6e9a6 !important;
     color: #0d340d !important;

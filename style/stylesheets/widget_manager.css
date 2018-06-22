@@ -16,7 +16,7 @@
 }
 
 .jp-Globus-widgetManager .jp-WidgetManager-fileManagerBtn {
-    background: var(--jp-Globus-icon-folder) no-repeat center;
+    background: var(--jp-Globus-icon-toolbarFolder) no-repeat center;
 }
 
 .jp-Globus-widgetManager .jp-WidgetManager-activityBtn {

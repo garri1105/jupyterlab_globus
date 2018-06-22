@@ -1,9 +1,21 @@
 import {Widget} from '@phosphor/widgets';
 import {
     createDescriptionElement,
-    displayError, getGlobusElement, GLOBUS_BORDER, GLOBUS_DISPLAY_FLEX, GLOBUS_GROUP, GLOBUS_LIST, GLOBUS_LIST_ITEM,
+    displayError,
+    getGlobusElement,
+    GLOBUS_ACTIVE,
+    GLOBUS_BORDER,
+    GLOBUS_DISPLAY_FLEX,
+    GLOBUS_GROUP,
+    GLOBUS_LIST,
+    GLOBUS_LIST_ITEM,
     GLOBUS_LIST_ITEM_SUBTITLE,
-    GLOBUS_LIST_ITEM_TITLE, GLOBUS_MENU, GLOBUS_MENU_BTN, GLOBUS_SELECTED, LOADING_ICON, LOADING_LABEL,
+    GLOBUS_LIST_ITEM_TITLE,
+    GLOBUS_MENU,
+    GLOBUS_MENU_BTN,
+    GLOBUS_SELECTED,
+    LOADING_ICON,
+    LOADING_LABEL,
     removeChildren
 } from "../../utils";
 import {taskSearch} from "../client";
@@ -127,7 +139,7 @@ export class GlobusActivity extends Widget {
         let taskGroup = getGlobusElement(this.parentGroup, ACTIVITY_TASK_GROUP);
 
         let taskClone: HTMLElement = task.cloneNode(true) as HTMLElement;
-        taskClone.firstElementChild.classList.add('active');
+        taskClone.classList.add(GLOBUS_ACTIVE);
         overviewList.appendChild(taskClone);
         this.displayTaskOverview(overviewList as HTMLDListElement, taskData);
         overviewList.parentElement.style.display = 'flex';

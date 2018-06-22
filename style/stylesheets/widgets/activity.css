@@ -57,7 +57,7 @@
     width: 30px;
 }
 
-.jp-Globus-activity .jp-Globus-listItemTitle:not(.active)::after {
+.jp-Globus-activity .jp-Globus-listItem:not(.jp-Globus-active) .jp-Globus-listItemTitle::after {
     content: '';
     display: inline-block;
     float: right;
@@ -68,8 +68,15 @@
     background-size: contain;
 }
 
+.jp-Globus-activity .jp-Globus-listItem.jp-Globus-active:hover {
+    background-color: white;
+}
+
+.jp-Globus-activity .jp-Globus-listItem.jp-Globus-active {
+    cursor: auto;
+}
+
 .jp-Globus-activity .jp-Activity-menuBack {
-    max-height: 30px;
     max-width: 30px;
     background: white var(--jp-Globus-icon-back) no-repeat center;
     background-size: contain;
