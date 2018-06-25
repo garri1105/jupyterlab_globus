@@ -180,14 +180,14 @@ export async function transferFile(items: any, sourceId: string, destinationId: 
         });
 }
 
-export async function deleteFile(items: any, sourceId: string, recursive: boolean) {
+export async function deleteFile(items: any, endpointId: string, recursive: boolean) {
     console.log(items);
     let submissionId = await getSubmissionId();
 
     let deleteJSON: any = {
         'DATA_TYPE': 'delete',
         'submission_id': submissionId.value,
-        'endpoint': sourceId,
+        'endpoint': endpointId,
         'recursive': recursive,
         'DATA': items,
         'notify_on_succeeded': false,
@@ -204,6 +204,32 @@ export async function deleteFile(items: any, sourceId: string, recursive: boolea
         });
 }
 
+export function newFolder(endpointId: string, path: boolean) {
+    let mkdirJSON: any = {
+        'DATA_TYPE': 'mkdir',
+        'path': path
+    };
+
+    return makeGlobusRequest(
+        `${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/mkdir`, {
+            method: 'POST',
+            body: JSON.stringify(mkdirJSON)
+        });
+}
+
+export function renameFile(endpointId: string, oldPath: string, newPath: string) {
+    let renameJSON: any = {
+        'DATA_TYPE': 'rename',
+        'old_path': oldPath,
+        'new_path': newPath
+    };
+
+    return makeGlobusRequest(
+        `${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/rename`, {
+            method: 'POST',
+            body: JSON.stringify(renameJSON)
+        });
+}
 
 function getSubmissionId() {
     return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/submission_id`);
