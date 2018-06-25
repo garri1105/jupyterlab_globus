@@ -53,10 +53,10 @@
 
 .jp-Globus-listItem {
     list-style-type: none;
-    border: solid #ddd;
-    border-width: 0 1px 1px 1px;
+    border: 1px solid #ddd;
     padding: 5px 5px 5px 8px;
     cursor: pointer;
+    margin-bottom: -1px;
 }
 
 .jp-Globus-listItem:not(.jp-Globus-selected):hover {
@@ -150,7 +150,7 @@
     flex: 1 1 auto;
     text-align: center;
     color: var(--jp-Globus-lightblue);
-    line-height: 35px;
+    line-height: 30px;
     font-size: 0.9em;
 }
 

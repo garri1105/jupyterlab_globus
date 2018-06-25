@@ -14,10 +14,11 @@
     border-top: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    white-space: pre-wrap;
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuSelect {
-    max-width: 100px;
+    width: 60px;
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuUpFolder::before {
@@ -32,7 +33,7 @@
 .jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
     content: '';
     display: inline-block;
-    margin-top: 10px;
+    margin-top: 7px;
     height: 16px;
     width: 16px;
     background-size: contain;
@@ -150,12 +151,15 @@
 
 .jp-Globus-file-manager .jp-FileManager-menuOption {
     line-height: 32px;
-    color: #777;
+    color: #666;
+    border-color: transparent;
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuOption:hover {
+    background-color: transparent;
     text-decoration: underline;
-    color: var(--jp-Globus-lightblue)
+    filter: brightness(0);
+    margin-bottom: 0;
 }
 
 .jp-Globus-file-manager .jp-FileManager-optionShare::before {
@@ -179,9 +183,7 @@
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirOptions .jp-Globus-listItem.jp-Globus-disabled {
-    filter: brightness(200%);
-}
-
-.jp-Globus-file-manager .jp-FileManager-dirOptions .jp-Globus-listItem.jp-Globus-disabled:before {
-    filter: brightness(200%);
+    pointer-events: none;
+    cursor: default;
+    filter: brightness(180%);
 }
