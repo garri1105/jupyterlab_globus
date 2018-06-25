@@ -37,7 +37,8 @@
     "@types/crypto-js": "^3.1.39",
     "crypto-js": "^3.1.9-1",
     "moment": "^2.22.2",
-    "npm": "^6.0.1"
+    "npm": "^6.0.1",
+    "rxjs": "^6.2.1"
   },
   "devDependencies": {
     "@types/node": "^10.3.1",
