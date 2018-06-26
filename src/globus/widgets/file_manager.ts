@@ -38,10 +38,11 @@ const FILEMANAGER_OPTION_RENAME = 'jp-FileManager-optionRename';
 const FILEMANAGER_OPTION_DELETE = 'jp-FileManager-optionDelete';
 const FILEMANAGER_SEARCH_INFO = 'jp-FileManager-searchInfo';
 const FILEMANAGER_SEARCH_GROUP = 'jp-FileManager-searchGroup';
-const FILEMANAGER_TRANSFER_RESULT = 'jp-FileManager-transferResult';
-const FILEMANAGER_START_TRANSFER_BTN = 'jp-FileManager-startTransferBtn';
 const FILEMANAGER_FILE_TYPE = 'jp-FileManager-fileType';
 const FILEMANAGER_DIR_TYPE = 'jp-FileManager-dirType';
+const FILEMANAGER_TRANSFER_RESULT = 'jp-FileManager-transferResult';
+const FILEMANAGER_START_TRANSFER_BTN = 'jp-FileManager-startTransferBtn';
+const FILEMANAGER_TRANSFER_OPTIONS_BTN = 'jp-FileManager-transferOptionsBtn';
 
 export const FILE_MANAGER = 'globus-file-manager';
 
@@ -334,7 +335,7 @@ export class GlobusFileManager extends Widget {
                 this.parentGroup$.next(this.sourceGroup);
                 this.sourceGroup.style.display = 'flex';
                 this.destinationGroup.style.display = 'flex';
-                this.transferGroup.style.display = 'block';
+                this.transferGroup.style.display = 'flex';
                 this.originalGroup.style.display = 'none';
                 this.setGCPDestination();
                 this.onClickHeaderHandler({target: getGlobusElement(this.searchGroup.parentElement, GLOBUS_HEADER)});
@@ -409,6 +410,16 @@ export class GlobusFileManager extends Widget {
         else {
             transferResult.textContent = 'Both endpoints must be selected to start transfer';
             transferResult.classList.add(GLOBUS_FAIL);
+        }
+    }
+
+    private toggleTransferOptions(div: HTMLElement, e: any) {
+        e.target.classList.toggle(GLOBUS_ACTIVE);
+        if (div.style.display === 'none') {
+            div.style.display = 'block';
+        }
+        else {
+            div.style.display = 'none';
         }
     }
 
@@ -592,12 +603,14 @@ export class GlobusFileManager extends Widget {
 
 
         /* ------------- <destinationGroup> ------------- */
-        /* Destination screen. Hidden */
+
         this.destinationGroup = this.sourceGroup.cloneNode(true) as HTMLDivElement;
+        this.destinationGroup.appendChild(this.searchGroup.cloneNode(true));
         let destinationHeader = getGlobusElement(this.destinationGroup, GLOBUS_HEADER);
         destinationHeader.textContent = 'Destination';
         destinationHeader.addEventListener('click', this.onClickHeaderHandler.bind(this));
-        this.destinationGroup.appendChild(this.searchGroup.cloneNode(true));
+        let destinationMenuOptions = getGlobusElement(this.destinationGroup, FILEMANAGER_MENU_OPTIONS);
+        destinationMenuOptions.style.display = 'none';
         this.destinationGroup.addEventListener('keyup', this.onKeyUpEndpointInputHandler.bind(this));
         this.destinationGroup.addEventListener('change', this.onChangeDirPathInputHandler.bind(this));
         this.destinationGroup.addEventListener('click', this.onClickDirMenuButtonHandler.bind(this));
@@ -612,15 +625,32 @@ export class GlobusFileManager extends Widget {
 
         let transferResult = document.createElement('div');
         transferResult.className = `${FILEMANAGER_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
-        transferResult.onclick = () => transferResult.style.display = 'none';
+        transferResult.style.display = 'none';
+        transferResult.addEventListener('click', () => transferResult.style.display = 'none');
         let startTransferBtn = document.createElement('button');
-        startTransferBtn.textContent = 'TRANSFER';
+        startTransferBtn.textContent = 'Start';
         startTransferBtn.className = `${GLOBUS_BUTTON} ${FILEMANAGER_START_TRANSFER_BTN}`;
         startTransferBtn.addEventListener('click', this.startTransfer.bind(this));
+        let optionInput1: HTMLInputElement = document.createElement('input');
+        optionInput1.type = 'checkbox';
+        optionInput1.id = '1';
+        let optionLabel1: HTMLLabelElement = document.createElement('label');
+        optionLabel1.textContent = 'One';
+        optionLabel1.htmlFor = '1';
+        let transferOptions = document.createElement('div');
+        transferOptions.appendChild(optionInput1);
+        transferOptions.appendChild(optionLabel1);
+        transferOptions.style.display = 'none';
+        let transferOptionsBtn = document.createElement('button');
+        transferOptionsBtn.textContent = 'Transfer & Sync Options';
+        transferOptionsBtn.className = `${GLOBUS_BUTTON} ${FILEMANAGER_TRANSFER_OPTIONS_BTN}`;
+        transferOptionsBtn.addEventListener('click', this.toggleTransferOptions.bind(this, transferOptions));
         this.transferGroup = document.createElement('div');
         this.transferGroup.className = GLOBUS_GROUP;
         this.transferGroup.appendChild(transferResult);
         this.transferGroup.appendChild(startTransferBtn);
+        this.transferGroup.appendChild(transferOptionsBtn);
+        this.transferGroup.appendChild(transferOptions);
         this.transferGroup.style.display = 'none';
 
         /* ------------- </transferGroup> ------------- */
