@@ -1,6 +1,6 @@
 .jp-Globus-loader {
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
+    border-top: 3px solid #0074af;
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -111,20 +111,18 @@
 }
 
 .jp-Globus-button {
-    background: #3498db linear-gradient(to bottom, #3498db, #2980b9);
+    background: #0074af;
     border: transparent;
     border-radius: 3px;
     padding: 10px 20px 10px 20px;
     text-decoration: none;
     margin: 10px;
-    width: auto;
+    min-width: 150px;
     color: white;
-    text-transform: capitalize;
 }
 
 .jp-Globus-button:hover {
-    background: #3cb0fd linear-gradient(to bottom, #3cb0fd, #3498db);
-    text-decoration: none;
+    background: #014c8c;
 }
 
 .jp-Globus-displayFlex {
@@ -150,7 +148,7 @@
     flex: 1 1 auto;
     text-align: center;
     color: var(--jp-Globus-lightblue);
-    line-height: 30px;
+    padding-top: 7px;
     font-size: 0.9em;
 }
 

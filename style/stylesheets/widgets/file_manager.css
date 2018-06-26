@@ -1,7 +1,6 @@
 .jp-Globus-file-manager {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    flex: 1 1 auto;
+    display: block;
     overflow-y: auto;
 }
 
@@ -33,7 +32,6 @@
 .jp-Globus-file-manager .jp-FileManager-menuRefresh::before {
     content: '';
     display: inline-block;
-    margin-top: 7px;
     height: 16px;
     width: 16px;
     background-size: contain;
@@ -71,11 +69,6 @@
     border-top-right-radius: 0;
 }
 
-.jp-Globus-file-manager .jp-FileManager-transferResult {
-    background: transparent;
-    margin: 20px 10px 0;
-}
-
 .jp-Globus-file-manager .jp-Globus-header {
     margin-bottom: 10px;
 }
@@ -103,10 +96,6 @@
 
 .jp-Globus-file-manager .jp-Globus-header::before {
     content: ' ';
-}
-
-.jp-Globus-file-manager .jp-FileManager-startTransferBtn {
-    align-self: center;
 }
 
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-fileType::before {
@@ -186,4 +175,49 @@
     pointer-events: none;
     cursor: default;
     filter: brightness(180%);
+}
+
+.jp-Globus-file-manager .jp-FileManager-transferResult {
+    align-self: center;
+    background: transparent;
+    margin: 10px
+}
+
+.jp-Globus-file-manager .jp-FileManager-startTransferBtn {
+    align-self: center;
+    line-height: 20px;
+}
+
+.jp-Globus-file-manager .jp-FileManager-startTransferBtn::after {
+    content: '';
+    display: inline-block;
+    float: right;
+    height: 20px;
+    width: 20px;
+    background: var(--jp-Globus-icon-start) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-transferOptionsBtn {
+    align-self: center;
+    margin-top: -1px;
+    border-color: #ccc;
+    background: #eee;
+    color: black;
+}
+
+.jp-Globus-file-manager .jp-FileManager-transferOptionsBtn::after {
+    content: '';
+    display: inline-block;
+    float: right;
+    margin-left: 10px;
+    height: 15px;
+    width: 15px;
+    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat;
+    background-size: contain;
+    filter: invert(80%);
+}
+
+.jp-Globus-file-manager .jp-FileManager-transferOptionsBtn.jp-Globus-active::after {
+    background-image: var(--jp-Globus-icon-angle-arrow-up);
 }
