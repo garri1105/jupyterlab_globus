@@ -74,9 +74,7 @@ export class GlobusConnectPersonal extends Widget {
                 let path = this.findGCPHomeDirPath(data.content);
                 let gcpEndpoint = this.findGCPEndpoint(path);
                 if (gcpEndpoint) {
-                    console.log(this.browser.model.path);
                     await this.browser.model.cd();
-                    console.log(this.browser.model.path);
                     await this.browser.model.cd(`/${gcpEndpoint}`);
                     (this.layout as PanelLayout).addWidget(this.browser);
                 }
