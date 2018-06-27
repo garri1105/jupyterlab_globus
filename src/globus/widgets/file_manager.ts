@@ -43,6 +43,7 @@ const FILEMANAGER_DIR_TYPE = 'jp-FileManager-dirType';
 const FILEMANAGER_TRANSFER_RESULT = 'jp-FileManager-transferResult';
 const FILEMANAGER_START_TRANSFER_BTN = 'jp-FileManager-startTransferBtn';
 const FILEMANAGER_TRANSFER_OPTIONS_BTN = 'jp-FileManager-transferOptionsBtn';
+const FILEMANAGER_TRANSFER_OPTIONS = 'jp-FileManager-transferOptions';
 
 export const FILE_MANAGER = 'globus-file-manager';
 
@@ -398,7 +399,8 @@ export class GlobusFileManager extends Widget {
             transferResult.textContent = '';
             transferResult.className = `${FILEMANAGER_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
             transferResult.appendChild(LOADING_ICON);
-            transferFile(items, sourceEndpoint.id, destinationEndpoint.id)
+            let options: any = this.getTransferOptions();
+            transferFile(items, options, sourceEndpoint.id, destinationEndpoint.id)
                 .then(data => {
                     transferResult.textContent = data.message;
                     transferResult.classList.add(GLOBUS_SUCCESS)
@@ -411,6 +413,10 @@ export class GlobusFileManager extends Widget {
             transferResult.textContent = 'Both endpoints must be selected to start transfer';
             transferResult.classList.add(GLOBUS_FAIL);
         }
+    }
+
+    private getTransferOptions() {
+
     }
 
     private toggleTransferOptions(div: HTMLElement, e: any) {
@@ -633,13 +639,42 @@ export class GlobusFileManager extends Widget {
         startTransferBtn.addEventListener('click', this.startTransfer.bind(this));
         let optionInput1: HTMLInputElement = document.createElement('input');
         optionInput1.type = 'checkbox';
-        optionInput1.id = '1';
+        optionInput1.id = 'sync';
         let optionLabel1: HTMLLabelElement = document.createElement('label');
-        optionLabel1.textContent = 'One';
-        optionLabel1.htmlFor = '1';
+        optionLabel1.textContent = 'sync - only transfer new or changed files\n';
+        optionLabel1.insertBefore(optionInput1, optionLabel1.childNodes[0]);
+        let optionInput2: HTMLInputElement = document.createElement('input');
+        optionInput2.type = 'checkbox';
+        optionInput2.id = 'delete';
+        let optionLabel2: HTMLLabelElement = document.createElement('label');
+        optionLabel2.textContent = 'delete files on destination that do not exist on source\n';
+        optionLabel2.insertBefore(optionInput2, optionLabel2.childNodes[0]);
+        let optionInput3: HTMLInputElement = document.createElement('input');
+        optionInput3.type = 'checkbox';
+        optionInput3.id = 'preserve';
+        let optionLabel3: HTMLLabelElement = document.createElement('label');
+        optionLabel3.textContent = 'preserve source file modification times\n';
+        optionLabel3.insertBefore(optionInput3, optionLabel3.childNodes[0]);
+        let optionInput4: HTMLInputElement = document.createElement('input');
+        optionInput4.type = 'checkbox';
+        optionInput4.checked = true;
+        optionInput4.id = 'verify';
+        let optionLabel4: HTMLLabelElement = document.createElement('label');
+        optionLabel4.textContent = 'verify file integrity after transfer\n';
+        optionLabel4.insertBefore(optionInput4, optionLabel4.childNodes[0]);
+        let optionInput5: HTMLInputElement = document.createElement('input');
+        optionInput5.type = 'checkbox';
+        optionInput5.id = 'encrypt';
+        let optionLabel5: HTMLLabelElement = document.createElement('label');
+        optionLabel5.textContent = 'encrypt transfer';
+        optionLabel5.insertBefore(optionInput5, optionLabel5.childNodes[0]);
         let transferOptions = document.createElement('div');
-        transferOptions.appendChild(optionInput1);
         transferOptions.appendChild(optionLabel1);
+        transferOptions.appendChild(optionLabel2);
+        transferOptions.appendChild(optionLabel3);
+        transferOptions.appendChild(optionLabel4);
+        transferOptions.appendChild(optionLabel5);
+        transferOptions.className = `${GLOBUS_BORDER} ${FILEMANAGER_TRANSFER_OPTIONS}`;
         transferOptions.style.display = 'none';
         let transferOptionsBtn = document.createElement('button');
         transferOptionsBtn.textContent = 'Transfer & Sync Options';
