@@ -6,9 +6,9 @@
 
 .jp-Globus-file-manager .jp-FileManager-searchInfo {
     background: white;
-    border-color: #ddd;
+    border: 1px solid var(--jp-Globus-borderGray);
     padding: 5px 10px;
-    color: #999;
+    color: var(--jp-Globus-textGray);
     font-style: italic;
     border-top: none;
     border-top-left-radius: 0;
@@ -38,7 +38,7 @@
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuOptions {
-    border-left: 1px solid #ccc;
+    border-left: 1px solid var(--jp-Globus-borderGray);
     max-height: inherit;
     max-width: 30px;
     background: var(--jp-Globus-icon-hamburger) no-repeat center;
@@ -94,16 +94,14 @@
     border-bottom-right-radius: 0;
 }
 
-.jp-Globus-file-manager .jp-Globus-header::before {
-    content: ' ';
-}
-
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-fileType::before {
     background: var(--jp-Globus-icon-file) no-repeat;
+    background-size: contain;
 }
 
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-dirType::before {
     background: var(--jp-Globus-icon-dirFolder) no-repeat;
+    background-size: contain;
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem::before {
@@ -113,11 +111,10 @@
     margin-right: 10px;
     height: 32px;
     width: 32px;
-    background-size: contain;
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected {
-    background-color: var(--jp-Globus-lightblue);
+    background-color: var(--jp-Globus-selectBlue);
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected:before {
@@ -140,7 +137,7 @@
 
 .jp-Globus-file-manager .jp-FileManager-menuOption {
     line-height: 32px;
-    color: #666;
+    color: var(--jp-Globus-textGray);
     border-color: transparent;
 }
 
@@ -201,8 +198,8 @@
 .jp-Globus-file-manager .jp-FileManager-transferOptionsBtn {
     align-self: center;
     margin-top: -1px;
-    border-color: #ccc;
-    background: #eee;
+    border: 1px solid var(--jp-Globus-borderGray);
+    background: var(--jp-Globus-bgGray);
     color: black;
 }
 
@@ -218,6 +215,22 @@
     filter: invert(80%);
 }
 
+.jp-Globus-file-manager .jp-FileManager-transferOptionsBtn.jp-Globus-active {
+    margin-bottom: -1px;
+    border-bottom-color: var(--jp-Globus-bgGray);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1;
+}
+
 .jp-Globus-file-manager .jp-FileManager-transferOptionsBtn.jp-Globus-active::after {
     background-image: var(--jp-Globus-icon-angle-arrow-up);
+}
+
+.jp-Globus-file-manager .jp-FileManager-transferOptions {
+    border: 1px solid var(--jp-Globus-borderGray);
+    background: var(--jp-Globus-bgGray);
+    padding: 10px;
+    margin-top: -1px;
+    white-space: pre-wrap;
 }

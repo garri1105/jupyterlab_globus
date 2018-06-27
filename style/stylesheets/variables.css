@@ -1,6 +1,24 @@
 :root {
-    --jp-Globus-blue: #263965;
-    --jp-Globus-lightblue: #468cc8;
+    --jp-Globus-hoverBlue: #014c8c;
+    --jp-Globus-selectBlue: #0074af;
+    --jp-Globus-bgBlue: #263965;
+    --jp-Globus-accentBlue: #468cc8;
+    --jp-Globus-darkBlue: #263965;
+    --jp-Globus-lightBlue: #468cc8;
+    --jp-Globus-textGreen: #0d340d;
+    --jp-Globus-bgGreen: #a6e9a6;
+    --jp-Globus-darkGreen: #0d340d;
+    --jp-Globus-lightGreen: #a6e9a6;
+    --jp-Globus-textRed: #340d0d;
+    --jp-Globus-bgRed: #e18787;
+    --jp-Globus-darkRed: #340d0d;
+    --jp-Globus-lightRed: #e18787;
+    --jp-Globus-borderGray: #ccc;
+    --jp-Globus-bgGray: #eee;
+    --jp-Globus-textGray: #777;
+    --jp-Globus-Gray: #ccc;
+    --jp-Globus-lightGray: #eee;
+    --jp-Globus-darkGray: #777;
 
     --jp-Globus-image-logo: url(../assets/images/globus.svg);
     --jp-Globus-image-logo-dark: url(../assets/images/globus_dark.svg);

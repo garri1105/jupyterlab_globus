@@ -1,6 +1,6 @@
 .jp-Globus-loader {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #0074af;
+    border: 3px solid var(--jp-Globus-bgGray);
+    border-top: 3px solid var(--jp-Globus-selectBlue);
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -19,7 +19,6 @@
 }
 
 .jp-Globus-border {
-    border: 1px solid transparent;
     border-radius: 3px;
 }
 
@@ -35,7 +34,7 @@
 
 .jp-Globus-input {
     margin: 0 0 10px;
-    border-color: black;
+    border: 1px solid black;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 0 8px 12px;
@@ -45,32 +44,38 @@
     flex: 1 1 auto;
     padding: 0;
     margin: 0;
-    border-color: #ccc;
+    border: 1px solid var(--jp-Globus-borderGray);
     background: white;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
+.jp-Globus-list > .jp-Globus-listItem:first-child {
+    margin-top: -1px;
+}
+
 .jp-Globus-listItem {
+    border: 1px solid var(--jp-Globus-borderGray);
+    border-left: none;
+    border-right: none;
+    margin-bottom: -1px;
     list-style-type: none;
-    border: 1px solid #ddd;
     padding: 5px 5px 5px 8px;
     cursor: pointer;
-    margin-bottom: -1px;
 }
 
 .jp-Globus-listItem:not(.jp-Globus-selected):hover {
-    background-color: #ddd;
+    background-color: var(--jp-Globus-bgGray);
 }
 
 .jp-Globus-listItemTitle {
-    color: var(--jp-Globus-lightblue);
+    color: var(--jp-Globus-accentBlue);
     white-space: pre-wrap;
 }
 
 .jp-Globus-listItemSubtitle {
     font-size: 0.9em;
-    color: #777;
+    color: var(--jp-Globus-textGray);
     font-style: italic;
 }
 
@@ -93,25 +98,27 @@
 .jp-Globus-header {
     text-align: center;
     font-size: 1em;
-    background: var(--jp-Globus-blue);
+    background: var(--jp-Globus-bgBlue);
     color: white;
     padding: 5px;
 }
 
 .jp-Globus-success {
-    background: #a6e9a6 !important;
-    color: #0d340d !important;
+    background: var(--jp-Globus-bgGreen) !important;
+    color: var(--jp-Globus-textGreen) !important;
+    border-color: var(--jp-Globus-textGreen) !important;
     padding: 5px 10px;
 }
 
 .jp-Globus-fail {
-    background: #e18787 !important;
-    color: #340d0d !important;
+    background: var(--jp-Globus-bgRed) !important;
+    color: var(--jp-Globus-textRed) !important;
+    border-color: var(--jp-Globus-textRed) !important;
     padding: 5px 10px;
 }
 
 .jp-Globus-button {
-    background: #0074af;
+    background: var(--jp-Globus-selectBlue);
     border: transparent;
     border-radius: 3px;
     padding: 10px 20px 10px 20px;
@@ -147,33 +154,34 @@
     display: inline;
     flex: 1 1 auto;
     text-align: center;
-    color: var(--jp-Globus-lightblue);
+    color: var(--jp-Globus-accentBlue);
     padding-top: 7px;
     font-size: 0.9em;
 }
 
-.jp-Globus-menuBtn:hover {
-    background-color: #fff;
-}
-
-.jp-Globus-menuBtn.jp-Globus-selected {
-    background: white;
+.jp-Globus-menuBtn:hover, .jp-Globus-menuBtn.jp-Globus-selected  {
+    background-color: white;
 }
 
 .jp-Globus-menu {
     display: flex;
     min-height: 30px;
-    border-color: #ccc;
-    background: #eee;
+    border: 1px solid var(--jp-Globus-borderGray);
+    background: var(--jp-Globus-bgGray);
 }
 
 .jp-Globus-descriptionTerm {
     margin-top: 7px;
     margin-left: 10px;
-    color: #777;
+    color: var(--jp-Globus-textGray);
 }
 
 .jp-Globus-descriptionDetails {
     margin-left: 20px;
     margin-bottom: 3px;
+}
+
+input {
+    position: relative;
+    top: 2px;
 }
