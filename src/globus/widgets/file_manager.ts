@@ -1,5 +1,11 @@
 import {Widget} from '@phosphor/widgets';
-import {activateEndpoint, deleteFile, endpointSearch, listDirectoryContents, transferFile} from "../client";
+import {
+    activateEndpoint,
+    endpointSearch, GlobusDeleteItem, GlobusDeleteTask, GlobusSubmissionId, GlobusTransferItem,
+    GlobusTransferTask,
+    listDirectoryContents, requestSubmissionId,
+    submitTask
+} from "../client";
 import Timer = NodeJS.Timer;
 import {GCP_ENDPOINT_ID} from "./globus_connect_personal";
 import {
@@ -368,7 +374,7 @@ export class GlobusFileManager extends Widget {
         this.parentGroup$.next(e.currentTarget);
     }
 
-    private startTransfer() {
+    private async startTransfer() {
         let sourcePathInput: HTMLInputElement = getGlobusElement(this.sourceGroup, FILEMANAGER_DIR_PATH_INPUT) as HTMLInputElement;
         let sourceEndpoint: HTMLElement = getGlobusElement(this.sourceGroup, GLOBUS_OPEN);
 
@@ -379,11 +385,11 @@ export class GlobusFileManager extends Widget {
 
         let selectedElements = this.sourceGroup.getElementsByClassName(GLOBUS_SELECTED);
 
-        let items: any = [];
+        let items: GlobusTransferItem[] = [];
 
         for (let i = 0; i < selectedElements.length; i++) {
             let file = (selectedElements[i] as HTMLLIElement) ;
-            let transferItem: any = {
+            let transferItem: GlobusTransferItem = {
                 'DATA_TYPE': 'transfer_item',
                 'source_path': `${sourcePathInput.value}${file.title}`,
                 'destination_path': `${destinationPathInput.value}${file.title}`,
@@ -399,8 +405,20 @@ export class GlobusFileManager extends Widget {
             transferResult.textContent = '';
             transferResult.className = `${FILEMANAGER_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
             transferResult.appendChild(LOADING_ICON);
-            let options: any = this.getTransferOptions();
-            transferFile(items, options, sourceEndpoint.id, destinationEndpoint.id)
+
+            let submissionId: GlobusSubmissionId = await requestSubmissionId();
+
+            let task: GlobusTransferTask = {
+                DATA_TYPE: 'transfer',
+                submission_id: submissionId.value,
+                source_endpoint: sourceEndpoint.id,
+                destination_endpoint: destinationEndpoint.id,
+                DATA: items,
+                notify_on_succeeded: false,
+                notify_on_failed: false,
+            };
+
+            submitTask(task)
                 .then(data => {
                     transferResult.textContent = data.message;
                     transferResult.classList.add(GLOBUS_SUCCESS)
@@ -415,10 +433,6 @@ export class GlobusFileManager extends Widget {
         }
     }
 
-    private getTransferOptions() {
-
-    }
-
     private toggleTransferOptions(div: HTMLElement, e: any) {
         e.target.classList.toggle(GLOBUS_ACTIVE);
         if (div.style.display === 'none') {
@@ -429,22 +443,22 @@ export class GlobusFileManager extends Widget {
         }
     }
 
-    private deleteSelected(target: HTMLElement) {
+    private async deleteSelected(target: HTMLElement) {
         let globusParentGroup = getGlobusParentGroup(target);
         let pathInput: HTMLInputElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_PATH_INPUT) as HTMLInputElement;
         let endpoint: HTMLElement = getGlobusElement(globusParentGroup, GLOBUS_OPEN);
 
         let selectedElements = globusParentGroup.getElementsByClassName(GLOBUS_SELECTED);
 
-        let items: any = [];
+        let items: GlobusDeleteItem[] = [];
         let recursive: boolean = false;
+        let submissionId = await requestSubmissionId();
 
-        console.log(selectedElements);
         for (let i = 0; i < selectedElements.length; i++) {
             let file = (selectedElements[i] as HTMLLIElement) ;
-            let deleteItem: any = {
-                'DATA_TYPE': 'delete_item',
-                'path': `${pathInput.value}${file.title}`,
+            let deleteItem: GlobusDeleteItem = {
+                DATA_TYPE: 'delete_item',
+                path: `${pathInput.value}${file.title}`,
             };
 
             if (file.type === 'dir') {
@@ -454,7 +468,17 @@ export class GlobusFileManager extends Widget {
             items.push(deleteItem);
         }
 
-        return deleteFile(items, endpoint.id, recursive);
+        let task: GlobusDeleteTask = {
+            DATA_TYPE: 'delete',
+            endpoint: endpoint.id,
+            recursive: recursive,
+            DATA: items,
+            submission_id: submissionId.value,
+            notify_on_succeeded: false,
+            notify_on_failed: false
+        };
+
+        return submitTask(task);
     }
 
     private setGCPDestination() {
