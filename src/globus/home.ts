@@ -1,5 +1,5 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
-import {oauth2SignIn, globusAuthorized, initializeGlobusClient} from "./client";
+import {oauth2SignIn, globusAuthorized, initializeGlobusClient} from "./api/client";
 import {GlobusWidgetManager} from "./widget_manager";
 import {GLOBUS_BUTTON} from "../utils";
 

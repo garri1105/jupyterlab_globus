@@ -6,7 +6,7 @@ import {
     GLOBUS_ACTIVE,
     GLOBUS_BORDER,
     GLOBUS_DISPLAY_FLEX,
-    GLOBUS_GROUP,
+    GLOBUS_PARENT_GROUP,
     GLOBUS_LIST,
     GLOBUS_LIST_ITEM,
     GLOBUS_LIST_ITEM_SUBTITLE,
@@ -18,7 +18,7 @@ import {
     LOADING_LABEL,
     removeChildren
 } from "../../utils";
-import {taskSearch} from "../client";
+import {taskSearch} from "../api/client";
 import * as moment from "moment";
 
 /**
@@ -225,7 +225,7 @@ export class GlobusActivity extends Widget {
         this.parentGroup = document.createElement('div');
         this.parentGroup.appendChild(taskGroup);
         this.parentGroup.appendChild(overviewGroup);
-        this.parentGroup.className = `${GLOBUS_DISPLAY_FLEX} ${GLOBUS_GROUP}`;
+        this.parentGroup.className = `${GLOBUS_DISPLAY_FLEX} ${GLOBUS_PARENT_GROUP}`;
         this.parentGroup.addEventListener('click', this.onClickMenuButtonHandler.bind(this));
 
         /* -------------</parentGroup>------------- */

@@ -1,6 +1,6 @@
 import {Widget, PanelLayout} from '@phosphor/widgets';
 import {Toolbar, ToolbarButton} from "@jupyterlab/apputils";
-import {signOut} from "./client";
+import {signOut} from "./api/client";
 import {GlobusHome, SIGN_OUT} from "./home";
 import {GlobusFileManager} from "./widgets/file_manager";
 import {CONNECT_PERSONAL, GlobusConnectPersonal} from "./widgets/globus_connect_personal";

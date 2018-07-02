@@ -1,6 +1,6 @@
-import {ERROR_CODES} from "./globus/client";
+import {ERROR_CODES} from "./globus/api/client";
 
-export const GLOBUS_GROUP = 'jp-Globus-group';
+export const GLOBUS_PARENT_GROUP = 'jp-Globus-group';
 export const GLOBUS_INPUT = 'jp-Globus-input';
 export const GLOBUS_DESCRIPTION_TERM = 'jp-Globus-descriptionTerm';
 export const GLOBUS_DESCRIPTION_DETAILS = 'jp-Globus-descriptionDetails';
@@ -44,7 +44,7 @@ export function queryParams(params: any) {
 }
 
 export function getGlobusParentGroup(element: HTMLElement): HTMLElement {
-    if (element.classList.contains(GLOBUS_GROUP)) {
+    if (element.classList.contains(GLOBUS_PARENT_GROUP)) {
         return element;
     }
     else {
@@ -57,6 +57,7 @@ export function getGlobusElement(group: HTMLElement, className: string): HTMLEle
 }
 
 export function displayError(e: any, node: HTMLElement) {
+    console.log(e);
     let errorCode = document.createElement('div');
     errorCode.className = GLOBUS_FETCH_ERROR;
     console.log(e.code);
