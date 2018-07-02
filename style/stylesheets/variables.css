@@ -49,4 +49,6 @@
     --jp-Globus-icon-hamburger: url(../assets/icons/hamburger.svg);
     --jp-Globus-icon-transfer: url(../assets/icons/transfer-arrows.svg);
     --jp-Globus-icon-start: url(../assets/icons/start.svg);
+    --jp-Globus-icon-check-circle: url(../assets/icons/check-circle.svg);
+    --jp-Globus-icon-fail-circle: url(../assets/icons/fail-circle.svg);
 }

@@ -54,7 +54,7 @@
     border-bottom-right-radius: 0;
 }
 
-.jp-Globus-file-manager .jp-FileManager-dirList {
+.jp-Globus-file-manager .jp-FileManager-fileList {
     overflow: auto;
     border-top: none;
     border-top-left-radius: 0;
@@ -104,7 +104,7 @@
     background-size: contain;
 }
 
-.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem::before {
+.jp-Globus-file-manager .jp-FileManager-fileList .jp-Globus-listItem::before {
     content: '';
     display: inline-block;
     float: left;
@@ -113,15 +113,15 @@
     width: 32px;
 }
 
-.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected {
+.jp-Globus-file-manager .jp-FileManager-fileList .jp-Globus-listItem.jp-Globus-selected {
     background-color: var(--jp-Globus-selectBlue);
 }
 
-.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected:before {
+.jp-Globus-file-manager .jp-FileManager-fileList .jp-Globus-listItem.jp-Globus-selected:before {
     filter: brightness(0) invert(1);
 }
 
-.jp-Globus-file-manager .jp-FileManager-dirList .jp-Globus-listItem.jp-Globus-selected * {
+.jp-Globus-file-manager .jp-FileManager-fileList .jp-Globus-listItem.jp-Globus-selected * {
     color: white;
 }
 
@@ -191,6 +191,7 @@
     float: right;
     height: 20px;
     width: 20px;
+    margin-right: 20px;
     background: var(--jp-Globus-icon-start) no-repeat;
     background-size: contain;
 }
@@ -233,4 +234,35 @@
     padding: 10px;
     margin-top: -1px;
     white-space: pre-wrap;
+}
+
+.jp-Globus-file-manager .jp-FileManager-newDir {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.jp-Globus-file-manager .jp-FileManager-newDirCancel, .jp-Globus-file-manager .jp-FileManager-newDirAccept {
+    flex: 0 1 auto;
+    height: 18px;
+    width: 18px;
+    cursor: pointer;
+}
+
+.jp-Globus-file-manager .jp-FileManager-newDirAccept {
+    margin: 0 6px;
+    background: var(--jp-Globus-icon-check-circle) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-newDirCancel {
+    background: var(--jp-Globus-icon-fail-circle) no-repeat;
+    background-size: contain;
+}
+
+.jp-Globus-file-manager .jp-FileManager-newDirInput {
+    flex: 1 1 auto;
+    font-size: 0.9em;
+    margin-bottom: 0;
 }
