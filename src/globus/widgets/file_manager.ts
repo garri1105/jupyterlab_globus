@@ -7,7 +7,7 @@ import {
 } from "../api/client";
 import {
     GlobusDeleteItem,
-    GlobusDeleteTask,
+    GlobusDeleteTask, GlobusEndpointList, GlobusFileList,
     GlobusNewDirectoryOperation,
     GlobusRenameOperation,
     GlobusSubmissionId,
@@ -21,11 +21,13 @@ import {
     GLOBUS_LIST_ITEM_TITLE, GLOBUS_OPEN, GLOBUS_SELECTED, GLOBUS_BORDER,
     GLOBUS_LIST, GLOBUS_INPUT, GLOBUS_PARENT_GROUP, GLOBUS_HEADER, GLOBUS_FAIL, GLOBUS_SUCCESS,
     getGlobusParentGroup, getGlobusElement, GLOBUS_MENU_BTN, GLOBUS_MENU, displayError, GLOBUS_BUTTON,
-    GLOBUS_DISPLAY_FLEX, GLOBUS_LIST_ITEM_SUBTITLE, GLOBUS_ACTIVE, GLOBUS_DISABLED
+    GLOBUS_DISPLAY_FLEX, GLOBUS_LIST_ITEM_SUBTITLE, GLOBUS_ACTIVE, GLOBUS_DISABLED, convertBytes
 } from "../../utils";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
+import moment = require("moment");
 
 // TODO Uncomment share option when it is supported
+// TODO bind data using jquery
 /**
  * CSS classes
  */
@@ -61,6 +63,9 @@ const FILEMANAGER_NEWDIR = 'jp-FileManager-newDir';
 const FILEMANAGER_NEWDIR_INPUT = 'jp-FileManager-newDirInput';
 const FILEMANAGER_NEWDIR_ACCEPT = 'jp-FileManager-newDirAccept';
 const FILEMANAGER_NEWDIR_CANCEL = 'jp-FileManager-newDirCancel';
+const FILEMANAGER_SORT_OPTIONS = 'jp-FileManager-sortOptions';
+const FILEMANAGER_SORT_BUTTON = 'jp-FileManager-sortButton';
+const FILEMANAGER_SORT_GROUP = 'jp-FileManager-sortGroup';
 
 export const FILE_MANAGER = 'globus-file-manager';
 
@@ -110,7 +115,7 @@ export class GlobusFileManager extends Widget {
         });
     }
 
-    private displayEndpoints(data: any, endpointList: HTMLUListElement) {
+    private displayEndpoints(data: GlobusEndpointList, endpointList: HTMLUListElement) {
         for (let i = 0; i < data.DATA.length; i++) {
             let endPointData = data.DATA[i];
 
@@ -189,7 +194,7 @@ export class GlobusFileManager extends Widget {
         });
     }
 
-    private displayDirectoryContents(data: any, fileList: HTMLUListElement) {
+    private displayDirectoryContents(data: GlobusFileList, fileList: HTMLUListElement) {
         for (let i = 0; i < data.DATA.length; i++) {
             let directoryData = data.DATA[i];
 
@@ -198,17 +203,20 @@ export class GlobusFileManager extends Widget {
             directory.title = directoryData.name;
             directory.type = directoryData.type;
 
-            // TODO Add last date modified with moment.js
             let name: HTMLDivElement = document.createElement('div');
             name.textContent = directoryData.name;
             name.className = GLOBUS_LIST_ITEM_TITLE;
 
-            // TODO Convert to KB
+            let date: HTMLDivElement = document.createElement('div');
+            date.className = GLOBUS_LIST_ITEM_SUBTITLE;
+            date.textContent = `${moment(directoryData.last_modified).format('MM/DD/YYYY hh:mm a')}`;
+
             let size: HTMLDivElement = document.createElement('div');
             size.className = GLOBUS_LIST_ITEM_SUBTITLE;
-            size.textContent = `${directoryData.size} B`;
+            size.textContent = `${convertBytes(directoryData.size)}`;
 
             directory.appendChild(name);
+            directory.appendChild(date);
             directory.appendChild(size);
 
             directory.addEventListener("click", this.fileClicked.bind(this));
@@ -324,6 +332,16 @@ export class GlobusFileManager extends Widget {
             }
             else if (e.target.matches(`.${FILEMANAGER_MENU_REFRESH}`)) {
                 this.retrieveDirectoryContents(filePathInput, fileList);
+            }
+            else if (e.target.matches(`.${FILEMANAGER_MENU_SORT}`)) {
+                e.target.classList.toggle(GLOBUS_ACTIVE);
+                let sortGroup = getGlobusElement(globusParentGroup, FILEMANAGER_SORT_GROUP);
+                if (e.target.classList.contains(GLOBUS_ACTIVE)) {
+                    sortGroup.style.display = 'flex';
+                }
+                else {
+                    sortGroup.style.display = 'none';
+                }
             }
             else if (e.target.matches(`.${FILEMANAGER_MENU_OPTIONS}`)) {
                 if (dirOptions.style.display === 'block') {
@@ -632,6 +650,7 @@ export class GlobusFileManager extends Widget {
         let menuSelect: HTMLDivElement = document.createElement('div');
         menuSelect.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_SELECT}`;
         menuSelect.textContent = 'select all';
+
         let menuUpFolder: HTMLDivElement = document.createElement('div');
         menuUpFolder.className = `${GLOBUS_MENU_BTN} ${FILEMANAGER_MENU_UP_FOLDER}`;
 
@@ -653,24 +672,66 @@ export class GlobusFileManager extends Widget {
         dirMenu.appendChild(menuSort);
         dirMenu.appendChild(menuOptions);
 
+        let optionPlaceholder: HTMLOptionElement = document.createElement('option');
+        optionPlaceholder.textContent = 'Sort By';
+        optionPlaceholder.disabled = true;
+        optionPlaceholder.selected = true;
+
+        let optionName: HTMLOptionElement = document.createElement('option');
+        optionName.textContent = 'Name';
+
+        let optionLastModified: HTMLOptionElement = document.createElement('option');
+        optionLastModified.textContent = 'Last Modified';
+
+        let optionSize: HTMLOptionElement = document.createElement('option');
+        optionSize.textContent = 'Size';
+
+        let optionType: HTMLOptionElement = document.createElement('option');
+        optionType.textContent = 'Type';
+
+        let sortOptions: HTMLSelectElement = document.createElement('select');
+        sortOptions.className = `${FILEMANAGER_SORT_OPTIONS} ${GLOBUS_BORDER}`;
+        sortOptions.appendChild(optionPlaceholder);
+        sortOptions.appendChild(optionName);
+        sortOptions.appendChild(optionLastModified);
+        sortOptions.appendChild(optionSize);
+        sortOptions.appendChild(optionType);
+
+        let sortButton: HTMLDivElement = document.createElement('div');
+        sortButton.className = `${FILEMANAGER_SORT_BUTTON} ${GLOBUS_BORDER}`;
+        sortButton.addEventListener('click', () => {
+            sortButton.classList.toggle(GLOBUS_ACTIVE);
+        });
+
+        let sortGroup: HTMLDivElement = document.createElement('div');
+        sortGroup.className = `${FILEMANAGER_SORT_GROUP}`;
+        sortGroup.appendChild(sortOptions);
+        sortGroup.appendChild(sortButton);
+        sortGroup.style.display = 'none';
+
         let fileList: HTMLUListElement = document.createElement('ul');
         fileList.className = `${GLOBUS_LIST} ${FILEMANAGER_FILE_LIST} ${GLOBUS_BORDER}`;
 
         // let shareOption = document.createElement('li');
         // shareOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_SHARE}`;
         // shareOption.textContent = 'Share';
+
         let transferOption = document.createElement('li');
         transferOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_TRANSFER}`;
         transferOption.textContent = 'Transfer';
+
         let newFolderOption = document.createElement('li');
         newFolderOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_NEWFOLDER}`;
         newFolderOption.textContent = 'New folder';
+
         let renameOption = document.createElement('li');
         renameOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_RENAME}`;
         renameOption.textContent = 'Rename';
+
         let deleteOption = document.createElement('li');
         deleteOption.className = `${GLOBUS_LIST_ITEM} ${FILEMANAGER_MENU_OPTION} ${FILEMANAGER_OPTION_DELETE}`;
         deleteOption.textContent = 'Delete';
+
         let dirOptions: HTMLUListElement = document.createElement('ul');
         dirOptions.className = `${GLOBUS_LIST} ${FILEMANAGER_DIR_OPTIONS} ${GLOBUS_BORDER}`;
         // dirOptions.appendChild(shareOption);
@@ -680,11 +741,11 @@ export class GlobusFileManager extends Widget {
         dirOptions.appendChild(deleteOption);
         dirOptions.style.display = 'none';
 
-        // Path Input container for adding extra elements
         let directoryGroup = document.createElement('div');
         directoryGroup.className = `${GLOBUS_DISPLAY_FLEX} ${FILEMANAGER_DIR_GROUP}`;
         directoryGroup.appendChild(filePathInput);
         directoryGroup.appendChild(dirMenu);
+        directoryGroup.appendChild(sortGroup);
         directoryGroup.appendChild(fileList);
         directoryGroup.appendChild(dirOptions);
         directoryGroup.style.display = 'none';
@@ -765,23 +826,30 @@ export class GlobusFileManager extends Widget {
         startTransferBtn.textContent = 'Start';
         startTransferBtn.className = `${GLOBUS_BUTTON} ${FILEMANAGER_START_TRANSFER_BTN}`;
         startTransferBtn.addEventListener('click', this.startTransfer.bind(this));
+
         let optionTransferNameInput: HTMLInputElement = document.createElement('input');
         optionTransferNameInput.name = 'label';
+
         let optionTransferNameLabel: HTMLLabelElement = document.createElement('label');
         optionTransferNameLabel.textContent = 'sync - only transfer new or changed files\n';
         optionTransferNameLabel.insertBefore(optionTransferNameInput, optionTransferNameLabel.childNodes[0]);
+
         let optionSyncSelect1: HTMLOptionElement = document.createElement('option');
         optionSyncSelect1.value = '3';
         optionSyncSelect1.textContent = 'checksum is different';
+
         let optionSyncSelect2: HTMLOptionElement = document.createElement('option');
         optionSyncSelect2.value = '0';
         optionSyncSelect2.textContent = 'file does not exist on destination';
+
         let optionSyncSelect3: HTMLOptionElement = document.createElement('option');
         optionSyncSelect3.value = '1';
         optionSyncSelect3.textContent = 'file size is different';
+
         let optionSyncSelect4: HTMLOptionElement = document.createElement('option');
         optionSyncSelect4.value = '2';
         optionSyncSelect4.textContent = 'modification time is newer';
+
         let optionSyncInput: HTMLSelectElement = document.createElement('select');
         optionSyncInput.name = 'sync_level';
         optionSyncInput.appendChild(optionSyncSelect1);
@@ -789,38 +857,49 @@ export class GlobusFileManager extends Widget {
         optionSyncInput.appendChild(optionSyncSelect3);
         optionSyncInput.appendChild(optionSyncSelect4);
         optionSyncInput.style.display = 'none';
+
         let optionSyncCheckbox: HTMLInputElement = document.createElement('input');
         optionSyncCheckbox.type = 'checkbox';
         optionSyncCheckbox.addEventListener('change', this.toggleElementVisibility.bind(this, optionSyncInput));
+
         let optionSyncLabel: HTMLLabelElement = document.createElement('label');
         optionSyncLabel.textContent = 'sync - only transfer new or changed files\n';
         optionSyncLabel.insertBefore(optionSyncCheckbox, optionSyncLabel.childNodes[0]);
         optionSyncLabel.appendChild(optionSyncInput);
+
         let optionDeleteInput: HTMLInputElement = document.createElement('input');
         optionDeleteInput.type = 'checkbox';
         optionDeleteInput.name = 'delete_destination_extra';
+
         let optionDeleteLabel: HTMLLabelElement = document.createElement('label');
         optionDeleteLabel.textContent = 'delete files on destination that do not exist on source\n';
         optionDeleteLabel.insertBefore(optionDeleteInput, optionDeleteLabel.childNodes[0]);
+
         let optionPreserveInput: HTMLInputElement = document.createElement('input');
         optionPreserveInput.type = 'checkbox';
         optionPreserveInput.name = 'preserve_timestamp';
+
         let optionPreserveLabel: HTMLLabelElement = document.createElement('label');
         optionPreserveLabel.textContent = 'preserve source file modification times\n';
         optionPreserveLabel.insertBefore(optionPreserveInput, optionPreserveLabel.childNodes[0]);
+
         let optionVerifyInput: HTMLInputElement = document.createElement('input');
         optionVerifyInput.type = 'checkbox';
         optionVerifyInput.checked = true;
         optionVerifyInput.name = 'verify_checksum';
+
         let optionVerifyLabel: HTMLLabelElement = document.createElement('label');
         optionVerifyLabel.textContent = 'verify file integrity after transfer\n';
         optionVerifyLabel.insertBefore(optionVerifyInput, optionVerifyLabel.childNodes[0]);
+
         let optionEncryptInput: HTMLInputElement = document.createElement('input');
         optionEncryptInput.type = 'checkbox';
         optionEncryptInput.name = 'encrypt_data';
+
         let optionEncryptLabel: HTMLLabelElement = document.createElement('label');
         optionEncryptLabel.textContent = 'encrypt transfer';
         optionEncryptLabel.insertBefore(optionEncryptInput, optionEncryptLabel.childNodes[0]);
+
         let transferOptions = document.createElement('div');
         transferOptions.appendChild(optionSyncLabel);
         transferOptions.appendChild(optionDeleteLabel);
@@ -829,11 +908,13 @@ export class GlobusFileManager extends Widget {
         transferOptions.appendChild(optionEncryptLabel);
         transferOptions.className = `${GLOBUS_BORDER} ${FILEMANAGER_TRANSFER_OPTIONS}`;
         transferOptions.style.display = 'none';
+
         let transferOptionsBtn = document.createElement('div');
         transferOptionsBtn.style.cursor = 'pointer';
         transferOptionsBtn.textContent = 'Transfer & Sync Options';
         transferOptionsBtn.className = `${GLOBUS_BUTTON} ${FILEMANAGER_TRANSFER_OPTIONS_BTN}`;
         transferOptionsBtn.addEventListener('click', this.toggleElementVisibility.bind(this, transferOptions));
+
         this.transferGroup = document.createElement('form');
         this.transferGroup.className = GLOBUS_PARENT_GROUP;
         this.transferGroup.appendChild(transferResult);
