@@ -22,6 +22,7 @@ const GLOBUS_AUTH_TOKEN = 'https://auth.globus.org/v2/oauth2/token';
 
 // TODO Symlink support
 // TODO Share support
+// TODO Create interface for errors
 export const ERROR_CODES: any = {
     'ClientError.NotFound': 'Directory Not Found',
     'EndpointPermissionDenied': 'Endpoint Permission Denied',

@@ -74,7 +74,7 @@ export function displayError(e: any, node: HTMLElement) {
     node.appendChild(errorCode);
 }
 
-export function createDescriptionElement(dList: HTMLDListElement, term: string, details: string) {
+export function createDescriptionElement(dList: HTMLDListElement, term: string, details: any) {
     let dt: HTMLElement = document.createElement('dt');
     dt.className = `${GLOBUS_DESCRIPTION_TERM}`;
     dt.textContent = term;
@@ -85,4 +85,16 @@ export function createDescriptionElement(dList: HTMLDListElement, term: string, 
 
     dList.appendChild(dt);
     dList.appendChild(dd);
+}
+
+export function convertBytes(size: number): string {
+    if (!size) {
+        return '0 B';
+    }
+
+    let base = Math.log(size)/Math.log(1000);
+
+    let suffix = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+    return `${Math.round(Math.pow(1000, base - Math.floor(base)) * 100) / 100} ${suffix[Math.floor(base)]}`;
 }

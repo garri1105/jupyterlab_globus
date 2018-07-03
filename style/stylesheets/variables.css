@@ -51,4 +51,6 @@
     --jp-Globus-icon-start: url(../assets/icons/start.svg);
     --jp-Globus-icon-check-circle: url(../assets/icons/check-circle.svg);
     --jp-Globus-icon-fail-circle: url(../assets/icons/fail-circle.svg);
+    --jp-Globus-icon-list-sort-down: url(../assets/icons/list-sort-down.svg);
+    --jp-Globus-icon-list-sort-up: url(../assets/icons/list-sort-up.svg);
 }

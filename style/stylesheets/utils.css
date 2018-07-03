@@ -72,6 +72,7 @@
 }
 
 .jp-Globus-listItemSubtitle {
+    display: inline;
     font-size: 0.9em;
     color: var(--jp-Globus-textGray);
     font-style: italic;
@@ -152,8 +153,9 @@
     display: inline;
     flex: 1 1 auto;
     text-align: center;
+    min-width: 30px;
+    line-height: 30px;
     color: var(--jp-Globus-accentBlue);
-    padding-top: 7px;
     font-size: 0.9em;
 }
 

@@ -30,6 +30,7 @@
 .jp-Globus-activity .jp-Globus-menu {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    min-height: 30px;
 }
 
 .jp-Globus-activity .jp-Globus-list {

@@ -20,6 +20,7 @@ import {
 } from "../../utils";
 import {taskSearch} from "../api/client";
 import * as moment from "moment";
+import {GlobusTaskItem, GlobusTaskList} from "../api/models";
 
 /**
  * CSS Classes
@@ -82,7 +83,7 @@ export class GlobusActivity extends Widget {
         });
     }
 
-    private displayTasks(data: any, taskList: HTMLUListElement, options: 'recent' | 'all') {
+    private displayTasks(data: GlobusTaskList, taskList: HTMLUListElement, options: 'recent' | 'all') {
         for (let i = 0; i < data.DATA.length; i++) {
             let taskData = data.DATA[i];
             if (options === 'recent' && moment().diff( moment(taskData.completion_time), 'days') > 7) {
@@ -133,7 +134,7 @@ export class GlobusActivity extends Widget {
         });
     }
 
-    private taskClicked(task: HTMLElement, taskData: any, e: any) {
+    private taskClicked(task: HTMLElement, taskData: GlobusTaskItem, e: any) {
         let overviewList = getGlobusElement(this.parentGroup, ACTIVITY_OVERVIEW_LIST);
         removeChildren(overviewList);
         let taskGroup = getGlobusElement(this.parentGroup, ACTIVITY_TASK_GROUP);
@@ -146,7 +147,7 @@ export class GlobusActivity extends Widget {
         taskGroup.style.display = 'none';
     };
 
-    private displayTaskOverview(overviewList: HTMLDListElement, taskData: any) {
+    private displayTaskOverview(overviewList: HTMLDListElement, taskData: GlobusTaskItem) {
         console.log(taskData);
         createDescriptionElement(overviewList, 'Task ID', taskData.task_id);
         createDescriptionElement(overviewList, 'Condition', taskData.status);
