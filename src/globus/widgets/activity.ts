@@ -3,7 +3,7 @@ import {
     createDescriptionElement,
     displayError,
     getGlobusElement,
-    GLOBUS_ACTIVE,
+    GLOBUS_OPEN,
     GLOBUS_BORDER,
     GLOBUS_DISPLAY_FLEX,
     GLOBUS_PARENT_GROUP,
@@ -16,11 +16,12 @@ import {
     GLOBUS_SELECTED,
     LOADING_ICON,
     LOADING_LABEL,
-    removeChildren
+    removeChildren,
 } from "../../utils";
 import {taskSearch} from "../api/client";
-import * as moment from "moment";
 import {GlobusTaskItem, GlobusTaskList} from "../api/models";
+import * as moment from 'moment';
+import * as $ from 'jquery';
 
 /**
  * CSS Classes
@@ -94,29 +95,27 @@ export class GlobusActivity extends Widget {
             task.className = `${GLOBUS_LIST_ITEM} ${TASK_STATUS[taskData.status]}`;
             task.id = taskData.task_id;
 
+            $.data<GlobusTaskItem>(task, 'data', taskData);
+
             let title: HTMLDivElement = document.createElement('div');
-            let completionTime: HTMLDivElement = document.createElement('div');
+            title.className = GLOBUS_LIST_ITEM_TITLE;
             switch (taskData.type) {
                 case 'TRANSFER':
-                    title.textContent = `${taskData.source_endpoint_display_name} to\n${taskData.destination_endpoint_display_name}`;
-                    title.className = GLOBUS_LIST_ITEM_TITLE;
-
-                    completionTime.className = GLOBUS_LIST_ITEM_SUBTITLE;
-                    completionTime.textContent = `transfer completed ${moment(taskData.completion_time).fromNow()}`;
+                    title.textContent = title.title = `${taskData.source_endpoint_display_name} to\n${taskData.destination_endpoint_display_name}`;
                     break;
                 case 'DELETE':
-                    title.textContent = `delete from\n${taskData.source_endpoint_display_name}`;
-                    title.className = GLOBUS_LIST_ITEM_TITLE;
-
-                    completionTime.className = GLOBUS_LIST_ITEM_SUBTITLE;
-                    completionTime.textContent = `delete completed ${moment(taskData.completion_time).fromNow()}`;
+                    title.textContent = title.title = `delete from\n${taskData.source_endpoint_display_name}`;
                     break;
             }
+
+            let completionTime: HTMLDivElement = document.createElement('div');
+            completionTime.className = GLOBUS_LIST_ITEM_SUBTITLE;
+            completionTime.textContent = `${taskData.type.toLowerCase()} completed ${moment(taskData.completion_time).fromNow()}`;
 
             task.appendChild(title);
             task.appendChild(completionTime);
 
-            task.addEventListener("click", this.taskClicked.bind(this, task, taskData));
+            task.addEventListener("click", this.taskClicked.bind(this, task));
             taskList.appendChild(task);
         }
     }
@@ -134,21 +133,20 @@ export class GlobusActivity extends Widget {
         });
     }
 
-    private taskClicked(task: HTMLElement, taskData: GlobusTaskItem, e: any) {
-        let overviewList = getGlobusElement(this.parentGroup, ACTIVITY_OVERVIEW_LIST);
+    // TODO Don't remove and create new description elements everytime. Very inefficient and memory wasting
+    private taskClicked(task: HTMLElement, e: any) {
+        let taskData: GlobusTaskItem = $.data(task, 'data');
+
+        let overviewList: HTMLDListElement = getGlobusElement(this.parentGroup, ACTIVITY_OVERVIEW_LIST) as HTMLDListElement;
         removeChildren(overviewList);
         let taskGroup = getGlobusElement(this.parentGroup, ACTIVITY_TASK_GROUP);
 
         let taskClone: HTMLElement = task.cloneNode(true) as HTMLElement;
-        taskClone.classList.add(GLOBUS_ACTIVE);
+        taskClone.classList.add(GLOBUS_OPEN);
         overviewList.appendChild(taskClone);
-        this.displayTaskOverview(overviewList as HTMLDListElement, taskData);
         overviewList.parentElement.style.display = 'flex';
         taskGroup.style.display = 'none';
-    };
 
-    private displayTaskOverview(overviewList: HTMLDListElement, taskData: GlobusTaskItem) {
-        console.log(taskData);
         createDescriptionElement(overviewList, 'Task ID', taskData.task_id);
         createDescriptionElement(overviewList, 'Condition', taskData.status);
         createDescriptionElement(overviewList, 'Requested', moment(taskData.request_time).format('YYYY-MM-DD hh:mm a'));
@@ -164,7 +162,7 @@ export class GlobusActivity extends Widget {
         createDescriptionElement(overviewList, 'Failed', taskData.subtasks_failed);
         createDescriptionElement(overviewList, 'Retrying', taskData.subtasks_retrying);
         createDescriptionElement(overviewList, 'Skipped', taskData.files_skipped);
-    }
+    };
 
     private createHTMLElements() {
         /* ------------- <taskGroup> ------------- */
