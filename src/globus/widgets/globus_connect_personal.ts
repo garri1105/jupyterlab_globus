@@ -5,7 +5,11 @@ import {} from 'node';
 import {IDocumentManager} from '@jupyterlab/docmanager';
 import {JupyterLab} from "@jupyterlab/application";
 import {
-    ERROR_IMAGE, GLOBUS_BUTTON, GLOBUS_DISPLAY_FLEX, GLOBUS_BORDER, LOADING_ICON,
+    ERROR_IMAGE,
+    GLOBUS_BUTTON,
+    GLOBUS_DISPLAY_FLEX,
+    GLOBUS_BORDER,
+    LOADING_ICON,
     LOADING_LABEL
 } from "../../utils";
 

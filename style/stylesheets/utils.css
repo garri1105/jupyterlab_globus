@@ -1,6 +1,6 @@
 .jp-Globus-loader {
     border: 3px solid var(--jp-Globus-bgGray);
-    border-top: 3px solid var(--jp-Globus-selectBlue);
+    border-top-color: var(--jp-Globus-selectBlue);
     border-radius: 50%;
     width: 20px;
     height: 20px;

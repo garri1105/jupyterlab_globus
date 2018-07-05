@@ -58,7 +58,7 @@
     width: 30px;
 }
 
-.jp-Globus-activity .jp-Globus-listItem:not(.jp-Globus-active) .jp-Globus-listItemTitle::after {
+.jp-Globus-activity .jp-Globus-listItem:not(.jp-Globus-open) .jp-Globus-listItemTitle::after {
     content: '';
     display: inline-block;
     float: right;
@@ -69,11 +69,11 @@
     background-size: contain;
 }
 
-.jp-Globus-activity .jp-Globus-listItem.jp-Globus-active:hover {
+.jp-Globus-activity .jp-Globus-listItem.jp-Globus-open:hover {
     background-color: white;
 }
 
-.jp-Globus-activity .jp-Globus-listItem.jp-Globus-active {
+.jp-Globus-activity .jp-Globus-listItem.jp-Globus-open {
     cursor: auto;
 }
 
