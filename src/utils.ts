@@ -1,4 +1,7 @@
 import {ERROR_CODES} from "./globus/api/client";
+import {GlobusFileItem} from "./globus/api/models";
+import * as moment from "moment";
+import * as $ from 'jquery';
 
 export const GLOBUS_PARENT_GROUP = 'jp-Globus-group';
 export const GLOBUS_INPUT = 'jp-Globus-input';
@@ -87,6 +90,7 @@ export function createDescriptionElement(dList: HTMLDListElement, term: string, 
     dList.appendChild(dd);
 }
 
+// Adapted from https://math.stackexchange.com/questions/247444/explain-convertion-algorithm-from-bytes-to-kb-mb-gb
 export function convertBytes(size: number): string {
     if (!size) {
         return '0 B';
@@ -97,4 +101,97 @@ export function convertBytes(size: number): string {
     let suffix = ['B', 'KB', 'MB', 'GB', 'TB'];
 
     return `${Math.round(Math.pow(1000, base - Math.floor(base)) * 100) / 100} ${suffix[Math.floor(base)]}`;
+}
+
+// Adapted from https://www.w3schools.com/howto/howto_js_sort_list.asp
+export function sortList(list: HTMLUListElement, sortBy: string | 'name' | 'date' | 'size' | 'type') {
+    let i, switching, b, shouldSwitch, dir, switchcount = 0;
+
+    switching = true;
+    // Set the sorting direction to ascending:
+    dir = "asc";
+    // Make a loop that will continue until no switching has been done:
+    while (switching) {
+        // Start by saying: no switching is done:
+        switching = false;
+        b = list.getElementsByTagName("LI");
+        // Loop through all list-items:
+        for (i = 0; i < (b.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            /* Check if the next item should switch place with the current item,
+            based on the sorting direction (asc or desc): */
+            let fileData: GlobusFileItem = $.data(b[i], 'data');
+            let fileData2: GlobusFileItem = $.data(b[i+1], 'data');
+
+            // If used instead of switch because of the break statements
+            if (sortBy === 'name') {
+                if (dir === "asc" && fileData.name.toLowerCase() > fileData2.name.toLowerCase()) {
+                    /* If next item is alphabetically lower than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch = true;
+                    break;
+                } else if (dir === "desc" && fileData.name.toLowerCase() < fileData2.name.toLowerCase()) {
+                    /* If next item is alphabetically higher than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch= true;
+                    break;
+                }
+            }
+            else if (sortBy === 'date') {
+                if (dir === "asc" && moment(fileData.last_modified).diff(fileData2.last_modified) < 0) {
+                    /* If next item is alphabetically lower than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch = true;
+                    break;
+                } else if (dir === "desc" &&  moment(fileData.last_modified).diff(fileData2.last_modified) > 0) {
+                    /* If next item is alphabetically higher than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            else if (sortBy === 'size') {
+                if (dir === "asc" && fileData.size > fileData2.size) {
+                    /* If next item is alphabetically lower than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch = true;
+                    break;
+                } else if (dir === "desc" && fileData.size < fileData2.size) {
+                    /* If next item is alphabetically higher than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch= true;
+                    break;
+                }
+            }
+            else if (sortBy === 'type') {
+                if (dir === "asc" && fileData.type.toLowerCase() > fileData2.type.toLowerCase()) {
+                    /* If next item is alphabetically lower than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch = true;
+                    break;
+                } else if (dir === "desc" && fileData.type.toLowerCase() < fileData2.type.toLowerCase()) {
+                    /* If next item is alphabetically higher than current item,
+                    mark as a switch and break the loop: */
+                    shouldSwitch= true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            b[i].parentNode.insertBefore(b[i + 1], b[i]);
+            switching = true;
+            // Each time a switch is done, increase switchcount by 1:
+            switchcount ++;
+        } else {
+            /* If no switching has been done AND the direction is "asc",
+            set the direction to "desc" and run the while loop again. */
+            if (!switchcount && dir === "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
+    }
 }
