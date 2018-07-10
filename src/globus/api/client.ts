@@ -64,7 +64,7 @@ export function oauth2SignIn() {
     form.action = oauth2Endpoint;
     form.target = 'popUp';
 
-    let popup = window.open('', 'popUp', 'height=500,width=500,resizable,scrollbars');
+    let popup = window.open('', 'popUp', 'height=750,width=500,resizable,scrollbars');
     let timer = setInterval(async () => {
         try {
             let url = new URL(popup.location.href);
