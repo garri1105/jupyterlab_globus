@@ -18,7 +18,7 @@ import {
     LOADING_LABEL,
     removeChildren,
 } from "../../utils";
-import {taskSearch} from "../api/client";
+import {taskSearch} from "../api/transfer";
 import {GlobusTaskItem, GlobusTaskList} from "../api/models";
 import * as moment from 'moment';
 import * as $ from 'jquery';

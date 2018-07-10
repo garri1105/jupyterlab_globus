@@ -18,6 +18,8 @@ export class GlobusSearch extends Widget {
         this.title.label = 'Search';
 
         this.update();
+
+        // simpleGet('5e83718e-add0-4f06-a00d-577dc78359bc').then(r => console.log(r)).catch(e => console.log(e));
     }
 
     onUpdateRequest() {

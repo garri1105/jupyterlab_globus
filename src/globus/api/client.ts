@@ -1,22 +1,12 @@
 import {PromiseDelegate} from '@phosphor/coreutils';
 import CryptoJS = require('crypto-js');
 import {queryParams} from "../../utils";
-import {
-    GlobusDeleteTask,
-    GlobusEndpointList,
-    GlobusFileList,
-    GlobusNewDirectoryOperation,
-    GlobusOperationResponse,
-    GlobusRenameOperation,
-    GlobusResponse, GlobusSubmissionId, GlobusTaskList,
-    GlobusTaskResponse, GlobusTransferTask
-} from "./models";
+import {GlobusResponse} from "./models";
 
 const CLIENT_ID = 'a4b3ea61-d252-4fe2-9b49-9e7e69434367';
 const REDIRECT_URI = window.location.href;
-const SCOPES = 'openid email profile urn:globus:auth:scope:transfer.api.globus.org:all';
+const SCOPES = 'openid email profile urn:globus:auth:scope:transfer.api.globus.org:all urn:globus:auth:scope:search.api.globus.org:all';
 
-const GLOBUS_TRANSFER_API_URL = 'https://transfer.api.globusonline.org/v0.10';
 const GLOBUS_AUTH_URL = 'https://auth.globus.org/v2/oauth2/authorize';
 const GLOBUS_AUTH_TOKEN = 'https://auth.globus.org/v2/oauth2/token';
 
@@ -37,14 +27,8 @@ export const ERROR_CODES: any = {
 
 export let globusAuthorized = new PromiseDelegate<void>();
 
-let defaultOptions: any;
-
 export function initializeGlobusClient(data: any) {
     Private.tokens.data = data;
-    defaultOptions = {
-        method: 'GET',
-        headers: {'Authorization': `Bearer ${Private.tokens.transferToken}`}
-    };
 }
 
 // TODO : Protect tokens, Cross-Site Request Forgery protection using "state" urlParam
@@ -64,7 +48,7 @@ export function oauth2SignIn() {
     form.action = oauth2Endpoint;
     form.target = 'popUp';
 
-    let popup = window.open('', 'popUp', 'height=750,width=500,resizable,scrollbars');
+    let popup = window.open('', 'popUp', 'height=800,width=500,resizable,scrollbars');
     let timer = setInterval(async () => {
         try {
             let url = new URL(popup.location.href);
@@ -132,7 +116,7 @@ export async function exchangeOAuth2Token(token: string, verifier: string) {
             }
         }).then(function(response) {
             if (response.status >= 400) {
-                reject(response.status);
+                reject(response.statusText);
             }
             return response.json();
         }).then(function(data) {
@@ -149,53 +133,6 @@ export function signOut() {
     globusAuthorized = new PromiseDelegate<void>();
 }
 
-export function activateEndpoint(endpointId: string): Promise<any> {
-    // TODO Deal with failed activations
-    return makeGlobusRequest(
-        `${GLOBUS_TRANSFER_API_URL}/endpoint/${endpointId}/autoactivate`,{
-            method: 'POST',
-            body: ''
-        });
-}
-
-export function taskSearch(): Promise<GlobusTaskList> {
-    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/task_list?limit=1000&filter=type:TRANSFER,DELETE`) as Promise<GlobusTaskList>;
-}
-
-export function listDirectoryContents(endpointId: string, dirPath: string = '/~/'): Promise<GlobusFileList> {
-    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/ls?path=${dirPath}`) as Promise<GlobusFileList>;
-}
-
-export function endpointSearch(query: string): Promise<GlobusEndpointList> {
-    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${query}`) as Promise<GlobusEndpointList>;
-}
-
-export function submitTask(task: GlobusTransferTask | GlobusDeleteTask): Promise<GlobusTaskResponse> {
-    return makeGlobusRequest(
-        `${GLOBUS_TRANSFER_API_URL}/${task.DATA_TYPE}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(task)
-        }) as Promise<GlobusTaskResponse>;
-}
-
-export function submitOperation(endpointId: string, operation: GlobusRenameOperation | GlobusNewDirectoryOperation): Promise<GlobusOperationResponse> {
-    return makeGlobusRequest(
-        `${GLOBUS_TRANSFER_API_URL}/operation/endpoint/${endpointId}/${operation.DATA_TYPE}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(operation)
-        }) as Promise<GlobusOperationResponse>;
-}
-
-export function requestSubmissionId(): Promise<GlobusSubmissionId> {
-    return makeGlobusRequest(`${GLOBUS_TRANSFER_API_URL}/submission_id`) as Promise<GlobusSubmissionId>;
-}
-
 function generateVerifier() {
     return CryptoJS.lib.WordArray.random(32).toString();
 }
@@ -208,10 +145,7 @@ function generateCodeChallenge(verifier: string) {
         .replace(/=/g, '');
 }
 
-function makeGlobusRequest(url: string, options: any = defaultOptions): Promise<GlobusResponse> {
-    options = {...defaultOptions, ...options};
-    options.headers = {...defaultOptions.headers, ...options.headers};
-
+export function makeGlobusRequest(url: string, options: any): Promise<GlobusResponse> {
     return new Promise<GlobusResponse>((resolve, reject) => {
         fetch(url, options).then(async response => {
             if (response.status >= 400) {
@@ -224,14 +158,16 @@ function makeGlobusRequest(url: string, options: any = defaultOptions): Promise<
     })
 }
 
-namespace Private {
+export namespace Private {
     export let tokens = new class {
         _data: any;
+        searchToken: string;
         transferToken: string;
 
         set data(data: any) {
             this._data = data;
-            this.transferToken = data.other_tokens[0].access_token;
+            this.searchToken = data.other_tokens[0].access_token;
+            this.transferToken = data.other_tokens[1].access_token;
         }
     };
 }

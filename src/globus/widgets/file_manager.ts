@@ -6,7 +6,7 @@ import {
     requestSubmissionId,
     submitOperation,
     submitTask
-} from "../api/client";
+} from "../api/transfer";
 import {
     GlobusDeleteItem,
     GlobusDeleteTask,
@@ -47,7 +47,8 @@ import {
     removeChildren,
     getGlobusParentGroup,
     getGlobusElement,
-    displayError, sortList
+    displayError,
+    sortList
 } from "../../utils";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import * as moment from 'moment';
