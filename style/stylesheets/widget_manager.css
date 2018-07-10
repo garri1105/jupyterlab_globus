@@ -24,6 +24,10 @@
     background: var(--jp-Globus-icon-activity) no-repeat center;
 }
 
+.jp-Globus-widgetManager .jp-WidgetManager-searchBtn {
+    background: var(--jp-Globus-icon-search) no-repeat center;
+}
+
 .jp-Globus-widgetManager .jp-WidgetManager-signOutBtn {
     background: var(--jp-Globus-icon-logout) no-repeat center;
 }

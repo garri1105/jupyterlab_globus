@@ -9,6 +9,7 @@ import {IDocumentManager} from '@jupyterlab/docmanager';
 import {GlobusActivity} from "./widgets/activity";
 import {JupyterLab} from "@jupyterlab/application";
 import {GLOBUS_HEADER} from "../utils";
+import {GlobusSearch} from "./widgets/search";
 
 
 /**
@@ -20,6 +21,7 @@ const GLOBUS_TOOLBAR_BTN = 'jp-WidgetManager-toolbarBtn';
 const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-WidgetManager-connectPersonalBtn';
 const GLOBUS_FILEMANAGER_BTN = 'jp-WidgetManager-fileManagerBtn';
 const GLOBUS_ACTIVITY_BTN = 'jp-WidgetManager-activityBtn';
+const GLOBUS_SEARCH_BTN = 'jp-WidgetManager-searchBtn';
 const GLOBUS_SIGNOUT_BTN = 'jp-WidgetManager-signOutBtn';
 const GLOBUS_WIDGET_HEADER = 'jp-WidgetManager-header';
 
@@ -37,9 +39,9 @@ export class GlobusWidgetManager extends Widget {
     private currentWidgetId: string;
     private header: HTMLElement;
     private widgetMap: WidgetMap = {};
-    private factory: IFileBrowserFactory;
-    private manager: IDocumentManager;
-    private app: JupyterLab;
+    readonly factory: IFileBrowserFactory;
+    readonly manager: IDocumentManager;
+    readonly app: JupyterLab;
 
     constructor(app: JupyterLab, manager: IDocumentManager, factory: IFileBrowserFactory) {
         super();
@@ -117,7 +119,6 @@ export class GlobusWidgetManager extends Widget {
     }
 
     private createWidgets() {
-        // Initialize widgets
         let connectPersonalWidget = new GlobusConnectPersonal(this.app, this.manager, this.factory);
         this.initWidget(connectPersonalWidget);
         this.createToolbarButton(connectPersonalWidget, GLOBUS_CONNECT_PERSONAL_BTN);
@@ -129,6 +130,10 @@ export class GlobusWidgetManager extends Widget {
         let activityWidget = new GlobusActivity();
         this.initWidget(activityWidget);
         this.createToolbarButton(activityWidget, GLOBUS_ACTIVITY_BTN);
+
+        let searchWidget = new GlobusSearch();
+        this.initWidget(searchWidget);
+        this.createToolbarButton(searchWidget, GLOBUS_SEARCH_BTN);
 
         /* Add additional widgets here:
         *
