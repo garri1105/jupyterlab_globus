@@ -1,15 +1,19 @@
-import {GlobusResponse} from "./models";
+import {GlobusSearchResult} from "./models";
 import {makeGlobusRequest} from "./client";
 import {Private} from "./client";
 import tokens = Private.tokens;
 
 const GLOBUS_SEARCH_API_URL = 'https://search.api.globus.org/';
 
-export function simpleGet(index: string) {
-    return makeSearchRequest(`${GLOBUS_SEARCH_API_URL}/v1/index/${index}/search?q=*`);
+export function searchIndex(index: string, query: string): Promise<GlobusSearchResult> {
+    return makeSearchRequest(`${GLOBUS_SEARCH_API_URL}/v1/index/${index}/search?q=${query}`);
 }
 
-function makeSearchRequest(url: string, options?: any): Promise<GlobusResponse> {
+export function searchIndexAdvanced(index: string, query: string): Promise<GlobusSearchResult> {
+    return makeSearchRequest(`${GLOBUS_SEARCH_API_URL}/v1/index/${index}/search?q=${query}&advanced=true`);
+}
+
+function makeSearchRequest(url: string, options?: any): Promise<any> {
     options = {method: 'GET', ...options};
     options.headers = {'Authorization': `Bearer ${tokens.searchToken}`, ...options.headers};
 

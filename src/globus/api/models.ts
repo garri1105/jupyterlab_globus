@@ -7,7 +7,7 @@ export interface GlobusItem extends GlobusObject {
 }
 
 export interface GlobusResponse extends GlobusObject {
-    DATA_TYPE: 'submission_id' | 'result' | 'mkdir_result' | 'transfer_result' | 'delete_result' | 'task_list' | 'endpoint_list' | 'file_list';
+    DATA_TYPE: 'submission_id' | 'result' | 'mkdir_result' | 'transfer_result' | 'delete_result' | 'endpoint' | 'task_list' | 'endpoint_list' | 'file_list';
 }
 
 export interface GlobusOperation extends GlobusObject {
@@ -57,7 +57,7 @@ export interface GlobusFileItem {
     last_modified: string;
 }
 
-export interface GlobusEndpointItem extends GlobusItem {
+export interface GlobusEndpointItem extends GlobusItem, GlobusResponse {
     DATA_TYPE: 'endpoint';
     id: string;
     display_name: string;
@@ -232,4 +232,25 @@ export interface GlobusTaskResponse extends GlobusOperationResponse {
     DATA_TYPE: 'transfer_result' | 'delete_result';
     task_id: string;
     submission_id: string;
+}
+
+export interface GlobusSearchResult {
+    '@datatype'?: 'GSearchResult';
+    '@version'?: '2017-09-01';
+    count: number;
+    offset: number;
+    total: number;
+    gmeta: GlobusMetaResult[];
+}
+
+export interface GlobusMetaResult {
+    '@datatype'?: 'GMetaResult';
+    '@version'?: '2017-09-01';
+    subject: string;
+    content: GlobusMetaContent[];
+}
+
+export interface GlobusMetaContent {
+    '@context'?: string;
+    [x: string]: any;
 }
