@@ -1,7 +1,7 @@
 import {Widget} from '@phosphor/widgets';
 import {
     activateEndpoint,
-    endpointSearch,
+    endpointSearch, endpointSearchById,
     listDirectoryContents,
     requestSubmissionId,
     submitOperation,
@@ -48,7 +48,7 @@ import {
     getGlobusParentGroup,
     getGlobusElement,
     displayError,
-    sortList
+    sortList, isEndpointId
 } from "../../utils";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import * as moment from 'moment';
@@ -131,41 +131,61 @@ export class GlobusFileManager extends Widget {
 
     private fetchEndpoints(query: string, endpointList: HTMLUListElement) {
         return new Promise<void>((resolve) => {
-            endpointSearch(query).then(data => {
-                if (data.DATA.length > 0) {
-                    this.displayEndpoints(data, endpointList);
-                }
-                else {
+            if (isEndpointId(query)) {
+                endpointSearchById(query).then(data => {
+                    let dataList: GlobusEndpointList = {
+                        DATA_TYPE: "endpoint_list",
+                        DATA: [data],
+                        has_next_page: false,
+                        limit: 10,
+                        offset: 0
+                    };
+                    resolve();
+
+                    this.displayEndpoints(dataList, endpointList);
+                }).catch(e => {
+                    console.log(e);
                     displayError({customMessage: 'No endpoints found'}, endpointList);
-                }
-                resolve();
-            });
+                    resolve();
+                });
+            }
+            else {
+                endpointSearch(query).then(data => {
+                    if (data.DATA.length > 0) {
+                        this.displayEndpoints(data, endpointList);
+                    }
+                    else {
+                        displayError({customMessage: 'No endpoints found'}, endpointList);
+                    }
+                    resolve();
+                });
+            }
         });
     }
 
     private displayEndpoints(data: GlobusEndpointList, endpointList: HTMLUListElement) {
         for (let i = 0; i < data.DATA.length; i++) {
-            let endPointData = data.DATA[i];
+            let endpointData = data.DATA[i];
 
-            let endPoint: HTMLLIElement = document.createElement('li');
-            endPoint.className = GLOBUS_LIST_ITEM;
-            endPoint.id = endPointData.id;
+            let endpoint: HTMLLIElement = document.createElement('li');
+            endpoint.className = GLOBUS_LIST_ITEM;
+            endpoint.id = endpointData.id;
 
-            $.data<GlobusEndpointItem>(endPoint, 'data', endPointData);
+            $.data<GlobusEndpointItem>(endpoint, 'data', endpointData);
 
             let name: HTMLDivElement = document.createElement('div');
-            name.textContent = name.title = endPointData.display_name;
+            name.textContent = name.title = endpointData.display_name ? endpointData.display_name : endpointData.canonical_name;
             name.className = GLOBUS_LIST_ITEM_TITLE;
 
             let owner: HTMLDivElement = document.createElement('div');
             owner.className = GLOBUS_LIST_ITEM_SUBTITLE;
-            owner.textContent = owner.title = endPointData.owner_string;
+            owner.textContent = owner.title = endpointData.owner_string;
 
-            endPoint.appendChild(name);
-            endPoint.appendChild(owner);
+            endpoint.appendChild(name);
+            endpoint.appendChild(owner);
 
-            endPoint.addEventListener("click", this.endpointClicked.bind(this));
-            endpointList.appendChild(endPoint);
+            endpoint.addEventListener("click", this.endpointClicked.bind(this));
+            endpointList.appendChild(endpoint);
         }
     }
 
@@ -190,7 +210,6 @@ export class GlobusFileManager extends Widget {
 
     private endpointClicked(e: any) {
         let endpoint: HTMLElement = e.currentTarget;
-        let endpointData: GlobusEndpointItem = $.data(endpoint, 'data');
         let endpointList: HTMLElement = endpoint.parentElement;
 
         let globusParentGroup: HTMLElement = getGlobusParentGroup(endpoint);
@@ -200,7 +219,7 @@ export class GlobusFileManager extends Widget {
         let filePathInput: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_PATH_INPUT);
 
         endpoint.classList.toggle(GLOBUS_OPEN);
-        (endpointInput as HTMLInputElement).value = endpointData.display_name;
+        (endpointInput as HTMLInputElement).value = (endpoint.firstChild as HTMLElement).title;
         endpointList.style.display = 'none';
         directoryGroup.style.display = 'flex';
 
@@ -742,7 +761,7 @@ export class GlobusFileManager extends Widget {
 
         let sortOptions: HTMLSelectElement = document.createElement('select');
         sortOptions.className = `${FILEMANAGER_SORT_OPTIONS} ${GLOBUS_BORDER}`;
-        sortOptions.addEventListener('change', this.sortFiles.bind(this));
+        sortOptions.addEventListener('change', this.sortFiles);
         sortOptions.appendChild(optionPlaceholder);
         sortOptions.appendChild(optionName);
         sortOptions.appendChild(optionLastModified);
@@ -751,7 +770,7 @@ export class GlobusFileManager extends Widget {
 
         let sortButton: HTMLDivElement = document.createElement('div');
         sortButton.className = `${FILEMANAGER_SORT_BUTTON} ${GLOBUS_BORDER}`;
-        sortButton.addEventListener('click', this.sortFiles.bind(this));
+        sortButton.addEventListener('click', this.sortFiles);
 
         let sortGroup: HTMLDivElement = document.createElement('div');
         sortGroup.className = `${FILEMANAGER_SORT_GROUP}`;
@@ -833,7 +852,7 @@ export class GlobusFileManager extends Widget {
         let sourceHeader = document.createElement('div');
         sourceHeader.textContent = 'Source';
         sourceHeader.className = `${GLOBUS_HEADER} ${GLOBUS_BORDER}`;
-        sourceHeader.addEventListener('click', this.onClickHeaderHandler.bind(this));
+        sourceHeader.addEventListener('click', this.onClickHeaderHandler);
         let sourceInfo = document.createElement('div');
         sourceInfo.className = `${FILEMANAGER_SEARCH_INFO} ${GLOBUS_BORDER}`;
         sourceInfo.style.display = 'none';
@@ -853,7 +872,7 @@ export class GlobusFileManager extends Widget {
         this.destinationGroup.appendChild(this.searchGroup.cloneNode(true));
         let destinationHeader = getGlobusElement(this.destinationGroup, GLOBUS_HEADER);
         destinationHeader.textContent = 'Destination';
-        destinationHeader.addEventListener('click', this.onClickHeaderHandler.bind(this));
+        destinationHeader.addEventListener('click', this.onClickHeaderHandler);
         let destinationMenuOptions = getGlobusElement(this.destinationGroup, FILEMANAGER_MENU_OPTIONS);
         destinationMenuOptions.style.display = 'none';
         this.destinationGroup.addEventListener('keyup', this.onKeyUpEndpointInputHandler.bind(this));

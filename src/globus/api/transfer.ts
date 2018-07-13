@@ -1,5 +1,5 @@
 import {
-    GlobusDeleteTask,
+    GlobusDeleteTask, GlobusEndpointItem,
     GlobusEndpointList,
     GlobusFileList,
     GlobusNewDirectoryOperation,
@@ -34,6 +34,10 @@ export function listDirectoryContents(endpointId: string, dirPath: string = '/~/
 
 export function endpointSearch(query: string): Promise<GlobusEndpointList> {
     return makeTransferRequest(`${GLOBUS_TRANSFER_API_URL}/endpoint_search?filter_fulltext=${query}`) as Promise<GlobusEndpointList>;
+}
+
+export function endpointSearchById(endpointId: string): Promise<GlobusEndpointItem> {
+    return makeTransferRequest(`${GLOBUS_TRANSFER_API_URL}/endpoint/${endpointId}`) as Promise<GlobusEndpointItem>;
 }
 
 export function submitTask(task: GlobusTransferTask | GlobusDeleteTask): Promise<GlobusTaskResponse> {
