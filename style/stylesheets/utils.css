@@ -76,6 +76,7 @@
     font-size: 0.9em;
     color: var(--jp-Globus-textGray);
     font-style: italic;
+    white-space: pre-wrap;
 }
 
 .jp-Globus-fetchError {

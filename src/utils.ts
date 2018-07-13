@@ -90,6 +90,11 @@ export function createDescriptionElement(dList: HTMLDListElement, term: string, 
     dList.appendChild(dd);
 }
 
+export const ENDPOINT_ID_REG_EXP = new RegExp('[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}');
+export function isEndpointId(query: string) {
+    return ENDPOINT_ID_REG_EXP.test(query);
+}
+
 // Adapted from https://math.stackexchange.com/questions/247444/explain-convertion-algorithm-from-bytes-to-kb-mb-gb
 export function convertBytes(size: number): string {
     if (!size) {

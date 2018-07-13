@@ -1,0 +1,15 @@
+.jp-Globus-search {
+    flex: 1 1 auto;
+    display: block;
+    overflow-y: auto;
+}
+
+.jp-Globus-search .jp-Search-indexSelect {
+    flex: 1 1 auto;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.jp-Globus-search .jp-Globus-listItem {
+    cursor: pointer;
+}
