@@ -34,7 +34,7 @@ export class GlobusHome extends Widget {
         this.title.closable = true;
 
         this.showLoginScreen();
-        // this.globusLogin.attemptSignIn();
+        this.globusLogin.attemptSignIn();
     }
 
     public showLoginScreen() {
@@ -78,10 +78,10 @@ export class GlobusLogin extends Widget {
         oauth2SignIn();
     }
 
-    // attemptSignIn() {
-    //     let data = sessionStorage.getItem('data');
-    //     if (data) {
-    //         globusAuthorized.resolve(JSON.parse(data));
-    //     }
-    // }
+    attemptSignIn() {
+        let data = sessionStorage.getItem('data');
+        if (data) {
+            globusAuthorized.resolve(JSON.parse(data));
+        }
+    }
 }
