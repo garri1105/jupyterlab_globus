@@ -105,7 +105,7 @@ export class GlobusWidgetManager extends Widget {
         this.currentWidgetId = null;
     }
 
-    private switchToWidget(id: string) {
+    switchToWidget(id: string) {
         if (id != this.currentWidgetId || !this.currentWidgetId) {
             if (!this.currentWidgetId) {this.currentWidgetId = id}
             this.widgetMap[this.currentWidgetId].hide();
@@ -116,6 +116,14 @@ export class GlobusWidgetManager extends Widget {
         else {
             this.widgetMap[this.currentWidgetId].update();
         }
+    }
+
+    getWidgetInstance(id: string) {
+        return this.widgetMap[id];
+    }
+
+    getCurrentWidgetInstance() {
+        return this.widgetMap[this.currentWidgetId];
     }
 
     private createWidgets() {

@@ -15,8 +15,10 @@ import {
     LOADING_LABEL, ENDPOINT_ID_REG_EXP, GLOBUS_LIST_ITEM_TITLE, GLOBUS_LIST_ITEM_SUBTITLE,
 } from "../../utils";
 import * as $ from "jquery";
-import {GlobusMetaContent, GlobusMetaResult, GlobusSearchResult} from "../api/models";
+import {GlobusMetaResult, GlobusSearchResult} from "../api/models";
 import moment = require("moment");
+import {GlobusWidgetManager} from "../widget_manager";
+import {FILE_MANAGER, GlobusFileManager} from "./file_manager";
 
 /**
  * CSS Classes
@@ -44,10 +46,10 @@ export class GlobusSearch extends Widget {
         this.createHTMLElements();
 
         this.update();
-
     }
 
     onUpdateRequest() {
+
     }
 
     private indexSelected(e: any) {
@@ -58,6 +60,7 @@ export class GlobusSearch extends Widget {
         let indexSelect: HTMLSelectElement = getGlobusElement(globusParentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
 
         resultGroup.style.display = 'flex';
+        resultInput.value = '*';
         this.retrieveResults($.data(indexSelect.options[indexSelect.selectedIndex], 'value'), resultInput, resultList);
     }
 
@@ -78,14 +81,14 @@ export class GlobusSearch extends Widget {
 
     private displayResults(index: GlobusIndex, data: GlobusSearchResult, resultList: HTMLUListElement) {
         for (let i = 0; i < data.gmeta.length; i++) {
-            let resultData = data.gmeta[i].content;
+            let resultData: GlobusMetaResult = data.gmeta[i];
 
             let result: HTMLLIElement = index.visualize(resultData);
             result.className = GLOBUS_LIST_ITEM;
 
-            $.data(result, 'data', resultData);
+            $.data<GlobusMetaResult>(result, 'data', resultData);
 
-            result.addEventListener("click", this.resultClicked.bind(this));
+            result.addEventListener("click", this.resultClicked.bind(this, index));
             resultList.appendChild(result);
         }
     }
@@ -106,10 +109,11 @@ export class GlobusSearch extends Widget {
         });
     }
 
-    private resultClicked(e: any) {
-
+    private resultClicked(index: GlobusIndex, e: any) {
+        (this.parent as GlobusWidgetManager).switchToWidget(FILE_MANAGER);
+        let fileManager: GlobusFileManager = (this.parent as GlobusWidgetManager).getWidgetInstance(FILE_MANAGER) as GlobusFileManager;
+        fileManager.transferFile(index.retrieveFiles($.data(e.currentTarget, 'data')));
     }
-
 
     private createHTMLElements() {
         /* ------------- <indexGroup> ------------- */
@@ -119,17 +123,21 @@ export class GlobusSearch extends Widget {
         indexDefault.disabled = true;
         indexDefault.selected = true;
         let indexRamses = document.createElement('option');
-        indexRamses.text = 'Ramses Project';
+        indexRamses.text = 'Ramses';
         $.data<GlobusIndex>(indexRamses, 'value', SEARCH_INDEX['RAMSES']);
         let indexMDF = document.createElement('option');
         indexMDF.text = 'MDF';
         $.data<GlobusIndex>(indexMDF, 'value', SEARCH_INDEX['MDF']);
+        let indexKasthuri = document.createElement('option');
+        indexKasthuri.text = 'Kasthuri';
+        $.data<GlobusIndex>(indexKasthuri, 'value', SEARCH_INDEX['KASTHURI']);
 
         let indexSelect = document.createElement('select');
         indexSelect.className = `${GLOBUS_DISPLAY_FLEX} ${SEARCH_INDEX_SELECT} ${GLOBUS_BORDER}`;
         indexSelect.appendChild(indexDefault);
         indexSelect.appendChild(indexRamses);
         indexSelect.appendChild(indexMDF);
+        indexSelect.appendChild(indexKasthuri);
         indexSelect.addEventListener('change', this.indexSelected.bind(this));
 
         let indexGroup = document.createElement('div');
@@ -171,29 +179,38 @@ export class GlobusSearch extends Widget {
     }
 }
 
-
 interface GlobusIndex {
     searchIndex: string;
-    retrieveEndpointId(metaResult: GlobusMetaResult): string;
+    retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]};
     search(query: string): Promise<GlobusSearchResult>;
-    visualize(content: GlobusMetaContent): HTMLLIElement;
+    visualize(metaResult: GlobusMetaResult): HTMLLIElement;
 }
-
 class MDFIndex implements GlobusIndex {
     searchIndex: string = '1a57bbe5-5272-477f-9d31-343b8258b7a5';
 
-    retrieveEndpointId(metaResult: GlobusMetaResult): string {
-        return ENDPOINT_ID_REG_EXP.exec(metaResult.content[0].files[0].globus)[0];
+    retrieveFiles(metaResult: GlobusMetaResult): { endpointId: string, path: string, fileNames: string[] } {
+        let files = metaResult.content[0].files;
+        let regExpResult = ENDPOINT_ID_REG_EXP.exec(files[0].globus);
+        let endpointId = regExpResult[0];
+        let temp = files[0].globus.slice(files[0].globus.indexOf(endpointId) + endpointId.length).split('/');
+        temp.pop();
+        let path = `${temp.join('/')}/`;
+        let fileNames = [];
+        for (let i = 0; i < files.length; i++) {
+            fileNames.push(files[i].globus.slice(files[i].globus.indexOf(path) + path.length));
+        }
+
+        return {endpointId, path, fileNames};
     }
 
     search(query: string): Promise<GlobusSearchResult> {
         return searchIndexAdvanced(this.searchIndex, `files.globus:globus AND ${query}`);
     }
 
-    visualize(content: GlobusMetaContent): HTMLLIElement {
+    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
         let result = document.createElement('li');
 
-        let resultData = content[0];
+        let resultData = metaResult.content[0];
 
         let name: HTMLDivElement = document.createElement('div');
         name.textContent = name.title = resultData.mdf.source_name;
@@ -210,21 +227,69 @@ class MDFIndex implements GlobusIndex {
     }
 }
 
+class KasthuriIndex implements GlobusIndex {
+    searchIndex: string = '7dba248c-f41e-4bed-89f9-0043353da169';
+
+    retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]} {
+        let file = metaResult.content[0].remote_file_manifest[0].url;
+        let regExpResult = ENDPOINT_ID_REG_EXP.exec(file);
+        let endpointId = regExpResult[0];
+        let temp = file.slice(file.indexOf(endpointId) + endpointId.length + 1).split('/');
+        temp.pop();
+        let path = `${temp.join('/')}/`;
+        let fileNames = [file.slice(file.indexOf(path) + path.length)];
+
+        return {endpointId, path, fileNames};
+    }
+
+    search(query: string): Promise<GlobusSearchResult> {
+        return searchIndex(this.searchIndex, `${query}`);
+    }
+
+    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
+        let result = document.createElement('li');
+
+        let resultData = metaResult.content[0];
+
+        let name: HTMLDivElement = document.createElement('div');
+        name.textContent = name.title = resultData.remote_file_manifest[0].filename;
+        name.className = GLOBUS_LIST_ITEM_TITLE;
+
+        // let files: HTMLDivElement = document.createElement('div');
+        // files.className = GLOBUS_LIST_ITEM_SUBTITLE;
+        // files.innerHTML = `<strong>Files:</strong> ${resultData.files.length}\n`;
+
+        result.appendChild(name);
+        // result.appendChild(files);
+
+        return result;
+    }
+}
+
 class RamsesIndex implements GlobusIndex {
     searchIndex: string = '5e83718e-add0-4f06-a00d-577dc78359bc';
 
-    retrieveEndpointId(metaResult: GlobusMetaResult): string {
-        return ENDPOINT_ID_REG_EXP.exec(metaResult.subject)[0];
+    retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]} {
+        let file = metaResult.subject;
+        let regExpResult = ENDPOINT_ID_REG_EXP.exec(file);
+        let endpointId = regExpResult[0];
+        let temp = file.slice(file.indexOf(endpointId) + endpointId.length + 1).split('/');
+        temp.pop();
+        let path = `${temp.join('/')}/`;
+        let fileNames = [file.slice(file.indexOf(path) + path.length)];
+
+        return {endpointId, path, fileNames};
     }
+
 
     search(query: string): Promise<GlobusSearchResult> {
         return searchIndex(this.searchIndex, query);
     }
 
-    visualize(content: GlobusMetaContent): HTMLLIElement {
+    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
         let result = document.createElement('li');
 
-        let resultData = content[0].perfdata;
+        let resultData = metaResult.content[0].perfdata;
 
         let name: HTMLDivElement = document.createElement('div');
         name.textContent = name.title = resultData.titles[0].value;
@@ -273,6 +338,7 @@ class RamsesIndex implements GlobusIndex {
 
 const SEARCH_INDEX = {
     RAMSES: new RamsesIndex(),
-    MDF: new MDFIndex()
+    MDF: new MDFIndex(),
+    KASTHURI: new KasthuriIndex()
 };
 

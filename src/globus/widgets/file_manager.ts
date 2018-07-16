@@ -141,7 +141,6 @@ export class GlobusFileManager extends Widget {
                         offset: 0
                     };
                     resolve();
-
                     this.displayEndpoints(dataList, endpointList);
                 }).catch(e => {
                     console.log(e);
@@ -190,22 +189,28 @@ export class GlobusFileManager extends Widget {
     }
 
     private retrieveEndpoints(endpointInput: HTMLInputElement, endpointList: HTMLUListElement) {
-        if (endpointInput.value.length > 0) {
-            endpointList.style.display = 'block';
+        return new Promise<void>((resolve) => {
+            if (endpointInput.value.length > 0) {
+                endpointList.style.display = 'block';
 
-            removeChildren(endpointList);
+                removeChildren(endpointList);
 
-            LOADING_LABEL.textContent = 'Loading Collections...';
-            endpointList.appendChild(LOADING_ICON);
-            endpointList.appendChild(LOADING_LABEL);
-            this.fetchEndpoints(endpointInput.value, endpointList).then(() => {
-                endpointList.removeChild(LOADING_ICON);
-                endpointList.removeChild(LOADING_LABEL);
-            });
-        }
-        else {
-            endpointList.style.display = 'none';
-        }
+                LOADING_LABEL.textContent = 'Loading Collections...';
+                endpointList.appendChild(LOADING_ICON);
+                endpointList.appendChild(LOADING_LABEL);
+                this.fetchEndpoints(endpointInput.value, endpointList).then(() => {
+                    if (endpointList.contains(LOADING_ICON) && endpointList.contains(LOADING_LABEL)) {
+                        endpointList.removeChild(LOADING_ICON);
+                        endpointList.removeChild(LOADING_LABEL);
+                    }
+                    resolve();
+                });
+            }
+            else {
+                endpointList.style.display = 'none';
+                resolve();
+            }
+        })
     }
 
     private endpointClicked(e: any) {
@@ -275,16 +280,21 @@ export class GlobusFileManager extends Widget {
     }
 
     private retrieveDirectoryContents(filePathInput: HTMLInputElement, fileList: HTMLUListElement) {
-        if (filePathInput.value.length === 0) {
-            filePathInput.value = '/~/';
-        }
-        removeChildren(fileList);
-        LOADING_LABEL.textContent = 'Retrieving Directories...';
-        fileList.appendChild(LOADING_ICON);
-        fileList.appendChild(LOADING_LABEL);
-        this.fetchDirectoryContents(filePathInput.value, fileList).then(() => {
-            fileList.removeChild(LOADING_ICON);
-            fileList.removeChild(LOADING_LABEL);
+        return new Promise<void>((resolve) => {
+            if (filePathInput.value.length === 0) {
+                filePathInput.value = '/~/';
+            }
+            removeChildren(fileList);
+            LOADING_LABEL.textContent = 'Retrieving Directories...';
+            fileList.appendChild(LOADING_ICON);
+            fileList.appendChild(LOADING_LABEL);
+            this.fetchDirectoryContents(filePathInput.value, fileList).then(() => {
+                if (fileList.contains(LOADING_ICON) && fileList.contains(LOADING_LABEL)) {
+                    fileList.removeChild(LOADING_ICON);
+                    fileList.removeChild(LOADING_LABEL);
+                }
+                resolve();
+            });
         });
     }
 
@@ -465,69 +475,70 @@ export class GlobusFileManager extends Widget {
 
         let destinationPathInput: HTMLInputElement = getGlobusElement(this.destinationGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
         let destinationEndpoint: HTMLElement = getGlobusElement(this.destinationGroup, GLOBUS_OPEN);
-
         let transferResult: HTMLElement = getGlobusElement(this.transferGroup, FILEMANAGER_TRANSFER_RESULT);
+
+        transferResult.style.display = 'block';
+        transferResult.textContent = '';
+        transferResult.className = `${FILEMANAGER_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
+        transferResult.appendChild(LOADING_ICON);
+
+        if (!sourceEndpoint || !destinationEndpoint) {
+            transferResult.textContent = 'Both endpoints must be selected to start transfer';
+            transferResult.classList.add(GLOBUS_FAIL);
+            return;
+        }
 
         let selectedElements = this.sourceGroup.getElementsByClassName(GLOBUS_SELECTED);
 
         let items: GlobusTransferItem[] = [];
 
         for (let i = 0; i < selectedElements.length; i++) {
-            let file = (selectedElements[i] as HTMLLIElement) ;
+            let file = (selectedElements[i] as HTMLLIElement);
+            let fileData: GlobusFileItem = $.data(file, 'data');
+            console.log(fileData);
             let transferItem: GlobusTransferItem = {
                 'DATA_TYPE': 'transfer_item',
-                'source_path': `${sourcePathInput.value}${file.title}`,
-                'destination_path': `${destinationPathInput.value}${file.title}`,
-                'recursive': file.type === 'dir'
+                'source_path': `${sourcePathInput.value}${fileData.name}`,
+                'destination_path': `${destinationPathInput.value}${fileData.name}`,
+                'recursive': fileData.type === 'dir'
             };
 
             items.push(transferItem);
         }
 
-        // TODO better error handling
-        transferResult.style.display = 'block';
-        if (sourceEndpoint && destinationEndpoint) {
-            transferResult.textContent = '';
-            transferResult.className = `${FILEMANAGER_TRANSFER_RESULT} ${GLOBUS_BORDER}`;
-            transferResult.appendChild(LOADING_ICON);
+        let options = {};
+        [].reduce.call(e.target.parentElement.elements, (data: any, element: any) => {
+            if (element.type === 'checkbox') {
+                data[element.name] = element.checked;
+            }
+            else {
+                data[element.name] = element.value;
+            }
+            return data;
+        }, options);
 
-            let options = {};
-            [].reduce.call(e.target.parentElement.elements, (data: any, element: any) => {
-                if (element.type === 'checkbox') {
-                    data[element.name] = element.checked;
-                }
-                else {
-                    data[element.name] = element.value;
-                }
-                return data;
-            }, options);
+        let submissionId: GlobusSubmissionId = await requestSubmissionId();
 
-            let submissionId: GlobusSubmissionId = await requestSubmissionId();
+        let taskTransfer: GlobusTransferTask = {
+            DATA_TYPE: 'transfer',
+            submission_id: submissionId.value,
+            source_endpoint: sourceEndpoint.id,
+            destination_endpoint: destinationEndpoint.id,
+            DATA: items,
+            notify_on_succeeded: false,
+            notify_on_failed: false,
+            ...options
+        };
 
-            let taskTransfer: GlobusTransferTask = {
-                DATA_TYPE: 'transfer',
-                submission_id: submissionId.value,
-                source_endpoint: sourceEndpoint.id,
-                destination_endpoint: destinationEndpoint.id,
-                DATA: items,
-                notify_on_succeeded: false,
-                notify_on_failed: false,
-                ...options
-            };
-
-            submitTask(taskTransfer)
-                .then(data => {
-                    transferResult.textContent = data.message;
-                    transferResult.classList.add(GLOBUS_SUCCESS)
-                }).catch(e => {
-                    transferResult.textContent = e.message;
-                    transferResult.classList.add(GLOBUS_FAIL);
-                });
-        }
-        else {
-            transferResult.textContent = 'Both endpoints must be selected to start transfer';
+        console.log(taskTransfer);
+        submitTask(taskTransfer).then(data => {
+            transferResult.textContent = data.message;
+            transferResult.classList.add(GLOBUS_SUCCESS)
+        }).catch(e => {
+            console.log(e);
+            transferResult.textContent = e.message;
             transferResult.classList.add(GLOBUS_FAIL);
-        }
+        });
     }
 
     private sortFiles(e: any) {
@@ -860,8 +871,8 @@ export class GlobusFileManager extends Widget {
         this.sourceGroup.className = GLOBUS_PARENT_GROUP;
         this.sourceGroup.appendChild(sourceHeader);
         this.sourceGroup.appendChild(sourceInfo);
-        this.sourceGroup.style.display = 'none';
         this.sourceGroup.addEventListener('click', this.onClickGlobusGroupHandler.bind(this));
+        this.sourceGroup.style.display = 'none';
 
         /* ------------- <sourceGroup> ------------- */
 
@@ -1060,5 +1071,29 @@ export class GlobusFileManager extends Widget {
             () => {
                 console.log('Completed')
             });
+    }
+
+    transferFile(files: {endpointId: string, path: string, fileNames: string[]}) {
+        removeChildren(this.node);
+        this.createHTMLElements();
+        let endpointInput: HTMLInputElement = getGlobusElement(this.originalGroup, FILEMANAGER_ENDPOINT_INPUT) as HTMLInputElement;
+        let endpointList: HTMLUListElement = getGlobusElement(this.originalGroup, FILEMANAGER_ENDPOINT_LIST) as HTMLUListElement;
+        let filePathInput: HTMLInputElement = getGlobusElement(this.originalGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
+        let fileList: HTMLUListElement = getGlobusElement(this.originalGroup, FILEMANAGER_FILE_LIST) as HTMLUListElement;
+        let optionTranfer: HTMLElement = getGlobusElement(this.originalGroup, FILEMANAGER_OPTION_TRANSFER);
+        endpointInput.value = files.endpointId;
+        filePathInput.value = files.path;
+        this.retrieveEndpoints(endpointInput, endpointList).then(() => {
+            this.endpointClicked({currentTarget: endpointList.firstChild});
+            this.onClickMenuOptionHandler({target: optionTranfer});
+            setTimeout(() => {
+                for (let i = 0; i < fileList.children.length; i++) {
+                    if (files.fileNames.indexOf((fileList.children[i].firstChild as HTMLElement).title) > -1) {
+                        fileList.children[i].classList.add(GLOBUS_SELECTED);
+                    }
+                }
+                this.parentGroup$.next(this.sourceGroup);
+            }, 1000);
+        });
     }
 }
