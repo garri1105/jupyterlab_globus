@@ -14,6 +14,7 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .jp-Globus-file-manager .jp-FileManager-menuSelect {
@@ -76,10 +77,18 @@
 }
 
 .jp-Globus-file-manager .jp-FileManager-dirOptions {
-    overflow: auto;
+    position: absolute;
+    top: 75px;
+    right: 0;
+    width: 75%;
     border-top: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    z-index: 10;
+}
+
+.jp-Globus-file-manager .jp-FileManager-dirGroup {
+    position: relative;
 }
 
 .jp-Globus-file-manager .jp-Globus-header {
@@ -93,19 +102,23 @@
     margin-right: 20px;
     height: 15px;
     width: 15px;
-    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat;
+    background: var(--jp-Globus-icon-angle-arrow-up) no-repeat;
     background-size: contain;
     filter: brightness(0) invert(100%);
 }
 
 .jp-Globus-file-manager .jp-Globus-header.jp-Globus-active::after {
-    background-image: var(--jp-Globus-icon-angle-arrow-up);
+    background-image: var(--jp-Globus-icon-angle-arrow-down);
 }
 
 .jp-Globus-file-manager .jp-Globus-header.jp-Globus-active {
     margin-bottom: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+.jp-Globus-file-manager .jp-Globus-listItem {
+    user-select: text;
 }
 
 .jp-Globus-file-manager .jp-Globus-listItem.jp-FileManager-fileType::before {
@@ -125,6 +138,7 @@
     margin-right: 10px;
     height: 32px;
     width: 32px;
+    flex: 0 0 auto;
 }
 
 .jp-Globus-file-manager .jp-FileManager-fileList .jp-Globus-listItem.jp-Globus-selected {

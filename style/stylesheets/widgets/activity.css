@@ -75,6 +75,7 @@
 
 .jp-Globus-activity .jp-Globus-listItem.jp-Globus-open {
     cursor: auto;
+    user-select: text;
 }
 
 .jp-Globus-activity .jp-Activity-menuBack {

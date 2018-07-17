@@ -13,3 +13,47 @@
 .jp-Globus-search .jp-Globus-listItem {
     cursor: pointer;
 }
+
+.jp-Globus-search .jp-Search-menuFilter {
+    text-align: left;
+}
+
+.jp-Globus-search .jp-Search-menuFilter::before {
+    content: '';
+    float: left;
+    height: 30px;
+    width: 30px;
+    background: var(--jp-Globus-icon-angle-arrow-left) no-repeat center;
+    background-size: 13px 13px;
+}
+
+.jp-Globus-search .jp-Search-menuFilter.jp-Globus-active::before {
+    background: var(--jp-Globus-icon-angle-arrow-right) no-repeat center;
+    background-size: 13px 13px;
+}
+
+.jp-Globus-search .jp-Search-menu {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    width: 75px;
+    align-self: flex-end;
+}
+
+.jp-Globus-search .jp-Search-resultList {
+    position: relative;
+    border-top-right-radius: 0;
+    border-top: none;
+}
+
+.jp-Globus-search .jp-Search-filterList {
+    position: absolute;
+    background: white;
+    width: 80%;
+    top: 76px;
+    right: 0;
+    z-index: 10;
+}
+
+.jp-Globus-search .jp-Search-resultGroup {
+    position: relative;
+}

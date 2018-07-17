@@ -48,7 +48,7 @@ import {
     getGlobusParentGroup,
     getGlobusElement,
     displayError,
-    sortList, isEndpointId
+    sortList, isEndpointId, GLOBUS_FETCH_ERROR
 } from "../../utils";
 import {BehaviorSubject} from "rxjs/internal/BehaviorSubject";
 import * as moment from 'moment';
@@ -220,15 +220,15 @@ export class GlobusFileManager extends Widget {
         let globusParentGroup: HTMLElement = getGlobusParentGroup(endpoint);
         let endpointInput: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_ENDPOINT_INPUT);
         let directoryGroup: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_GROUP);
-        let fileList: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_LIST);
-        let filePathInput: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_PATH_INPUT);
+        let fileList: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_LIST) as HTMLUListElement;
+        let filePathInput: HTMLInputElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
 
         endpoint.classList.toggle(GLOBUS_OPEN);
         (endpointInput as HTMLInputElement).value = (endpoint.firstChild as HTMLElement).title;
         endpointList.style.display = 'none';
         directoryGroup.style.display = 'flex';
 
-        this.retrieveDirectoryContents(filePathInput as HTMLInputElement, fileList as HTMLUListElement);
+        return this.retrieveDirectoryContents(filePathInput, fileList);
     }
 
     private fetchDirectoryContents(dirPath: string, fileList: HTMLUListElement) {
@@ -280,10 +280,11 @@ export class GlobusFileManager extends Widget {
     }
 
     private retrieveDirectoryContents(filePathInput: HTMLInputElement, fileList: HTMLUListElement) {
+        if (filePathInput.value.length === 0) {
+            filePathInput.value = '/~/';
+        }
+
         return new Promise<void>((resolve) => {
-            if (filePathInput.value.length === 0) {
-                filePathInput.value = '/~/';
-            }
             removeChildren(fileList);
             LOADING_LABEL.textContent = 'Retrieving Directories...';
             fileList.appendChild(LOADING_ICON);
@@ -317,7 +318,7 @@ export class GlobusFileManager extends Widget {
     private fileDblClicked(e: any) {
         let file: HTMLLIElement = e.currentTarget;
         let fileData: GlobusFileItem = $.data(file, 'data');
-        let fileList: HTMLElement = file.parentElement;
+        let fileList: HTMLUListElement = file.parentElement as HTMLUListElement;
 
         let globusParentGroup: HTMLElement = getGlobusParentGroup(file);
         let filePathInput: HTMLInputElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
@@ -325,7 +326,7 @@ export class GlobusFileManager extends Widget {
         switch (fileData.type) {
             case 'dir': {
                 filePathInput.value += `${fileData.name}/`;
-                this.retrieveDirectoryContents(filePathInput, fileList as HTMLUListElement);
+                this.retrieveDirectoryContents(filePathInput, fileList);
                 break;
             }
             case 'file': {
@@ -354,6 +355,7 @@ export class GlobusFileManager extends Widget {
         if (e.target.matches(`.${FILEMANAGER_FILE_PATH_INPUT}`)) {
             let globusParentGroup: HTMLElement = getGlobusParentGroup(e.target);
             let fileList: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_LIST);
+
             this.retrieveDirectoryContents(e.target, fileList as HTMLUListElement);
         }
     }
@@ -388,6 +390,7 @@ export class GlobusFileManager extends Widget {
                 let splits = filePathInput.value.split('/');
                 let fileName = splits[splits.length - 2];
                 filePathInput.value = filePathInput.value.slice(0, -(fileName.length+1));
+
                 this.retrieveDirectoryContents(filePathInput, fileList);
             }
             else if (e.target.matches(`.${FILEMANAGER_MENU_REFRESH}`)) {
@@ -404,27 +407,20 @@ export class GlobusFileManager extends Widget {
                 }
             }
             else if (e.target.matches(`.${FILEMANAGER_MENU_OPTIONS}`)) {
-                if (dirOptions.style.display === 'block') {
-                    fileList.style.display = 'block';
-                    dirOptions.style.display = 'none';
-                }
-                else {
-                    fileList.style.display = 'none';
-                    dirOptions.style.display = 'block';
-                }
+                dirOptions.hidden = !dirOptions.hidden;
             }
         }
     }
 
     private onClickMenuOptionHandler(e: any) {
+        let globusParentGroup = getGlobusParentGroup(e.target);
+        let dirOptions: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_OPTIONS) as HTMLUListElement;
+
         if (e.target.matches(`.${FILEMANAGER_MENU_OPTION}`)) {
-            let globusParentGroup = getGlobusParentGroup(e.target);
             let filePathInput: HTMLInputElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
             let fileList: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_LIST) as HTMLUListElement;
-            let dirOptions: HTMLUListElement = getGlobusElement(globusParentGroup, FILEMANAGER_DIR_OPTIONS) as HTMLUListElement;
 
-            fileList.style.display = 'block';
-            dirOptions.style.display = 'none';
+            dirOptions.hidden = true;
 
             if (e.target.matches(`.${FILEMANAGER_OPTION_TRANSFER}`)) {
                 this.sourceGroup.appendChild(this.searchGroup);
@@ -445,6 +441,9 @@ export class GlobusFileManager extends Widget {
             else if (e.target.matches(`.${FILEMANAGER_OPTION_RENAME}`)) {
                 this.renameFile(globusParentGroup);
             }
+        }
+        else if (!e.target.matches(`.${FILEMANAGER_MENU_OPTIONS}`)) {
+            dirOptions.hidden = true;
         }
     }
 
@@ -819,7 +818,7 @@ export class GlobusFileManager extends Widget {
         dirOptions.appendChild(newFolderOption);
         dirOptions.appendChild(renameOption);
         dirOptions.appendChild(deleteOption);
-        dirOptions.style.display = 'none';
+        dirOptions.hidden = true;
 
         let directoryGroup = document.createElement('div');
         directoryGroup.className = `${GLOBUS_DISPLAY_FLEX} ${FILEMANAGER_DIR_GROUP}`;
@@ -1048,6 +1047,14 @@ export class GlobusFileManager extends Widget {
                     selectedItems.length !== 1 ? optionRename.classList.add(GLOBUS_DISABLED) : optionRename.classList.remove(GLOBUS_DISABLED);
                 }
 
+                let optionNewFolder: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_OPTION_NEWFOLDER);
+                if (optionNewFolder) {
+                    let fileList: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_FILE_LIST);
+                    fileList.firstChild && (fileList.firstChild as HTMLElement).classList.contains(GLOBUS_FETCH_ERROR) ?
+                        optionNewFolder.classList.add(GLOBUS_DISABLED) :
+                        optionNewFolder.classList.remove(GLOBUS_DISABLED);
+                }
+
                 // let optionShare: HTMLElement = getGlobusElement(globusParentGroup, FILEMANAGER_OPTION_SHARE); TODO uncomment when supported
                 // if (optionShare) {
                 //     switch (selectedItems.length) {
@@ -1081,19 +1088,22 @@ export class GlobusFileManager extends Widget {
         let filePathInput: HTMLInputElement = getGlobusElement(this.originalGroup, FILEMANAGER_FILE_PATH_INPUT) as HTMLInputElement;
         let fileList: HTMLUListElement = getGlobusElement(this.originalGroup, FILEMANAGER_FILE_LIST) as HTMLUListElement;
         let optionTranfer: HTMLElement = getGlobusElement(this.originalGroup, FILEMANAGER_OPTION_TRANSFER);
+
         endpointInput.value = files.endpointId;
         filePathInput.value = files.path;
+
         this.retrieveEndpoints(endpointInput, endpointList).then(() => {
-            this.endpointClicked({currentTarget: endpointList.firstChild});
-            this.onClickMenuOptionHandler({target: optionTranfer});
-            setTimeout(() => {
-                for (let i = 0; i < fileList.children.length; i++) {
-                    if (files.fileNames.indexOf((fileList.children[i].firstChild as HTMLElement).title) > -1) {
-                        fileList.children[i].classList.add(GLOBUS_SELECTED);
+            this.endpointClicked({currentTarget: endpointList.firstChild}).then(() => {
+                this.onClickMenuOptionHandler({target: optionTranfer});
+                this.retrieveDirectoryContents(filePathInput, fileList).then(() => {
+                    for (let i = 0; i < fileList.children.length; i++) {
+                        if (files.fileNames.indexOf((fileList.children[i].firstChild as HTMLElement).title) > -1) {
+                            fileList.children[i].classList.add(GLOBUS_SELECTED);
+                        }
                     }
-                }
-                this.parentGroup$.next(this.sourceGroup);
-            }, 1000);
+                    this.parentGroup$.next(this.sourceGroup);
+                });
+            });
         });
     }
 }

@@ -60,6 +60,7 @@
     margin-bottom: -1px;
     list-style-type: none;
     padding: 5px 5px 5px 8px;
+    user-select: none;
 }
 
 .jp-Globus-listItem:not(.jp-Globus-selected):hover {
@@ -101,6 +102,7 @@
     background: var(--jp-Globus-bgBlue);
     color: white;
     padding: 5px;
+    user-select: none;
 }
 
 .jp-Globus-success {
@@ -169,6 +171,7 @@
     min-height: 30px;
     border: 1px solid var(--jp-Globus-borderGray);
     background: var(--jp-Globus-bgGray);
+    user-select: none;
 }
 
 .jp-Globus-descriptionTerm {

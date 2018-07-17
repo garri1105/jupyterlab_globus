@@ -12,7 +12,13 @@ import {
     GLOBUS_LIST_ITEM,
     GLOBUS_PARENT_GROUP,
     LOADING_ICON,
-    LOADING_LABEL, ENDPOINT_ID_REG_EXP, GLOBUS_LIST_ITEM_TITLE, GLOBUS_LIST_ITEM_SUBTITLE,
+    LOADING_LABEL,
+    ENDPOINT_ID_REG_EXP,
+    GLOBUS_LIST_ITEM_TITLE,
+    GLOBUS_LIST_ITEM_SUBTITLE,
+    GLOBUS_MENU,
+    GLOBUS_MENU_BTN,
+    GLOBUS_ACTIVE,
 } from "../../utils";
 import * as $ from "jquery";
 import {GlobusMetaResult, GlobusSearchResult} from "../api/models";
@@ -28,6 +34,9 @@ const SEARCH_INDEX_GROUP = 'jp-Search-indexGroup';
 const SEARCH_INDEX_SELECT = 'jp-Search-indexSelect';
 const SEARCH_RESULT_INPUT = 'jp-Search-resultInput';
 const SEARCH_RESULT_LIST = 'jp-Search-resultList';
+const SEARCH_MENU_FILTER = 'jp-Search-menuFilter';
+const SEARCH_FILTER_LIST = 'jp-Search-filterList';
+const SEARCH_MENU = 'jp-Search-menu';
 const SEARCH_RESULT_GROUP = 'jp-Search-resultGroup';
 
 export const SEARCH = 'globus-search';
@@ -52,7 +61,7 @@ export class GlobusSearch extends Widget {
 
     }
 
-    private indexSelected(e: any) {
+    private searchIndex(e: any) {
         let globusParentGroup = getGlobusParentGroup(e.target);
         let resultInput: HTMLInputElement = getGlobusElement(globusParentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
         let resultList: HTMLUListElement = getGlobusElement(globusParentGroup, SEARCH_RESULT_LIST) as HTMLUListElement;
@@ -60,7 +69,11 @@ export class GlobusSearch extends Widget {
         let indexSelect: HTMLSelectElement = getGlobusElement(globusParentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
 
         resultGroup.style.display = 'flex';
-        resultInput.value = '*';
+
+        if (e.currentTarget.matches(`.${SEARCH_INDEX_SELECT}`)) {
+            resultInput.value = '*';
+        }
+
         this.retrieveResults($.data(indexSelect.options[indexSelect.selectedIndex], 'value'), resultInput, resultList);
     }
 
@@ -138,7 +151,7 @@ export class GlobusSearch extends Widget {
         indexSelect.appendChild(indexRamses);
         indexSelect.appendChild(indexMDF);
         indexSelect.appendChild(indexKasthuri);
-        indexSelect.addEventListener('change', this.indexSelected.bind(this));
+        indexSelect.addEventListener('change', this.searchIndex.bind(this));
 
         let indexGroup = document.createElement('div');
         indexGroup.className = `${GLOBUS_DISPLAY_FLEX} ${SEARCH_INDEX_GROUP}`;
@@ -153,6 +166,23 @@ export class GlobusSearch extends Widget {
         let resultInput: HTMLInputElement = document.createElement('input');
         resultInput.className = `${GLOBUS_INPUT} ${GLOBUS_BORDER} ${SEARCH_RESULT_INPUT}`;
         resultInput.value = '*';
+        resultInput.addEventListener('change', this.searchIndex.bind(this));
+
+        let menuFilter: HTMLDivElement = document.createElement('div');
+        menuFilter.className = `${GLOBUS_MENU_BTN} ${SEARCH_MENU_FILTER}`;
+        menuFilter.textContent = 'Filters';
+        menuFilter.addEventListener('click', () => {
+            menuFilter.classList.toggle(GLOBUS_ACTIVE);
+            filterList.hidden = !filterList.hidden;
+        });
+
+        let filterList: HTMLDivElement = document.createElement('div');
+        filterList.className = `${SEARCH_FILTER_LIST}`;
+        filterList.hidden = true;
+
+        let resultMenu: HTMLDivElement = document.createElement('div');
+        resultMenu.className = `${GLOBUS_MENU} ${GLOBUS_BORDER} ${SEARCH_MENU}`;
+        resultMenu.appendChild(menuFilter);
 
         let resultList: HTMLUListElement = document.createElement('ul');
         resultList.className = `${GLOBUS_LIST} ${GLOBUS_BORDER} ${SEARCH_RESULT_LIST}`;
@@ -160,6 +190,8 @@ export class GlobusSearch extends Widget {
         let resultGroup: HTMLDivElement = document.createElement('div');
         resultGroup.className = `${GLOBUS_DISPLAY_FLEX} ${SEARCH_RESULT_GROUP}`;
         resultGroup.appendChild(resultInput);
+        resultGroup.appendChild(resultMenu);
+        resultGroup.appendChild(filterList);
         resultGroup.appendChild(resultList);
         resultGroup.style.display = 'none';
 
