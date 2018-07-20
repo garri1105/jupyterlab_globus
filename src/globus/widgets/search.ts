@@ -3,13 +3,11 @@ import {searchIndex, searchIndexAdvanced} from "../api/search";
 import {
     displayError,
     getGlobusElement,
-    getGlobusParentGroup,
     removeChildren,
     GLOBUS_BORDER,
     GLOBUS_DISPLAY_FLEX,
     GLOBUS_INPUT,
     GLOBUS_LIST,
-    GLOBUS_LIST_ITEM,
     GLOBUS_PARENT_GROUP,
     LOADING_ICON,
     LOADING_LABEL,
@@ -18,11 +16,10 @@ import {
     GLOBUS_LIST_ITEM_SUBTITLE,
     GLOBUS_MENU,
     GLOBUS_MENU_BTN,
-    GLOBUS_ACTIVE,
+    GLOBUS_ACTIVE, GLOBUS_LIST_ITEM,
 } from "../../utils";
 import * as $ from "jquery";
 import {GlobusMetaResult, GlobusSearchResult} from "../api/models";
-import moment = require("moment");
 import {GlobusWidgetManager} from "../widget_manager";
 import {FILE_MANAGER, GlobusFileManager} from "./file_manager";
 
@@ -62,11 +59,10 @@ export class GlobusSearch extends Widget {
     }
 
     private searchIndex(e: any) {
-        let globusParentGroup = getGlobusParentGroup(e.target);
-        let resultInput: HTMLInputElement = getGlobusElement(globusParentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
-        let resultList: HTMLUListElement = getGlobusElement(globusParentGroup, SEARCH_RESULT_LIST) as HTMLUListElement;
-        let resultGroup: HTMLDivElement = getGlobusElement(globusParentGroup, SEARCH_RESULT_GROUP) as HTMLDivElement;
-        let indexSelect: HTMLSelectElement = getGlobusElement(globusParentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
+        let resultInput: HTMLInputElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
+        let resultList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_LIST) as HTMLUListElement;
+        let resultGroup: HTMLDivElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_GROUP) as HTMLDivElement;
+        let indexSelect: HTMLSelectElement = getGlobusElement(this.parentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
 
         resultGroup.style.display = 'flex';
 
@@ -93,13 +89,57 @@ export class GlobusSearch extends Widget {
     }
 
     private displayResults(index: GlobusIndex, data: GlobusSearchResult, resultList: HTMLUListElement) {
+        let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
+
+        for (let key in index.filterObject) {
+            let filter = document.createElement('h5');
+            filter.textContent = filter.title = key;
+            filterList.appendChild(filter);
+        }
+
         for (let i = 0; i < data.gmeta.length; i++) {
             let resultData: GlobusMetaResult = data.gmeta[i];
 
-            let result: HTMLLIElement = index.visualize(resultData);
+            let result = document.createElement('li');
             result.className = GLOBUS_LIST_ITEM;
-
             $.data<GlobusMetaResult>(result, 'data', resultData);
+
+            let previewObject: {[p: string]: string} = {};
+            for (let key in index.previewObject) {
+                let data: any = resultData.content[0];
+                let keys = index.previewObject[key].split('.');
+                for (let i = 0; i < keys.length; i++) {
+                    if (data) {
+                        data = data[keys[i]]
+                    } else break;
+                }
+                previewObject[key] = data;
+            }
+
+            let name: HTMLDivElement = document.createElement('div');
+            name.textContent = name.title = previewObject.title.split('/').pop();
+            delete previewObject.title;
+            name.className = GLOBUS_LIST_ITEM_TITLE;
+            result.appendChild(name);
+
+            for (let key in previewObject) {
+                let property: HTMLDivElement = document.createElement('div');
+                property.className = GLOBUS_LIST_ITEM_SUBTITLE;
+                property.innerHTML = `<strong>${key}:</strong> ${previewObject[key]}\n`;
+
+                result.appendChild(property)
+            }
+
+            for (let key in index.filterObject) {
+                let data: any = resultData.content[0];
+                let keys = index.filterObject[key].split('.');
+                for (let i = 0; i < keys.length; i++) {
+                    if (data) {
+                        data = data[keys[i]]
+                    } else break;
+                }
+                previewObject[key] = data;
+            }
 
             result.addEventListener("click", this.resultClicked.bind(this, index));
             resultList.appendChild(result);
@@ -126,6 +166,12 @@ export class GlobusSearch extends Widget {
         (this.parent as GlobusWidgetManager).switchToWidget(FILE_MANAGER);
         let fileManager: GlobusFileManager = (this.parent as GlobusWidgetManager).getWidgetInstance(FILE_MANAGER) as GlobusFileManager;
         fileManager.transferFile(index.retrieveFiles($.data(e.currentTarget, 'data')));
+    }
+
+    private filterResults(e: any) {
+        let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
+        e.target.classList.toggle(GLOBUS_ACTIVE);
+        filterList.hidden = !filterList.hidden;
     }
 
     private createHTMLElements() {
@@ -171,10 +217,7 @@ export class GlobusSearch extends Widget {
         let menuFilter: HTMLDivElement = document.createElement('div');
         menuFilter.className = `${GLOBUS_MENU_BTN} ${SEARCH_MENU_FILTER}`;
         menuFilter.textContent = 'Filters';
-        menuFilter.addEventListener('click', () => {
-            menuFilter.classList.toggle(GLOBUS_ACTIVE);
-            filterList.hidden = !filterList.hidden;
-        });
+        menuFilter.addEventListener('click', () => this.filterResults.bind(this));
 
         let filterList: HTMLDivElement = document.createElement('div');
         filterList.className = `${SEARCH_FILTER_LIST}`;
@@ -213,10 +256,14 @@ export class GlobusSearch extends Widget {
 
 interface GlobusIndex {
     searchIndex: string;
+    previewObject: {title: string, [p: string]: string};
+    fullObject: {[p: string]: string};
+    filterObject: {[p: string]: string};
+
     retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]};
     search(query: string): Promise<GlobusSearchResult>;
-    visualize(metaResult: GlobusMetaResult): HTMLLIElement;
 }
+
 class MDFIndex implements GlobusIndex {
     searchIndex: string = '1a57bbe5-5272-477f-9d31-343b8258b7a5';
 
@@ -239,24 +286,14 @@ class MDFIndex implements GlobusIndex {
         return searchIndexAdvanced(this.searchIndex, `files.globus:globus AND ${query}`);
     }
 
-    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
-        let result = document.createElement('li');
-
-        let resultData = metaResult.content[0];
-
-        let name: HTMLDivElement = document.createElement('div');
-        name.textContent = name.title = resultData.mdf.source_name;
-        name.className = GLOBUS_LIST_ITEM_TITLE;
-
-        let files: HTMLDivElement = document.createElement('div');
-        files.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        files.innerHTML = `<strong>Files:</strong> ${resultData.files.length}\n`;
-
-        result.appendChild(name);
-        result.appendChild(files);
-
-        return result;
-    }
+    filterObject: {title: string, [p: string]: string};
+    fullObject: {title: string, [p: string]: string};
+    previewObject: {title: string, [p: string]: string} = {
+        'title': 'mdf.source_name',
+        'Material': 'material.composition',
+        'Elements': 'material.elements',
+        'Files': 'files.length',
+    };
 }
 
 class KasthuriIndex implements GlobusIndex {
@@ -275,27 +312,18 @@ class KasthuriIndex implements GlobusIndex {
     }
 
     search(query: string): Promise<GlobusSearchResult> {
-        return searchIndex(this.searchIndex, `${query}`);
+        return searchIndexAdvanced(this.searchIndex, `${query}`);
     }
 
-    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
-        let result = document.createElement('li');
-
-        let resultData = metaResult.content[0];
-
-        let name: HTMLDivElement = document.createElement('div');
-        name.textContent = name.title = resultData.remote_file_manifest[0].filename;
-        name.className = GLOBUS_LIST_ITEM_TITLE;
-
-        // let files: HTMLDivElement = document.createElement('div');
-        // files.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        // files.innerHTML = `<strong>Files:</strong> ${resultData.files.length}\n`;
-
-        result.appendChild(name);
-        // result.appendChild(files);
-
-        return result;
-    }
+    filterObject: {[p: string]: string};
+    fullObject: {[p: string]: string};
+    previewObject: {title: string, [p: string]: string} = {
+        'title': 'remote_file_manifest.0.filename',
+        'Category': 'beamline.category.value',
+        'Recon_type': 'beamline.recon_type.value',
+        'Sample': 'beamline.sample.value',
+        'Experiment': 'beamline.experiment.value'
+    };
 }
 
 class RamsesIndex implements GlobusIndex {
@@ -313,59 +341,29 @@ class RamsesIndex implements GlobusIndex {
         return {endpointId, path, fileNames};
     }
 
-
     search(query: string): Promise<GlobusSearchResult> {
         return searchIndex(this.searchIndex, query);
     }
 
-    visualize(metaResult: GlobusMetaResult): HTMLLIElement {
-        let result = document.createElement('li');
-
-        let resultData = metaResult.content[0].perfdata;
-
-        let name: HTMLDivElement = document.createElement('div');
-        name.textContent = name.title = resultData.titles[0].value;
-        name.className = GLOBUS_LIST_ITEM_TITLE;
-
-        let description: HTMLDivElement = document.createElement('div');
-        description.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        description.innerHTML = `<strong>Description:</strong> ${resultData.descriptions[0].value}\n`;
-
-        let fileSystem: HTMLDivElement = document.createElement('div');
-        fileSystem.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        fileSystem.innerHTML = `<strong>Filesystem:</strong> ${resultData.filesystem.value}\n`;
-
-        let maxFileSize: HTMLDivElement = document.createElement('div');
-        maxFileSize.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        maxFileSize.innerHTML = `<strong>Maximum File Size:</strong> ${resultData.maximum_file_size.value}\n`;
-
-        let organization: HTMLDivElement = document.createElement('div');
-        organization.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        organization.innerHTML = `<strong>Organization:</strong> ${resultData.organization.value}\n`;
-
-        let date: HTMLDivElement = document.createElement('div');
-        date.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        date.innerHTML = `<strong>Date:</strong> ${moment(resultData.dates[0].value).format('YYYY')}\n`;
-
-        let contributors: HTMLDivElement = document.createElement('div');
-        contributors.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        contributors.innerHTML = `<strong>Contributors:</strong> ${resultData.contributors[0].contributor_name}\n`;
-
-        let formats: HTMLDivElement = document.createElement('div');
-        formats.className = GLOBUS_LIST_ITEM_SUBTITLE;
-        formats.innerHTML = `<strong>Formats:</strong> ${resultData.formats[0].value}\n`;
-
-        result.appendChild(name);
-        result.appendChild(description);
-        result.appendChild(fileSystem);
-        result.appendChild(maxFileSize);
-        result.appendChild(organization);
-        result.appendChild(date);
-        result.appendChild(contributors);
-        result.appendChild(formats);
-
-        return result;
-    }
+    filterObject: {[p: string]: string} = {
+        'Contributor': 'perfdata.contributors.0.contributor_name',
+        'Category': 'perfdata.category.value',
+        'Subjects': 'perfdata.subjects.0.value',
+        'Publication Year': 'perfdata.publication_year.value',
+        'Organization': 'perfdata.organization.value',
+        'Maximum File Size': 'perfdata.maximum_file_size.value'
+    };
+    fullObject: {[p: string]: string};
+    previewObject: {title: string, [p: string]: string} = {
+        'title': 'perfdata.titles.0.value',
+        'Description': 'perfdata.descriptions.0.value',
+        'Filesystem': 'perfdata.filesystem.value',
+        'Maximum File Size': 'perfdata.maximum_file_size.value',
+        'Organization': 'perfdata.organization.value',
+        'Date': 'perfdata.dates.0.value',
+        'Contributors': 'perfdata.contributors.0.contributor_name',
+        'Formats': 'perfdata.formats.0.value'
+    };
 }
 
 const SEARCH_INDEX = {

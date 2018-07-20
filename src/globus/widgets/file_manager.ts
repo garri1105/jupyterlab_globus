@@ -55,7 +55,7 @@ import * as moment from 'moment';
 import * as $ from 'jquery';
 
 // TODO Uncomment share option when it is supported
-// TODO bind data using jquery
+
 /**
  * CSS classes
  */
