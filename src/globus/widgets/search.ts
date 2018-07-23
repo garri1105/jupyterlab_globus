@@ -1,5 +1,5 @@
 import {Widget} from '@phosphor/widgets';
-import {searchIndex, searchIndexAdvanced} from "../api/search";
+import {searchIndexAdvanced} from "../api/search";
 import {
     displayError,
     getGlobusElement,
@@ -70,7 +70,7 @@ export class GlobusSearch extends Widget {
             resultInput.value = '*';
         }
 
-        this.retrieveResults($.data(indexSelect.options[indexSelect.selectedIndex], 'value'), resultInput, resultList);
+        this.retrieveResults($.data(indexSelect.options[indexSelect.selectedIndex], 'value'), resultInput.value, resultList);
     }
 
     private fetchResults(index: GlobusIndex, query: string, resultList: HTMLUListElement) {
@@ -90,11 +90,14 @@ export class GlobusSearch extends Widget {
 
     private displayResults(index: GlobusIndex, data: GlobusSearchResult, resultList: HTMLUListElement) {
         let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
-
+        removeChildren(filterList);
+        let filterMap: {[p: string]: HTMLElement} = {};
         for (let key in index.filterObject) {
-            let filter = document.createElement('h5');
-            filter.textContent = filter.title = key;
+            let filter: HTMLElement = document.createElement('div');
+            filter.title = key;
+            filter.innerHTML = `<h4 style="margin-bottom: 5px">${key}</h4>`;
             filterList.appendChild(filter);
+            filterMap[key] = filter;
         }
 
         for (let i = 0; i < data.gmeta.length; i++) {
@@ -110,7 +113,7 @@ export class GlobusSearch extends Widget {
                 let keys = index.previewObject[key].split('.');
                 for (let i = 0; i < keys.length; i++) {
                     if (data) {
-                        data = data[keys[i]]
+                        data = data[keys[i]];
                     } else break;
                 }
                 previewObject[key] = data;
@@ -135,10 +138,28 @@ export class GlobusSearch extends Widget {
                 let keys = index.filterObject[key].split('.');
                 for (let i = 0; i < keys.length; i++) {
                     if (data) {
-                        data = data[keys[i]]
+                        data = data[keys[i]];
                     } else break;
                 }
-                previewObject[key] = data;
+
+                let i = 0;
+                for (i = 0; i < filterMap[key].children.length; i++) {
+                    if (data === (filterMap[key].children[i] as HTMLElement).title) {
+                        break;
+                    }
+                }
+
+                if (i === filterMap[key].children.length) {
+                    let checkbox = document.createElement('label');
+                    checkbox.title = data;
+                    checkbox.style.display = 'block';
+                    checkbox.innerHTML = `<input type="checkbox"> ${data}`;
+                    filterMap[key].appendChild(checkbox);
+                    checkbox.addEventListener('change', () => {
+                        let resultInput: HTMLInputElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
+                        this.retrieveResults(index, `${index.filterObject[key]}:${data} AND ${resultInput.value}`, resultList)
+                    });
+                }
             }
 
             result.addEventListener("click", this.resultClicked.bind(this, index));
@@ -146,17 +167,14 @@ export class GlobusSearch extends Widget {
         }
     }
 
-    private retrieveResults(index: GlobusIndex, resultInput: HTMLInputElement, resultList: HTMLUListElement) {
-        if (resultInput.value.length == 0) {
-            resultInput.value = '*';
-        }
-
+    private retrieveResults(index: GlobusIndex, query: string = '*', resultList: HTMLUListElement) {
+        console.log(query);
         removeChildren(resultList);
 
         LOADING_LABEL.textContent = 'Loading Results...';
         resultList.appendChild(LOADING_ICON);
         resultList.appendChild(LOADING_LABEL);
-        this.fetchResults(index, resultInput.value, resultList).then(() => {
+        this.fetchResults(index, query, resultList).then(() => {
             resultList.removeChild(LOADING_ICON);
             resultList.removeChild(LOADING_LABEL);
         });
@@ -217,10 +235,10 @@ export class GlobusSearch extends Widget {
         let menuFilter: HTMLDivElement = document.createElement('div');
         menuFilter.className = `${GLOBUS_MENU_BTN} ${SEARCH_MENU_FILTER}`;
         menuFilter.textContent = 'Filters';
-        menuFilter.addEventListener('click', () => this.filterResults.bind(this));
+        menuFilter.addEventListener('click', this.filterResults.bind(this));
 
         let filterList: HTMLDivElement = document.createElement('div');
-        filterList.className = `${SEARCH_FILTER_LIST}`;
+        filterList.className = `${GLOBUS_LIST} ${GLOBUS_BORDER} ${SEARCH_FILTER_LIST}`;
         filterList.hidden = true;
 
         let resultMenu: HTMLDivElement = document.createElement('div');
@@ -312,7 +330,7 @@ class KasthuriIndex implements GlobusIndex {
     }
 
     search(query: string): Promise<GlobusSearchResult> {
-        return searchIndexAdvanced(this.searchIndex, `${query}`);
+        return searchIndexAdvanced(this.searchIndex, query);
     }
 
     filterObject: {[p: string]: string};
@@ -342,7 +360,7 @@ class RamsesIndex implements GlobusIndex {
     }
 
     search(query: string): Promise<GlobusSearchResult> {
-        return searchIndex(this.searchIndex, query);
+        return searchIndexAdvanced(this.searchIndex, query);
     }
 
     filterObject: {[p: string]: string} = {

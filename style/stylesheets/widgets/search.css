@@ -23,12 +23,12 @@
     float: left;
     height: 30px;
     width: 30px;
-    background: var(--jp-Globus-icon-angle-arrow-left) no-repeat center;
+    background: var(--jp-Globus-icon-angle-arrow-down) no-repeat center;
     background-size: 13px 13px;
 }
 
 .jp-Globus-search .jp-Search-menuFilter.jp-Globus-active::before {
-    background: var(--jp-Globus-icon-angle-arrow-right) no-repeat center;
+    background: var(--jp-Globus-icon-angle-arrow-up) no-repeat center;
     background-size: 13px 13px;
 }
 
