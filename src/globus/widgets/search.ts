@@ -1,5 +1,5 @@
 import {Widget} from '@phosphor/widgets';
-import {searchIndexAdvanced} from "../api/search";
+import {searchIndexAdvanced, searchQueryParams} from "../api/search";
 import {
     displayError,
     getGlobusElement,
@@ -16,7 +16,7 @@ import {
     GLOBUS_LIST_ITEM_SUBTITLE,
     GLOBUS_MENU,
     GLOBUS_MENU_BTN,
-    GLOBUS_ACTIVE, GLOBUS_LIST_ITEM,
+    GLOBUS_ACTIVE, GLOBUS_LIST_ITEM, hideChildren,
 } from "../../utils";
 import * as $ from "jquery";
 import {GlobusMetaResult, GlobusSearchResult} from "../api/models";
@@ -33,6 +33,7 @@ const SEARCH_RESULT_INPUT = 'jp-Search-resultInput';
 const SEARCH_RESULT_LIST = 'jp-Search-resultList';
 const SEARCH_MENU_FILTER = 'jp-Search-menuFilter';
 const SEARCH_FILTER_LIST = 'jp-Search-filterList';
+const SEARCH_FILTER_CHECKBOX = 'jp-Search-filterCheckbox';
 const SEARCH_MENU = 'jp-Search-menu';
 const SEARCH_RESULT_GROUP = 'jp-Search-resultGroup';
 
@@ -63,6 +64,20 @@ export class GlobusSearch extends Widget {
         let resultList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_LIST) as HTMLUListElement;
         let resultGroup: HTMLDivElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_GROUP) as HTMLDivElement;
         let indexSelect: HTMLSelectElement = getGlobusElement(this.parentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
+        let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
+
+        removeChildren(filterList);
+        let index = $.data(indexSelect.options[indexSelect.selectedIndex], 'value');
+        let filterMap: {[p: string]: HTMLElement} = {};
+        for (let key in index.filterObject) {
+            let filter: HTMLElement = document.createElement('div');
+            filter.title = key;
+            filter.innerHTML = `<h4 style="margin-bottom: 5px">${key}</h4>`;
+            filterList.appendChild(filter);
+            filterMap[key] = filter.firstChild as HTMLElement;
+        }
+
+        $.data(filterList, 'map', filterMap);
 
         resultGroup.style.display = 'flex';
 
@@ -70,12 +85,23 @@ export class GlobusSearch extends Widget {
             resultInput.value = '*';
         }
 
-        this.retrieveResults($.data(indexSelect.options[indexSelect.selectedIndex], 'value'), resultInput.value, resultList);
+        this.retrieveResults(index, resultInput.value, resultList);
     }
 
     private fetchResults(index: GlobusIndex, query: string, resultList: HTMLUListElement) {
+        let filterCheckboxes = this.parentGroup.getElementsByClassName(SEARCH_FILTER_CHECKBOX);
+        console.log(filterCheckboxes);
+        let params: any = {};
+        for (let i = 0; i < filterCheckboxes.length; i++) {
+            if ((filterCheckboxes[i].firstChild as HTMLInputElement).checked) {
+                params[$.data(filterCheckboxes[i], 'key')] = $.data(filterCheckboxes[i], 'value');
+            }
+        }
+
+        console.log(params);
+
         return new Promise<void>((resolve) => {
-            index.search(query).then(data => {
+            index.search(query, params).then(data => {
                 console.log(data);
                 if (data.gmeta.length > 0) {
                     this.displayResults(index, data, resultList);
@@ -90,14 +116,9 @@ export class GlobusSearch extends Widget {
 
     private displayResults(index: GlobusIndex, data: GlobusSearchResult, resultList: HTMLUListElement) {
         let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
-        removeChildren(filterList);
-        let filterMap: {[p: string]: HTMLElement} = {};
-        for (let key in index.filterObject) {
-            let filter: HTMLElement = document.createElement('div');
-            filter.title = key;
-            filter.innerHTML = `<h4 style="margin-bottom: 5px">${key}</h4>`;
-            filterList.appendChild(filter);
-            filterMap[key] = filter;
+        let filterMap = $.data(filterList, 'map');
+        for (let key in filterMap) {
+            hideChildren(filterMap[key]);
         }
 
         for (let i = 0; i < data.gmeta.length; i++) {
@@ -145,19 +166,23 @@ export class GlobusSearch extends Widget {
                 let i = 0;
                 for (i = 0; i < filterMap[key].children.length; i++) {
                     if (data === (filterMap[key].children[i] as HTMLElement).title) {
+                        filterMap[key].children[i].style.display = 'block';
                         break;
                     }
                 }
 
                 if (i === filterMap[key].children.length) {
                     let checkbox = document.createElement('label');
+                    checkbox.className = `${SEARCH_FILTER_CHECKBOX}`;
                     checkbox.title = data;
                     checkbox.style.display = 'block';
                     checkbox.innerHTML = `<input type="checkbox"> ${data}`;
+                    $.data(checkbox, 'key', index.filterObject[key]);
+                    $.data(checkbox, 'value', data);
                     filterMap[key].appendChild(checkbox);
                     checkbox.addEventListener('change', () => {
                         let resultInput: HTMLInputElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
-                        this.retrieveResults(index, `${index.filterObject[key]}:${data} AND ${resultInput.value}`, resultList)
+                        this.retrieveResults(index, `${resultInput.value}`, resultList)
                     });
                 }
             }
@@ -279,7 +304,7 @@ interface GlobusIndex {
     filterObject: {[p: string]: string};
 
     retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]};
-    search(query: string): Promise<GlobusSearchResult>;
+    search(query: string, params: any): Promise<GlobusSearchResult>;
 }
 
 class MDFIndex implements GlobusIndex {
@@ -300,8 +325,16 @@ class MDFIndex implements GlobusIndex {
         return {endpointId, path, fileNames};
     }
 
-    search(query: string): Promise<GlobusSearchResult> {
-        return searchIndexAdvanced(this.searchIndex, `files.globus:globus AND ${query}`);
+    search(query: string, params: any): Promise<GlobusSearchResult> {
+        let searchQuery = '';
+        if ($.isEmptyObject(params)) {
+            searchQuery = query;
+        }
+        else {
+            searchQuery = `files.globus:globus AND ${searchQueryParams(params)} AND ${query}`;
+        }
+
+        return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
     filterObject: {title: string, [p: string]: string};
@@ -329,8 +362,16 @@ class KasthuriIndex implements GlobusIndex {
         return {endpointId, path, fileNames};
     }
 
-    search(query: string): Promise<GlobusSearchResult> {
-        return searchIndexAdvanced(this.searchIndex, query);
+    search(query: string, params: any): Promise<GlobusSearchResult> {
+        let searchQuery = '';
+        if ($.isEmptyObject(params)) {
+            searchQuery = query;
+        }
+        else {
+            searchQuery = `${searchQueryParams(params)} AND ${query}`;
+        }
+
+        return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
     filterObject: {[p: string]: string};
@@ -359,21 +400,26 @@ class RamsesIndex implements GlobusIndex {
         return {endpointId, path, fileNames};
     }
 
-    search(query: string): Promise<GlobusSearchResult> {
-        return searchIndexAdvanced(this.searchIndex, query);
+    search(query: string, params: any): Promise<GlobusSearchResult> {
+        let searchQuery = '';
+        if ($.isEmptyObject(params)) {
+            searchQuery = query;
+        }
+        else {
+            searchQuery = `${searchQueryParams(params)} AND ${query}`;
+        }
+
+        return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
     filterObject: {[p: string]: string} = {
         'Contributor': 'perfdata.contributors.0.contributor_name',
         'Category': 'perfdata.category.value',
-        'Subjects': 'perfdata.subjects.0.value',
         'Publication Year': 'perfdata.publication_year.value',
         'Organization': 'perfdata.organization.value',
         'Maximum File Size': 'perfdata.maximum_file_size.value'
     };
-    fullObject: {[p: string]: string};
-    previewObject: {title: string, [p: string]: string} = {
-        'title': 'perfdata.titles.0.value',
+    fullObject: {[p: string]: string} = {
         'Description': 'perfdata.descriptions.0.value',
         'Filesystem': 'perfdata.filesystem.value',
         'Maximum File Size': 'perfdata.maximum_file_size.value',
@@ -381,6 +427,13 @@ class RamsesIndex implements GlobusIndex {
         'Date': 'perfdata.dates.0.value',
         'Contributors': 'perfdata.contributors.0.contributor_name',
         'Formats': 'perfdata.formats.0.value'
+    };
+    previewObject: {title: string, [p: string]: string} = {
+        'title': 'perfdata.titles.0.value',
+        'Description': 'perfdata.descriptions.0.value',
+        'Organization': 'perfdata.organization.value',
+        'Date': 'perfdata.dates.0.value',
+        'Contributors': 'perfdata.contributors.0.contributor_name',
     };
 }
 

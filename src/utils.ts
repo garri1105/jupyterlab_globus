@@ -40,6 +40,12 @@ export function removeChildren(node: HTMLElement) {
     }
 }
 
+export function hideChildren(node: HTMLElement) {
+    for (let i = 0; i < node.children.length; i++) {
+        (node.children[i] as HTMLElement).style.display = 'none';
+    }
+}
+
 export function queryParams(params: any) {
     return Object.keys(params)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))

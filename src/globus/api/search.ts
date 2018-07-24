@@ -19,3 +19,9 @@ function makeSearchRequest(url: string, options?: any): Promise<any> {
 
     return makeGlobusRequest(url, options);
 }
+
+export function searchQueryParams(params: any) {
+    return Object.keys(params)
+        .map(k => k + ':' + params[k])
+        .join(' AND ');
+}
