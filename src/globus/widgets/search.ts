@@ -16,12 +16,13 @@ import {
     GLOBUS_LIST_ITEM_SUBTITLE,
     GLOBUS_MENU,
     GLOBUS_MENU_BTN,
-    GLOBUS_ACTIVE, GLOBUS_LIST_ITEM, hideChildren,
+    GLOBUS_ACTIVE, GLOBUS_LIST_ITEM, hideChildren, GLOBUS_BUTTON, GLOBUS_OPEN,
 } from "../../utils";
 import * as $ from "jquery";
 import {GlobusMetaResult, GlobusSearchResult} from "../api/models";
 import {GlobusWidgetManager} from "../widget_manager";
 import {FILE_MANAGER, GlobusFileManager} from "./file_manager";
+import JSONFormatter from 'json-formatter-js'
 
 /**
  * CSS Classes
@@ -33,9 +34,15 @@ const SEARCH_RESULT_INPUT = 'jp-Search-resultInput';
 const SEARCH_RESULT_LIST = 'jp-Search-resultList';
 const SEARCH_MENU_FILTER = 'jp-Search-menuFilter';
 const SEARCH_FILTER_LIST = 'jp-Search-filterList';
+const SEARCH_FILTER = 'jp-Search-filter';
 const SEARCH_FILTER_CHECKBOX = 'jp-Search-filterCheckbox';
 const SEARCH_MENU = 'jp-Search-menu';
 const SEARCH_RESULT_GROUP = 'jp-Search-resultGroup';
+const SEARCH_OVERVIEW_MENU = 'jp-Search-overviewMenu';
+const SEARCH_OVERVIEW = 'jp-Search-overview';
+const SEARCH_OVERVIEW_GROUP = 'jp-Search-overviewGroup';
+const SEARCH_MENU_BACK = 'jp-Search-menuBack';
+const SEARCH_MENU_OVERVIEW = 'jp-Search-menuOverview';
 
 export const SEARCH = 'globus-search';
 
@@ -71,8 +78,9 @@ export class GlobusSearch extends Widget {
         let filterMap: {[p: string]: HTMLElement} = {};
         for (let key in index.filterObject) {
             let filter: HTMLElement = document.createElement('div');
+            filter.className = SEARCH_FILTER;
             filter.title = key;
-            filter.innerHTML = `<h4 style="margin-bottom: 5px">${key}</h4>`;
+            filter.innerHTML = `<h4 style="margin: 10px">${key}</h4>`;
             filterList.appendChild(filter);
             filterMap[key] = filter.firstChild as HTMLElement;
         }
@@ -90,15 +98,12 @@ export class GlobusSearch extends Widget {
 
     private fetchResults(index: GlobusIndex, query: string, resultList: HTMLUListElement) {
         let filterCheckboxes = this.parentGroup.getElementsByClassName(SEARCH_FILTER_CHECKBOX);
-        console.log(filterCheckboxes);
         let params: any = {};
         for (let i = 0; i < filterCheckboxes.length; i++) {
             if ((filterCheckboxes[i].firstChild as HTMLInputElement).checked) {
                 params[$.data(filterCheckboxes[i], 'key')] = $.data(filterCheckboxes[i], 'value');
             }
         }
-
-        console.log(params);
 
         return new Promise<void>((resolve) => {
             index.search(query, params).then(data => {
@@ -205,11 +210,50 @@ export class GlobusSearch extends Widget {
         });
     }
 
-    private resultClicked(index: GlobusIndex, e: any) {
+    private transferClicked(e: any) {
+        let result = getGlobusElement(this.parentGroup, GLOBUS_OPEN);
+        let indexSelect: HTMLSelectElement = getGlobusElement(this.parentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
+        let index = $.data(indexSelect.options[indexSelect.selectedIndex], 'value');
+
+        console.log(index);
+        console.log(result);
         (this.parent as GlobusWidgetManager).switchToWidget(FILE_MANAGER);
         let fileManager: GlobusFileManager = (this.parent as GlobusWidgetManager).getWidgetInstance(FILE_MANAGER) as GlobusFileManager;
-        fileManager.transferFile(index.retrieveFiles($.data(e.currentTarget, 'data')));
+        fileManager.transferFile(index.retrieveFiles($.data(result, 'data')));
     }
+
+    private resultClicked(index: GlobusIndex, e: any) {
+        let resultData = $.data(e.currentTarget, 'data');
+
+        e.currentTarget.classList.toggle(GLOBUS_OPEN);
+
+        let overview = getGlobusElement(this.parentGroup, SEARCH_OVERVIEW);
+        overview.style.padding = '10px';
+        removeChildren(overview);
+        let resultGroup = getGlobusElement(this.parentGroup, SEARCH_RESULT_GROUP);
+
+        overview.parentElement.style.display = 'block';
+        resultGroup.style.display = 'none';
+
+        let title: any = resultData.content[0];
+        let keys = index.previewObject.title.split('.');
+        for (let i = 0; i < keys.length; i++) {
+            if (title) {
+                title = title[keys[i]];
+            } else break;
+        }
+
+        let name: HTMLDivElement = document.createElement('div');
+        name.textContent = name.title = title.split('/').pop();
+        name.className = GLOBUS_LIST_ITEM_TITLE;
+        overview.appendChild(name);
+
+        let formatter = new JSONFormatter(resultData.content[0]);
+        formatter.openAtDepth(1);
+        let json = formatter.render();
+        json.style.fontSize = '12px';
+        overview.appendChild(json);
+    };
 
     private filterResults(e: any) {
         let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
@@ -284,12 +328,51 @@ export class GlobusSearch extends Widget {
         /* ------------- </resultSearch> ------------- */
 
 
+        /* ------------- <overviewGroup> ------------- */
+
+        let menuBack: HTMLDivElement = document.createElement('div');
+        menuBack.className = `${GLOBUS_MENU_BTN} ${SEARCH_MENU_BACK}`;
+        menuBack.addEventListener('click', () => {
+            let overviewGroup = getGlobusElement(this.parentGroup, SEARCH_OVERVIEW_GROUP);
+            let resultGroup = getGlobusElement(this.parentGroup, SEARCH_RESULT_GROUP);
+            overviewGroup.style.display = 'none';
+            resultGroup.style.display = 'flex';
+        });
+
+        let menuOverview: HTMLDivElement = document.createElement('div');
+        menuOverview.className = `${GLOBUS_MENU_BTN} ${SEARCH_MENU_OVERVIEW}`;
+        menuOverview.textContent = 'Overview';
+
+        let overviewMenu = document.createElement('div');
+        overviewMenu.className = `${GLOBUS_MENU} ${SEARCH_OVERVIEW_MENU} ${GLOBUS_BORDER}`;
+        overviewMenu.appendChild(menuBack);
+        overviewMenu.appendChild(menuOverview);
+
+        let overview = document.createElement('ul');
+        overview.className = `${GLOBUS_LIST} ${SEARCH_OVERVIEW} ${GLOBUS_BORDER}`;
+
+        let transferButton = document.createElement('div');
+        transferButton.textContent = 'Transfer';
+        transferButton.className = GLOBUS_BUTTON;
+        transferButton.addEventListener('click', this.transferClicked.bind(this));
+
+        let overviewGroup = document.createElement('div');
+        overviewGroup.className = `${GLOBUS_DISPLAY_FLEX} ${SEARCH_OVERVIEW_GROUP}`;
+        overviewGroup.appendChild(overviewMenu);
+        overviewGroup.appendChild(overview);
+        overviewGroup.appendChild(transferButton);
+        overviewGroup.style.display = 'none';
+
+        /* ------------- </overviewGroup> ------------- */
+
+
         /* ------------- <parentGroup> ------------- */
 
         this.parentGroup = document.createElement('div');
         this.parentGroup.className = `${GLOBUS_DISPLAY_FLEX} ${GLOBUS_PARENT_GROUP}`;
         this.parentGroup.appendChild(indexGroup);
         this.parentGroup.appendChild(resultGroup);
+        this.parentGroup.appendChild(overviewGroup);
 
         /* -------------</parentGroup>------------- */
 
@@ -300,7 +383,6 @@ export class GlobusSearch extends Widget {
 interface GlobusIndex {
     searchIndex: string;
     previewObject: {title: string, [p: string]: string};
-    fullObject: {[p: string]: string};
     filterObject: {[p: string]: string};
 
     retrieveFiles(metaResult: GlobusMetaResult): {endpointId: string, path: string, fileNames: string[]};
@@ -337,8 +419,7 @@ class MDFIndex implements GlobusIndex {
         return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
-    filterObject: {title: string, [p: string]: string};
-    fullObject: {title: string, [p: string]: string};
+    filterObject: {[p: string]: string};
     previewObject: {title: string, [p: string]: string} = {
         'title': 'mdf.source_name',
         'Material': 'material.composition',
@@ -375,7 +456,6 @@ class KasthuriIndex implements GlobusIndex {
     }
 
     filterObject: {[p: string]: string};
-    fullObject: {[p: string]: string};
     previewObject: {title: string, [p: string]: string} = {
         'title': 'remote_file_manifest.0.filename',
         'Category': 'beamline.category.value',
@@ -419,21 +499,13 @@ class RamsesIndex implements GlobusIndex {
         'Organization': 'perfdata.organization.value',
         'Maximum File Size': 'perfdata.maximum_file_size.value'
     };
-    fullObject: {[p: string]: string} = {
-        'Description': 'perfdata.descriptions.0.value',
-        'Filesystem': 'perfdata.filesystem.value',
-        'Maximum File Size': 'perfdata.maximum_file_size.value',
-        'Organization': 'perfdata.organization.value',
-        'Date': 'perfdata.dates.0.value',
-        'Contributors': 'perfdata.contributors.0.contributor_name',
-        'Formats': 'perfdata.formats.0.value'
-    };
+
     previewObject: {title: string, [p: string]: string} = {
         'title': 'perfdata.titles.0.value',
         'Description': 'perfdata.descriptions.0.value',
         'Organization': 'perfdata.organization.value',
         'Date': 'perfdata.dates.0.value',
-        'Contributors': 'perfdata.contributors.0.contributor_name',
+        'Contributors': 'perfdata.contributors.0.contributor_name'
     };
 }
 

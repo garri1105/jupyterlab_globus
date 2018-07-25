@@ -115,7 +115,7 @@ export class GlobusActivity extends Widget {
             task.appendChild(title);
             task.appendChild(completionTime);
 
-            task.addEventListener("click", this.taskClicked.bind(this, task));
+            task.addEventListener("click", this.taskClicked.bind(this));
             taskList.appendChild(task);
         }
     }
@@ -134,14 +134,14 @@ export class GlobusActivity extends Widget {
     }
 
     // TODO Don't remove and create new description elements everytime. Very inefficient and memory wasting
-    private taskClicked(task: HTMLElement, e: any) {
-        let taskData: GlobusTaskItem = $.data(task, 'data');
+    private taskClicked(e: any) {
+        let taskData: GlobusTaskItem = $.data(e.currentTarget, 'data');
 
         let overviewList: HTMLDListElement = getGlobusElement(this.parentGroup, ACTIVITY_OVERVIEW_LIST) as HTMLDListElement;
         removeChildren(overviewList);
         let taskGroup = getGlobusElement(this.parentGroup, ACTIVITY_TASK_GROUP);
 
-        let taskClone: HTMLElement = task.cloneNode(true) as HTMLElement;
+        let taskClone: HTMLElement = e.currentTarget.cloneNode(true) as HTMLElement;
         taskClone.classList.add(GLOBUS_OPEN);
         overviewList.appendChild(taskClone);
         overviewList.parentElement.style.display = 'flex';
@@ -209,7 +209,6 @@ export class GlobusActivity extends Widget {
         let overviewList: HTMLDListElement = document.createElement('dl');
         overviewList.className = `${GLOBUS_LIST} ${ACTIVITY_OVERVIEW_LIST} ${GLOBUS_BORDER}`;
 
-        // Path Input container for adding extra elements
         let overviewGroup = document.createElement('div');
         overviewGroup.className = `${GLOBUS_DISPLAY_FLEX} ${ACTIVITY_OVERVIEW_GROUP}`;
         overviewGroup.appendChild(overviewMenu);

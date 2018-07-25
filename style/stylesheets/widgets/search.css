@@ -57,3 +57,54 @@
 .jp-Globus-search .jp-Search-resultGroup {
     position: relative;
 }
+
+.jp-Globus-search .jp-Search-filterCheckbox {
+    font-weight: normal;
+}
+
+.jp-Globus-activity .jp-Activity-menuOverview::before {
+    background: var(--jp-Globus-icon-info) no-repeat;
+}
+
+.jp-Globus-activity .jp-Globus-menuBtn::before {
+    content: '';
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    margin-right: 5px;
+}
+
+.jp-Globus-search .jp-Globus-menu {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    min-height: 30px;
+}
+
+.jp-Globus-search .jp-Globus-list {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.jp-Globus-search .jp-Search-menuBack {
+    max-width: 30px;
+    background: white var(--jp-Globus-icon-back) no-repeat center;
+    background-size: contain;
+}
+
+.jp-Globus-search .jp-Search-menuOverview {
+    background: white;
+    cursor: auto;
+}
+
+.jp-Globus-search .jp-Globus-listItemSubtitle {
+    white-space: pre-wrap;
+    overflow-wrap: normal;
+}
+
+.jp-Globus-search .jp-Search-overview {
+    overflow: auto;
+}
