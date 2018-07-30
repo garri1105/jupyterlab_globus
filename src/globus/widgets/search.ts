@@ -24,6 +24,13 @@ import {GlobusWidgetManager} from "../widget_manager";
 import {FILE_MANAGER, GlobusFileManager} from "./file_manager";
 import JSONFormatter from 'json-formatter-js'
 
+
+// TODO Filtering needs to be done better. If a filter is a number like # of atoms, then it should add an input box instead of checkboxes
+// TODO Filtering #2. Add numbers right next to the filters. How many elements of this type of filter are available.
+// TODO Filtering #3. I'm only filtering the first 10 results. Filter the whole dataset
+// TODO Paging for the whole dataset
+// TODO Refactor this page beccause it was done in a rush. Badly written.
+// TODO Config file
 /**
  * CSS Classes
  */
@@ -72,6 +79,7 @@ export class GlobusSearch extends Widget {
         let resultGroup: HTMLDivElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_GROUP) as HTMLDivElement;
         let indexSelect: HTMLSelectElement = getGlobusElement(this.parentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
         let filterList: HTMLUListElement = getGlobusElement(this.parentGroup, SEARCH_FILTER_LIST) as HTMLUListElement;
+        let overviewGroup: HTMLElement = getGlobusElement(this.parentGroup, SEARCH_OVERVIEW_GROUP);
 
         removeChildren(filterList);
         let index = $.data(indexSelect.options[indexSelect.selectedIndex], 'value');
@@ -88,6 +96,7 @@ export class GlobusSearch extends Widget {
         $.data(filterList, 'map', filterMap);
 
         resultGroup.style.display = 'flex';
+        overviewGroup.style.display = 'none';
 
         if (e.currentTarget.matches(`.${SEARCH_INDEX_SELECT}`)) {
             resultInput.value = '*';
@@ -168,27 +177,29 @@ export class GlobusSearch extends Widget {
                     } else break;
                 }
 
-                let i = 0;
-                for (i = 0; i < filterMap[key].children.length; i++) {
-                    if (data === (filterMap[key].children[i] as HTMLElement).title) {
-                        filterMap[key].children[i].style.display = 'block';
-                        break;
+                if (data) {
+                    let i = 0;
+                    for (i = 0; i < filterMap[key].children.length; i++) {
+                        if (data.toString() === (filterMap[key].children[i] as HTMLElement).title) {
+                            filterMap[key].children[i].style.display = 'block';
+                            break;
+                        }
                     }
-                }
 
-                if (i === filterMap[key].children.length) {
-                    let checkbox = document.createElement('label');
-                    checkbox.className = `${SEARCH_FILTER_CHECKBOX}`;
-                    checkbox.title = data;
-                    checkbox.style.display = 'block';
-                    checkbox.innerHTML = `<input type="checkbox"> ${data}`;
-                    $.data(checkbox, 'key', index.filterObject[key]);
-                    $.data(checkbox, 'value', data);
-                    filterMap[key].appendChild(checkbox);
-                    checkbox.addEventListener('change', () => {
-                        let resultInput: HTMLInputElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
-                        this.retrieveResults(index, `${resultInput.value}`, resultList)
-                    });
+                    if (i === filterMap[key].children.length) {
+                        let checkbox = document.createElement('label');
+                        checkbox.className = `${SEARCH_FILTER_CHECKBOX}`;
+                        checkbox.title = data;
+                        checkbox.style.display = 'block';
+                        checkbox.innerHTML = `<input type="checkbox"> ${data}`;
+                        $.data(checkbox, 'key', index.filterObject[key]);
+                        $.data(checkbox, 'value', data);
+                        filterMap[key].appendChild(checkbox);
+                        checkbox.addEventListener('change', () => {
+                            let resultInput: HTMLInputElement = getGlobusElement(this.parentGroup, SEARCH_RESULT_INPUT) as HTMLInputElement;
+                            this.retrieveResults(index, `${resultInput.value}`, resultList)
+                        });
+                    }
                 }
             }
 
@@ -198,7 +209,6 @@ export class GlobusSearch extends Widget {
     }
 
     private retrieveResults(index: GlobusIndex, query: string = '*', resultList: HTMLUListElement) {
-        console.log(query);
         removeChildren(resultList);
 
         LOADING_LABEL.textContent = 'Loading Results...';
@@ -215,8 +225,6 @@ export class GlobusSearch extends Widget {
         let indexSelect: HTMLSelectElement = getGlobusElement(this.parentGroup, SEARCH_INDEX_SELECT) as HTMLSelectElement;
         let index = $.data(indexSelect.options[indexSelect.selectedIndex], 'value');
 
-        console.log(index);
-        console.log(result);
         (this.parent as GlobusWidgetManager).switchToWidget(FILE_MANAGER);
         let fileManager: GlobusFileManager = (this.parent as GlobusWidgetManager).getWidgetInstance(FILE_MANAGER) as GlobusFileManager;
         fileManager.transferFile(index.retrieveFiles($.data(result, 'data')));
@@ -408,18 +416,22 @@ class MDFIndex implements GlobusIndex {
     }
 
     search(query: string, params: any): Promise<GlobusSearchResult> {
-        let searchQuery = '';
+        let searchQuery = 'files.globus:globus AND ';
         if ($.isEmptyObject(params)) {
-            searchQuery = query;
+            searchQuery += query;
         }
         else {
-            searchQuery = `files.globus:globus AND ${searchQueryParams(params)} AND ${query}`;
+            searchQuery += `${searchQueryParams(params)} AND ${query}`;
         }
 
         return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
-    filterObject: {[p: string]: string};
+    filterObject: {[p: string]: string} = {
+        'Number of atoms': 'crystal_structure.number_of_atoms',
+        'Composition': 'material.composition',
+        'DFT Converged': 'dft.converged'
+    };
     previewObject: {title: string, [p: string]: string} = {
         'title': 'mdf.source_name',
         'Material': 'material.composition',
@@ -455,7 +467,8 @@ class KasthuriIndex implements GlobusIndex {
         return searchIndexAdvanced(this.searchIndex, searchQuery);
     }
 
-    filterObject: {[p: string]: string};
+    filterObject: {[p: string]: string} = {};
+
     previewObject: {title: string, [p: string]: string} = {
         'title': 'remote_file_manifest.0.filename',
         'Category': 'beamline.category.value',
