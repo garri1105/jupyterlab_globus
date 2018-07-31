@@ -34,24 +34,44 @@ LOADING_LABEL.className = 'jp-Globus-loaderLabel';
 export const ERROR_IMAGE = document.createElement('div');
 ERROR_IMAGE.className = 'jp-Globus-errorImage';
 
+/**
+ * Removes all children from a node. Not recursive
+ * @param {HTMLElement} node
+ */
 export function removeChildren(node: HTMLElement) {
     while (node.firstChild) {
         node.removeChild(node.firstChild);
     }
 }
 
+/**
+ * Hides all children from a node. Not recursive
+ * @param {HTMLElement} node
+ */
 export function hideChildren(node: HTMLElement) {
     for (let i = 0; i < node.children.length; i++) {
         (node.children[i] as HTMLElement).style.display = 'none';
     }
 }
 
+/**
+ * Takes in an object and encodes it in the form: x-www-form-urlencoded
+ * @param params
+ * @returns {string}
+ */
 export function queryParams(params: any) {
     return Object.keys(params)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
         .join('&');
 }
 
+
+/**
+ * Finds the most immediate Parent Group which is used to organize the HTML elements in subgroups.
+ * This Parent Group must contain GLOBUS_PARENT_GROUP in its classlist
+ * @param {HTMLElement} element
+ * @returns {HTMLElement}
+ */
 export function getGlobusParentGroup(element: HTMLElement): HTMLElement {
     if (element.classList.contains(GLOBUS_PARENT_GROUP)) {
         return element;
@@ -61,10 +81,21 @@ export function getGlobusParentGroup(element: HTMLElement): HTMLElement {
     }
 }
 
+/**
+ * Finds an HTML element based on its class name. It's usually paired with getGlobusParentGroup for better organization
+ * @param {HTMLElement} group
+ * @param {string} className
+ * @returns {HTMLElement}
+ */
 export function getGlobusElement(group: HTMLElement, className: string): HTMLElement {
     return group.getElementsByClassName(className)[0] as HTMLElement;
 }
 
+/**
+ * Displays the passed in error inside of the node
+ * @param e
+ * @param {HTMLElement} node
+ */
 export function displayError(e: any, node: HTMLElement) {
     console.log(e);
     let errorCode = document.createElement('div');
@@ -83,6 +114,12 @@ export function displayError(e: any, node: HTMLElement) {
     node.appendChild(errorCode);
 }
 
+/**
+ * Fills up a <dl> element. This function could be removed with a better refactoring of the code.
+ * @param {HTMLDListElement} dList
+ * @param {string} term
+ * @param details
+ */
 export function createDescriptionElement(dList: HTMLDListElement, term: string, details: any) {
     let dt: HTMLElement = document.createElement('dt');
     dt.className = `${GLOBUS_DESCRIPTION_TERM}`;
@@ -96,12 +133,26 @@ export function createDescriptionElement(dList: HTMLDListElement, term: string, 
     dList.appendChild(dd);
 }
 
+/**
+ * Globus Endpoint ID Regex
+ * @type {RegExp}
+ */
 export const ENDPOINT_ID_REG_EXP = new RegExp('[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}');
+
+/**
+ * @param {string} query
+ * @returns {boolean}
+ */
 export function isEndpointId(query: string) {
     return ENDPOINT_ID_REG_EXP.test(query);
 }
 
 // Adapted from https://math.stackexchange.com/questions/247444/explain-convertion-algorithm-from-bytes-to-kb-mb-gb
+/**
+ * Returns bytes with the appropriate unit prefix
+ * @param {number} size
+ * @returns {string}
+ */
 export function convertBytes(size: number): string {
     if (!size) {
         return '0 B';
@@ -115,6 +166,11 @@ export function convertBytes(size: number): string {
 }
 
 // Adapted from https://www.w3schools.com/howto/howto_js_sort_list.asp
+/**
+ * Sorts a <ul> based on the parameter sortBy
+ * @param {HTMLUListElement} list
+ * @param {string | "name" | "date" | "size" | "type"} sortBy
+ */
 export function sortList(list: HTMLUListElement, sortBy: string | 'name' | 'date' | 'size' | 'type') {
     let i, switching, b, shouldSwitch, dir, switchcount = 0;
 

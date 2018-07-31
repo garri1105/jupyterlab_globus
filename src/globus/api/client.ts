@@ -36,6 +36,7 @@ export function initializeGlobusClient(data: any) {
  * 0Auth2SignIn protocol. Retrieves a 0Auth2Token shown to the user in the popup window
  */
 export function oauth2SignIn() {
+    // Generates verifier and challenge to follow 0Auth2 protocol
     let verifier = generateVerifier();
     let challenge = generateCodeChallenge(verifier);
 
@@ -48,10 +49,15 @@ export function oauth2SignIn() {
     form.action = oauth2Endpoint;
     form.target = 'popUp';
 
+    // Shows the authorization flow in a popup window
     let popup = window.open('', 'popUp', 'height=800,width=500,resizable,scrollbars');
+
+    // Checks every second for the authorization to be completed
     let timer = setInterval(async () => {
         try {
+            // If this line succeeds, it means that we are back in our domain and we have a valid AuthToken
             let url = new URL(popup.location.href);
+
             popup.close();
             await exchangeOAuth2Token(url.searchParams.get('code'), verifier)
                 .then(data => {
@@ -124,6 +130,7 @@ export async function exchangeOAuth2Token(token: string, verifier: string) {
         })
     );
 
+    // Wait for fetch to be done and then return
     return await fetchAccessToken;
 }
 
@@ -145,6 +152,12 @@ function generateCodeChallenge(verifier: string) {
         .replace(/=/g, '');
 }
 
+/**
+ * Makes a basic Globus Request and returns the response as a json
+ * @param {string} url
+ * @param options
+ * @returns {Promise<GlobusResponse>}
+ */
 export function makeGlobusRequest(url: string, options: any): Promise<GlobusResponse> {
     return new Promise<GlobusResponse>((resolve, reject) => {
         fetch(url, options).then(async response => {
@@ -158,6 +171,9 @@ export function makeGlobusRequest(url: string, options: any): Promise<GlobusResp
     })
 }
 
+/**
+ * Contains the tokens required by the extension.
+ */
 export namespace Private {
     export let tokens = new class {
         _data: any;

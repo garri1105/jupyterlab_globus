@@ -16,10 +16,10 @@ export const globus: JupyterLabPlugin<void> = {
 };
 
 function activateGlobus(app: JupyterLab, manager: IDocumentManager, restorer: ILayoutRestorer, factory: IFileBrowserFactory) {
+    // Writes and executes a command inside of the default terminal in JupyterLab.
     // console.log(app.info);
     // app.serviceManager.terminals.startNew().then(session => {
     //     let request = `http POST ${window.location.href}/static body="$(printenv)" 'Authorization:token ${ServerConnection.defaultSettings.token}'\r`;
-    //     console.log(request);
     //     session.send({ type: 'stdin', content: [request]});
     // });
 
@@ -28,7 +28,6 @@ function activateGlobus(app: JupyterLab, manager: IDocumentManager, restorer: IL
     restorer.add(home, 'globus-home');
     app.shell.addToLeftArea(home, { rank: 101 });
 }
-
 
 /**
  * Export the plugin as default.

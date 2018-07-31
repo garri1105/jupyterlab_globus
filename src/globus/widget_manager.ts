@@ -25,23 +25,34 @@ const GLOBUS_SEARCH_BTN = 'jp-WidgetManager-searchBtn';
 const GLOBUS_SIGNOUT_BTN = 'jp-WidgetManager-signOutBtn';
 const GLOBUS_WIDGET_HEADER = 'jp-WidgetManager-header';
 
-
-interface WidgetMap {
-    [id: string]: Widget
-}
-
 /**
  * Widget for hosting the Globus Home.
  */
 export class GlobusWidgetManager extends Widget {
 
+    /**
+     * Toolbar containing all tabs
+     */
     private toolbar: Toolbar<Widget>;
-    private currentWidgetId: string;
+
+    /**
+     * Contains the title of the current displayed widget
+     */
     private header: HTMLElement;
-    private widgetMap: WidgetMap = {};
+
+    /**
+     * Map containing all widgets. Access a widget by id
+     */
+    private widgetMap: {[id: string]: Widget} = {};
+    private currentWidgetId: string;
+
+    /**
+     * Utility predefined JupyterLab Objects
+     */
     readonly factory: IFileBrowserFactory;
     readonly manager: IDocumentManager;
     readonly app: JupyterLab;
+
 
     constructor(app: JupyterLab, manager: IDocumentManager, factory: IFileBrowserFactory) {
         super();
@@ -54,6 +65,9 @@ export class GlobusWidgetManager extends Widget {
         this.layout = new PanelLayout();
     }
 
+    /**
+     * Executed when update() is called. Resets the widget manager to its initial state
+     */
     onUpdateRequest() {
         this.toolbar = new Toolbar<Widget>();
         this.toolbar.addClass(GLOBUS_TOOLBAR);
@@ -93,6 +107,9 @@ export class GlobusWidgetManager extends Widget {
         this.toolbar.addItem(widget.id, toolbarButton);
     }
 
+    /**
+     * Signs out from Globus and switches to the login screen
+     */
     private signOut(): void {
         signOut();
         (this.parent as GlobusHome).showLoginScreen();
@@ -105,6 +122,10 @@ export class GlobusWidgetManager extends Widget {
         this.currentWidgetId = null;
     }
 
+    /**
+     * Switches to specified widget or updates the current one
+     * @param {string} id
+     */
     switchToWidget(id: string) {
         if (id != this.currentWidgetId || !this.currentWidgetId) {
             if (!this.currentWidgetId) {this.currentWidgetId = id}
@@ -126,6 +147,9 @@ export class GlobusWidgetManager extends Widget {
         return this.widgetMap[this.currentWidgetId];
     }
 
+    /**
+     * Creates all widgets. New widgets should be added here in a similar way as the others
+     */
     private createWidgets() {
         let connectPersonalWidget = new GlobusConnectPersonal(this.app, this.manager, this.factory);
         this.initWidget(connectPersonalWidget);
@@ -149,6 +173,11 @@ export class GlobusWidgetManager extends Widget {
         * */
     }
 
+    /**
+     * Adds widget to layout. Widgets are displayed by default which is why we hide it, for a cleaner initial state.
+     * This way only switchToWidget() takes care of showing and hiding widget
+      * @param {Widget} widget
+     */
     private initWidget(widget: Widget) {
         this.widgetMap[widget.id] = widget;
         (this.layout as PanelLayout).addWidget(widget);

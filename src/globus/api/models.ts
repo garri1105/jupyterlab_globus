@@ -1,3 +1,7 @@
+/**
+ * Collection of interfaces that outline what the Globus Responses will look like
+ */
+
 export interface GlobusObject {
     DATA_TYPE: string;
 }

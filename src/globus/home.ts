@@ -37,14 +37,22 @@ export class GlobusHome extends Widget {
         this.globusLogin.attemptSignIn();
     }
 
+    /**
+     * Displays login screen and waits for authorization
+     */
     public showLoginScreen() {
         (this.layout as PanelLayout).addWidget(this.globusLogin);
 
         // After globus authorization, show the widget manager.
         globusAuthorized.promise.then((data: any) => {
+            // Store login data in the session
             sessionStorage.setItem('data', JSON.stringify(data));
             initializeGlobusClient(data);
+
+            // Hide login screen
             this.globusLogin.parent = null;
+
+            // Initialize widgetManager and add it to layout
             this.widgetManager.update();
             (this.layout as PanelLayout).addWidget(this.widgetManager);
         });
@@ -78,6 +86,11 @@ export class GlobusLogin extends Widget {
         oauth2SignIn();
     }
 
+    /*
+    * If there is data stored in the session then we assume that the user is authorized by globus.
+    * This is safe because even if they are able to access the extension without an authorization by globus, they'll
+    * be unable to use the app because the access tokens would be invalid
+    */
     attemptSignIn() {
         let data = sessionStorage.getItem('data');
         if (data) {

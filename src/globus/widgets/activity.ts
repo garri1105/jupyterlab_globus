@@ -42,6 +42,9 @@ const ACTIVITY_MENU_HISTORY = 'jp-Activity-menuHistory';
 const ACTIVITY_MENU_BACK = 'jp-Activity-menuBack';
 const ACTIVITY_MENU_OVERVIEW = 'jp-Activity-menuOverview';
 
+/**
+ * Activity Widget id
+ */
 export const ACTIVITY = 'globus-activity';
 
 const TASK_STATUS: any = {
@@ -51,6 +54,9 @@ const TASK_STATUS: any = {
     'INACTIVE': ACTIVITY_TASK_INACTIVE
 };
 
+/**
+ * Activity widget
+ */
 export class GlobusActivity extends Widget {
     private parentGroup: HTMLDivElement;
 
@@ -66,10 +72,19 @@ export class GlobusActivity extends Widget {
         this.update();
     }
 
+    /**
+     * Executed when update() is called. Refreshes the widget, initializes it with the recent tab open.
+     */
     onUpdateRequest() {
         this.onClickMenuButtonHandler({target: getGlobusElement(this.parentGroup, ACTIVITY_MENU_RECENT)});
     }
 
+    /**
+     * Makes an API call using taskSearch() and takes care of the response
+     * @param {HTMLUListElement} taskList
+     * @param {"recent" | "all"} options
+     * @returns {Promise<void>}
+     */
     private fetchTasks(taskList: HTMLUListElement, options: 'recent' | 'all') {
         return new Promise<void>((resolve) => {
             taskSearch().then(data => {
@@ -84,6 +99,12 @@ export class GlobusActivity extends Widget {
         });
     }
 
+    /**
+     * Displays tasks inside of taskList based on the data.
+     * @param {GlobusTaskList} data
+     * @param {HTMLUListElement} taskList
+     * @param {"recent" | "all"} options
+     */
     private displayTasks(data: GlobusTaskList, taskList: HTMLUListElement, options: 'recent' | 'all') {
         for (let i = 0; i < data.DATA.length; i++) {
             let taskData = data.DATA[i];
@@ -120,6 +141,11 @@ export class GlobusActivity extends Widget {
         }
     }
 
+    /**
+     * Starts the retrieval of tasks. Clears the current taskList, adds loading icons and calls fetchTasks() for the API call
+     * @param {HTMLUListElement} taskList
+     * @param {"recent" | "all"} options
+     */
     private retrieveTasks(taskList: HTMLUListElement, options: 'recent' | 'all') {
         taskList.style.display = 'block';
 
@@ -134,6 +160,9 @@ export class GlobusActivity extends Widget {
     }
 
     // TODO Don't remove and create new description elements everytime. Very inefficient and memory wasting
+    /**
+     * When task is clicked, display all metadata
+     */
     private taskClicked(e: any) {
         let taskData: GlobusTaskItem = $.data(e.currentTarget, 'data');
 
@@ -231,6 +260,9 @@ export class GlobusActivity extends Widget {
         this.node.appendChild(this.parentGroup);
     }
 
+    /**
+     * Handles clicks to the Recent, History and Back menu buttons
+     */
     private onClickMenuButtonHandler(e: any) {
         if (e.target.matches(`.${GLOBUS_MENU_BTN}`)) {
             let buttons = e.target.parentElement.children;
