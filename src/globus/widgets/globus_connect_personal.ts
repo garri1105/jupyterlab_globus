@@ -16,10 +16,12 @@ import {
 const GLOBUS_CONNECT_PERSONAL = 'jp-Globus-connect-personal';
 const GCP_ERROR_SCREEN = 'jp-GlobusConnectPersonal-errorScreen';
 
+// TODO: These constants are Windows only
 const LOCAL_APPDATA = 'AppData/Local/';
 const GCP_CLIENT_ID = 'Globus Connect/client-id.txt';
 const GCP_CLIENT_LOG = 'Globus Connect/log/globus_connect_personal.log';
 const SERVICE_DRIVE_URL = 'api/contents/';
+
 const GCP_DRIVE_NAME = 'GCPDrive';
 
 export const CONNECT_PERSONAL = 'globus-connectPersonal';
