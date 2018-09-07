@@ -1,6 +1,10 @@
 # jupyterlab_globus
 
-Incorporates Globus functionality. Compatible with Windows, iOS and Linux
+Incorporates Globus functionality. Compatible with Windows, iOS and Linux.
+For snapshots of the project visit the following link and see slide 24 and onwards!
+
+https://www.slideshare.net/ianfoster/scaling-collaborative-data-science-with-globus-and-jupyter.
+
 
 ## Prerequisites
 
