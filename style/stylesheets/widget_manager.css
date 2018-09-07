@@ -16,24 +16,28 @@
     background: var(--jp-Globus-icon-connect-personal) no-repeat center;
 }
 
-.jp-Globus-widgetManager .jp-WidgetManager-fileManagerBtn {
+.jp-Globus-widgetManager .jp-WidgetManager-fileManagerBtn .jp-ToolbarButtonComponent{
     background: var(--jp-Globus-icon-toolbarFolder) no-repeat center;
 }
 
-.jp-Globus-widgetManager .jp-WidgetManager-activityBtn {
+.jp-Globus-widgetManager .jp-WidgetManager-activityBtn .jp-ToolbarButtonComponent{
     background: var(--jp-Globus-icon-activity) no-repeat center;
 }
 
-.jp-Globus-widgetManager .jp-WidgetManager-searchBtn {
+.jp-Globus-widgetManager .jp-WidgetManager-searchBtn .jp-ToolbarButtonComponent{
     background: var(--jp-Globus-icon-search) no-repeat center;
 }
 
-.jp-Globus-widgetManager .jp-WidgetManager-signOutBtn {
+.jp-Globus-widgetManager .jp-WidgetManager-signOutBtn .jp-ToolbarButtonComponent{
     background: var(--jp-Globus-icon-logout) no-repeat center;
 }
 
 .jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn {
     flex: 1 1 auto;
+}
+
+.jp-Globus-widgetManager .jp-WidgetManager-toolbarBtn .jp-ToolbarButtonComponent {
+    width: 100%;
     background-size: 25px;
 }
 

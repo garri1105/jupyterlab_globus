@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_globus",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "Incorporates Globus functionality",
   "keywords": [
     "jupyter",
@@ -29,17 +29,17 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^0.17.2",
-    "@jupyterlab/apputils": "^0.17.2",
-    "@jupyterlab/filebrowser": "^0.17.3",
+    "@jupyterlab/application": "^0.18.4",
+    "@jupyterlab/apputils": "^0.18.4",
+    "@jupyterlab/filebrowser": "^0.18.4",
     "@jupyterlab/services": "^3.0.3",
-    "@jupyterlab/terminal": "^0.17.2",
+    "@jupyterlab/terminal": "^0.18.4",
     "@types/crypto-js": "^3.1.39",
     "@types/jquery": "^3.3.4",
     "crypto-js": "^3.1.9-1",
     "jquery": "^3.3.1",
     "json-formatter-js": "^2.2.0",
-    "moment": "^2.22.2",
+    "moment": "^2.21.0",
     "npm": "^6.1.0",
     "rxjs": "^6.2.1"
   },

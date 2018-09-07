@@ -1,17 +1,20 @@
 # jupyterlab_globus
 
-Incorporates Globus functionality
-
+Incorporates Globus functionality. Compatible with Windows, iOS and Linux
 
 ## Prerequisites
 
-* JupyterLab
+* JupyterLab 0.34.7
 
 ## Installation
 
 ```bash
 jupyter labextension install jupyterlab_globus
 ```
+
+## Notes
+
+The Globus Connect Personal feature has been temporarily deleted due to compatibility issues. A later version will support it. Instead of using the convenient Globus Connect Personal file browser from the Globus extension, use the default JupyterLab file browser.
 
 ## Development
 

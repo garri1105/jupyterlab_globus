@@ -2,8 +2,7 @@ import {Widget, PanelLayout} from '@phosphor/widgets';
 import {Toolbar, ToolbarButton} from "@jupyterlab/apputils";
 import {signOut} from "./api/client";
 import {GlobusHome, SIGN_OUT} from "./home";
-import {GlobusFileManager} from "./widgets/file_manager";
-import {CONNECT_PERSONAL, GlobusConnectPersonal} from "./widgets/globus_connect_personal";
+import {FILE_MANAGER, GlobusFileManager} from "./widgets/file_manager";
 import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
 import {IDocumentManager} from '@jupyterlab/docmanager';
 import {GlobusActivity} from "./widgets/activity";
@@ -18,7 +17,7 @@ import {GlobusSearch} from "./widgets/search";
 const GLOBUS_WIDGET_MANAGER = 'jp-Globus-widgetManager';
 const GLOBUS_TOOLBAR = 'jp-WidgetManager-toolbar';
 const GLOBUS_TOOLBAR_BTN = 'jp-WidgetManager-toolbarBtn';
-const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-WidgetManager-connectPersonalBtn';
+// const GLOBUS_CONNECT_PERSONAL_BTN = 'jp-WidgetManager-connectPersonalBtn';
 const GLOBUS_FILEMANAGER_BTN = 'jp-WidgetManager-fileManagerBtn';
 const GLOBUS_ACTIVITY_BTN = 'jp-WidgetManager-activityBtn';
 const GLOBUS_SEARCH_BTN = 'jp-WidgetManager-searchBtn';
@@ -91,7 +90,7 @@ export class GlobusWidgetManager extends Widget {
         this.header.className = `${GLOBUS_WIDGET_HEADER} ${GLOBUS_HEADER}`;
         this.node.insertBefore(this.header, this.node.childNodes[1]);
 
-        this.switchToWidget(CONNECT_PERSONAL);
+        this.switchToWidget(FILE_MANAGER);
     }
 
     private createToolbarButton(widget: Widget, cssClass: string = '') {
@@ -151,9 +150,9 @@ export class GlobusWidgetManager extends Widget {
      * Creates all widgets. New widgets should be added here in a similar way as the others
      */
     private createWidgets() {
-        let connectPersonalWidget = new GlobusConnectPersonal(this.app, this.manager, this.factory);
-        this.initWidget(connectPersonalWidget);
-        this.createToolbarButton(connectPersonalWidget, GLOBUS_CONNECT_PERSONAL_BTN);
+        // let connectPersonalWidget = new GlobusConnectPersonal(this.app, this.manager, this.factory);
+        // this.initWidget(connectPersonalWidget);
+        // this.createToolbarButton(connectPersonalWidget, GLOBUS_CONNECT_PERSONAL_BTN);
 
         let fileManagerWidget = new GlobusFileManager();
         this.initWidget(fileManagerWidget);

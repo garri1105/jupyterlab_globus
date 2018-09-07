@@ -388,6 +388,9 @@ export class GlobusSearch extends Widget {
     }
 }
 
+/**
+ * Basic interface for a GlobusIndex
+ */
 interface GlobusIndex {
     searchIndex: string;
     previewObject: {title: string, [p: string]: string};
@@ -397,6 +400,9 @@ interface GlobusIndex {
     search(query: string, params: any): Promise<GlobusSearchResult>;
 }
 
+/**
+ * MDF Index class
+ */
 class MDFIndex implements GlobusIndex {
     searchIndex: string = '1a57bbe5-5272-477f-9d31-343b8258b7a5';
 
@@ -440,6 +446,9 @@ class MDFIndex implements GlobusIndex {
     };
 }
 
+/**
+ * Kasthuri Index class
+ */
 class KasthuriIndex implements GlobusIndex {
     searchIndex: string = '7dba248c-f41e-4bed-89f9-0043353da169';
 
@@ -478,6 +487,9 @@ class KasthuriIndex implements GlobusIndex {
     };
 }
 
+/**
+ * Ramses Index class
+ */
 class RamsesIndex implements GlobusIndex {
     searchIndex: string = '5e83718e-add0-4f06-a00d-577dc78359bc';
 
